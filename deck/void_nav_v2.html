@@ -1,0 +1,425 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>VOID-NAV v2</title>
+<link href="f/fonts.css" rel="stylesheet">
+<style>
+@page{size:1280px 720px;margin:0}
+:root{--ink:#16191d;--mut:#5b636b;--line:#d9dde1;--teal:#1f5f6b;--tl:#e8f0f1;--acc:#b5532a;--paper:#fbfaf7}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans','Liberation Sans',sans-serif}
+.s{width:1280px;height:720px;padding:64px 80px 56px;position:relative;page-break-after:always;overflow:hidden;background:var(--paper)}
+.ey{font-family:'IBM Plex Mono','Liberation Mono',monospace;font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--teal);margin-bottom:18px}
+h1{font-family:'Source Serif 4','Liberation Serif',serif;font-weight:700;font-size:64px;line-height:1.08;letter-spacing:-.01em}
+h2{font-family:'Source Serif 4','Liberation Serif',serif;font-weight:700;font-size:40px;line-height:1.15;letter-spacing:-.005em;max-width:1000px}
+.sub{font-family:'Source Serif 4','Liberation Serif',serif;font-size:22px;color:var(--mut);line-height:1.45;margin-top:18px;max-width:900px}
+p,li{font-size:17px;line-height:1.55;color:#2c3237}
+.ft{position:absolute;left:80px;right:80px;bottom:26px;display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;color:#8a9197;text-transform:uppercase;border-top:1px solid var(--line);padding-top:10px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:48px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.k{font-family:'Source Serif 4',serif;font-size:46px;font-weight:600;color:var(--teal);line-height:1}
+.kl{font-size:14px;color:var(--mut);margin-top:8px;line-height:1.45}
+.card{border-top:2px solid var(--ink);padding-top:14px}
+.card h3{font-family:'Source Serif 4',serif;font-size:21px;font-weight:600;margin-bottom:8px}
+.card p{font-size:15px}
+.n{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--acc);letter-spacing:.15em;margin-bottom:8px}
+.mono{font-family:'IBM Plex Mono',monospace}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);text-align:left;font-weight:500;border-bottom:1.5px solid var(--ink);padding:10px 12px}
+td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr.hl td{background:var(--tl);font-weight:600}
+.note{font-size:12.5px;color:#8a9197;font-style:italic}
+svg text{font-family:'IBM Plex Sans',sans-serif}
+.rule{height:1px;background:var(--line);margin:26px 0}
+.tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;border:1px solid var(--teal);color:var(--teal);padding:4px 9px;margin:0 6px 6px 0;text-transform:uppercase}
+table.tight td{padding:8px 12px}
+</style></head><body>
+<body>
+<!-- 1 -->
+<section class="s" style="padding-top:96px">
+<div class="ey">Quantum Hackathon · Defence &amp; Strategic Applications · UC-085</div>
+<h1>VOID-NAV: Finding Your Way<br>When GPS Goes Dark</h1>
+<p class="sub">A low-cost navigation box that works out where it is from the Earth's magnetic field, using quantum algorithms to match what it senses against a map. Built from scratch in 24 hours.</p>
+<div class="g4" style="position:absolute;left:80px;right:80px;bottom:120px">
+<div class="card"><div class="n">SENSE</div><p>9-axis IMU + magnetometer, 50 Hz</p></div>
+<div class="card"><div class="n">MATCH</div><p>Grover's search on a magnetic map</p></div>
+<div class="card"><div class="n">CLASSIFY</div><p>Quantum-kernel SVM identifies the zone</p></div>
+<div class="card"><div class="n">FUSE</div><p>Particle filter gives a live position</p></div>
+</div>
+<div style="position:absolute;left:80px;bottom:52px;font-family:'Source Serif 4',serif;font-size:24px;font-weight:700">Team VOID</div>
+</section>
+
+<!-- 2 -->
+<section class="s">
+<div class="ey">01 · The problem</div>
+<h2>Without GPS, every navigation system slowly gets lost, and nobody can tell by how much.</h2>
+<div style="display:grid;grid-template-columns:1fr 1.1fr;gap:48px;margin-top:30px">
+<div>
+<div class="card" style="margin-bottom:22px"><h3>GPS is fragile</h3><p>Satellite signals are extremely weak by the time they reach the ground. Interference, terrain, tunnels, bunkers, dense forest and underwater operations all cut them off.</p></div>
+<div class="card" style="margin-bottom:22px"><h3>The backup drifts</h3><p>Inertial sensors (accelerometers and gyros) estimate motion, but small errors add up. A low-cost unit can be off by <b>hundreds of metres within minutes</b>.</p></div>
+<div class="card"><h3>Good alternatives are expensive</h3><p>Navigation-grade inertial units and emerging quantum inertial sensors cost lakhs to crores and are export-controlled.</p></div>
+</div>
+<svg viewBox="0 0 540 400" width="100%">
+ <text x="0" y="14" font-size="11" fill="#5b636b" letter-spacing="2">POSITION ERROR AFTER GPS IS LOST (ILLUSTRATIVE)</text>
+ <line x1="50" y1="350" x2="530" y2="350" stroke="#16191d"/><line x1="50" y1="40" x2="50" y2="350" stroke="#16191d"/>
+ <g stroke="#e3e6e9"><line x1="50" y1="270" x2="530" y2="270"/><line x1="50" y1="190" x2="530" y2="190"/><line x1="50" y1="110" x2="530" y2="110"/></g>
+ <path d="M100 350 Q300 330 400 210 T530 50" fill="none" stroke="#b5532a" stroke-width="2.5"/>
+ <text x="210" y="160" font-size="13" fill="#b5532a">Inertial only: error keeps growing</text>
+ <path d="M100 350 L150 330 L190 342 L240 326 L290 340 L340 325 L390 339 L440 324 L490 338 L530 328" fill="none" stroke="#1f5f6b" stroke-width="2.5"/>
+ <text x="250" y="310" font-size="13" fill="#1f5f6b">VOID-NAV: corrected at every match</text>
+ <line x1="100" y1="40" x2="100" y2="350" stroke="#16191d" stroke-dasharray="3 4"/><text x="106" y="56" font-size="11">GPS lost</text>
+ <text x="490" y="372" font-size="11" fill="#5b636b">time →</text>
+</svg></div>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>02</span></div>
+</section>
+
+<!-- 3 -->
+<section class="s">
+<div class="ey">02 · Problem statement</div>
+<h2>What we are solving.</h2>
+<div style="margin-top:30px;border-left:4px solid var(--teal);padding:6px 0 6px 28px;max-width:1080px">
+<p style="font-family:'Source Serif 4',serif;font-size:27px;line-height:1.42;color:var(--ink)">“Give soldiers, vehicles and drones a position they can trust when GPS is unavailable, using a sensor that emits nothing, costs under ₹5,000, and is ready to take a quantum magnetometer when one is available.”</p></div>
+<div class="g4" style="margin-top:46px">
+<div class="card"><h3>Who needs it</h3><p>Infantry in bunkers and tunnels, armoured vehicles, UAVs, border patrol teams.</p></div>
+<div class="card"><h3>What they need</h3><p>A position within a few metres, a confidence level, and no radio emissions.</p></div>
+<div class="card"><h3>Why today fails</h3><p>Low-cost inertial units drift; good ones are too costly to issue widely.</p></div>
+<div class="card"><h3>Use case fit</h3><p>UC-085: quantum sensing for GPS-denied navigation, aligned with the NQM sensing hub.</p></div>
+</div>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>03</span></div>
+</section>
+
+<!-- 4 -->
+<section class="s">
+<div class="ey">03 · Our solution</div>
+<h2>Every place has its own magnetic fingerprint. We map it once, then navigate by it.</h2>
+<svg viewBox="0 0 1120 400" width="1120" style="margin-top:20px">
+ <g font-size="14">
+ <text x="0" y="20" font-size="11" fill="#1f5f6b" letter-spacing="2">STEP 1 · MAP (ONCE)</text>
+ <rect x="0" y="36" width="340" height="230" fill="#f1f3f2"/>
+ <g>
+ <rect x="20" y="56" width="60" height="44" fill="#cfe0e2"/><rect x="80" y="56" width="60" height="44" fill="#9cc3c9"/><rect x="140" y="56" width="60" height="44" fill="#e8f0f1"/><rect x="200" y="56" width="60" height="44" fill="#5f9aa3"/><rect x="260" y="56" width="60" height="44" fill="#cfe0e2"/>
+ <rect x="20" y="100" width="60" height="44" fill="#5f9aa3"/><rect x="80" y="100" width="60" height="44" fill="#e8f0f1"/><rect x="140" y="100" width="60" height="44" fill="#1f5f6b"/><rect x="200" y="100" width="60" height="44" fill="#cfe0e2"/><rect x="260" y="100" width="60" height="44" fill="#9cc3c9"/>
+ <rect x="20" y="144" width="60" height="44" fill="#e8f0f1"/><rect x="80" y="144" width="60" height="44" fill="#9cc3c9"/><rect x="140" y="144" width="60" height="44" fill="#cfe0e2"/><rect x="200" y="144" width="60" height="44" fill="#9cc3c9"/><rect x="260" y="144" width="60" height="44" fill="#1f5f6b"/>
+ <rect x="20" y="188" width="60" height="44" fill="#9cc3c9"/><rect x="80" y="188" width="60" height="44" fill="#1f5f6b"/><rect x="140" y="188" width="60" height="44" fill="#5f9aa3"/><rect x="200" y="188" width="60" height="44" fill="#e8f0f1"/><rect x="260" y="188" width="60" height="44" fill="#cfe0e2"/>
+ </g>
+ <text x="0" y="292" font-weight="600">Walk the area with GPS on</text><text x="0" y="314" fill="#5b636b">Log the field strength per 2 m grid cell,</text><text x="0" y="334" fill="#5b636b">building a "magnetic map"</text>
+ <text x="390" y="20" font-size="11" fill="#1f5f6b" letter-spacing="2">STEP 2 · SENSE (GPS OFF)</text>
+ <rect x="390" y="36" width="340" height="230" fill="#fff" stroke="#d9dde1"/>
+ <path d="M410 200 L450 150 L480 175 L520 90 L560 160 L600 120 L640 190 L680 110 L710 140" fill="none" stroke="#1f5f6b" stroke-width="2.5"/>
+ <rect x="560" y="70" width="160" height="150" fill="none" stroke="#b5532a" stroke-dasharray="5 4"/><text x="566" y="238" font-size="12" fill="#b5532a">last 8 readings = "window"</text>
+ <text x="390" y="292" font-weight="600">Move through the area</text><text x="390" y="314" fill="#5b636b">IMU estimates motion, magnetometer</text><text x="390" y="334" fill="#5b636b">records a short field profile</text>
+ <text x="780" y="20" font-size="11" fill="#1f5f6b" letter-spacing="2">STEP 3 · MATCH + CORRECT</text>
+ <rect x="780" y="36" width="340" height="230" fill="#16191d"/>
+ <text x="800" y="72" fill="#9cc3c9" font-size="12" letter-spacing="1">QUANTUM</text>
+ <text x="800" y="98" fill="#fff">Grover's search finds map</text><text x="800" y="118" fill="#fff">cells matching the window</text>
+ <text x="800" y="150" fill="#fff">QSVM confirms which zone</text><text x="800" y="170" fill="#fff">the device is in</text>
+ <text x="800" y="206" fill="#9cc3c9" font-size="12" letter-spacing="1">CLASSICAL</text>
+ <text x="800" y="232" fill="#fff">Particle filter snaps the</text><text x="800" y="252" fill="#fff">drifting track back</text>
+ <text x="780" y="292" font-weight="600">Output position + confidence</text><text x="780" y="314" fill="#5b636b">Shown live on a map dashboard;</text><text x="780" y="334" fill="#5b636b">nothing is transmitted</text>
+ </g>
+ <text x="0" y="386" font-size="13" fill="#5b636b">Indoors and near structures, steel and wiring make the field vary strongly over a few metres, which is ideal for a campus demo. Outdoors, geological anomaly maps play the same role.</text>
+</svg>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>04</span></div>
+</section>
+
+<!-- 5 -->
+<section class="s">
+<div class="ey">04 · System architecture</div>
+<h2>How the pieces connect.</h2>
+<svg viewBox="0 0 1120 420" width="1120" style="margin-top:20px">
+ <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#16191d"/></marker></defs>
+ <g font-size="14">
+ <rect x="0" y="30" width="250" height="360" fill="#fff" stroke="#16191d"/><text x="16" y="56" font-size="11" fill="#5b636b" letter-spacing="2">ON THE DEVICE · ESP32</text>
+ <rect x="16" y="76" width="218" height="60" fill="#f1f3f2"/><text x="28" y="100" font-weight="600">ICM-20948 9-axis IMU</text><text x="28" y="120" font-size="12" fill="#5b636b">accel · gyro · magnetometer</text>
+ <rect x="16" y="150" width="218" height="60" fill="#f1f3f2"/><text x="28" y="174" font-weight="600">NEO-6M GPS</text><text x="28" y="194" font-size="12" fill="#5b636b">ground truth + mapping only</text>
+ <rect x="16" y="224" width="218" height="60" fill="#f1f3f2"/><text x="28" y="248" font-weight="600">Wheel encoder / step count</text><text x="28" y="268" font-size="12" fill="#5b636b">distance travelled</text>
+ <rect x="16" y="298" width="218" height="72" fill="#e8f0f1"/><text x="28" y="322" font-weight="600">Firmware</text><text x="28" y="342" font-size="12" fill="#5b636b">calibration, 50 Hz sampling,</text><text x="28" y="358" font-size="12" fill="#5b636b">packets over USB / Wi-Fi</text>
+ <path d="M250 210 L320 210" stroke="#16191d" stroke-width="2" marker-end="url(#a)"/>
+ <rect x="326" y="30" width="520" height="360" fill="#fbfaf7" stroke="#1f5f6b" stroke-width="2"/><text x="342" y="56" font-size="11" fill="#1f5f6b" letter-spacing="2">NAVIGATION ENGINE · RASPBERRY PI 5 / LAPTOP · PYTHON</text>
+ <rect x="342" y="76" width="235" height="80" fill="#fff" stroke="#16191d"/><text x="354" y="100" font-weight="600">1 · Pre-processing</text><text x="354" y="120" font-size="12" fill="#5b636b">hard/soft-iron calibration,</text><text x="354" y="138" font-size="12" fill="#5b636b">tilt-compensated heading</text>
+ <rect x="595" y="76" width="235" height="80" fill="#fff" stroke="#16191d"/><text x="607" y="100" font-weight="600">2 · Dead reckoning</text><text x="607" y="120" font-size="12" fill="#5b636b">heading + distance</text><text x="607" y="138" font-size="12" fill="#5b636b">→ predicted position</text>
+ <rect x="342" y="172" width="235" height="96" fill="#16191d"/><text x="354" y="196" font-weight="600" fill="#fff">3 · Grover map search</text><text x="354" y="216" font-size="12" fill="#c9cfd4">Qiskit · 4–5 qubits</text><text x="354" y="234" font-size="12" fill="#c9cfd4">Aer simulator / IBM Quantum</text><text x="354" y="252" font-size="12" fill="#c9cfd4">→ candidate cells</text>
+ <rect x="595" y="172" width="235" height="96" fill="#16191d"/><text x="607" y="196" font-weight="600" fill="#fff">4 · QSVM zone classifier</text><text x="607" y="216" font-size="12" fill="#c9cfd4">qiskit-machine-learning</text><text x="607" y="234" font-size="12" fill="#c9cfd4">ZZ feature map · 4 qubits</text><text x="607" y="252" font-size="12" fill="#c9cfd4">→ zone + probability</text>
+ <rect x="342" y="284" width="488" height="90" fill="#fff" stroke="#16191d"/><text x="354" y="308" font-weight="600">5 · Particle filter (500 particles)</text><text x="354" y="330" font-size="12" fill="#5b636b">moves particles with dead reckoning, re-weights them using the quantum match results,</text><text x="354" y="348" font-size="12" fill="#5b636b">outputs position + confidence ellipse</text>
+ <path d="M846 210 L916 210" stroke="#16191d" stroke-width="2" marker-end="url(#a)"/>
+ <rect x="922" y="30" width="198" height="360" fill="#fff" stroke="#16191d"/><text x="938" y="56" font-size="11" fill="#5b636b" letter-spacing="2">DASHBOARD</text>
+ <rect x="938" y="76" width="166" height="130" fill="#f1f3f2"/><path d="M950 190 L990 160 L1020 170 L1060 110 L1090 95" stroke="#1f5f6b" stroke-width="2.5" fill="none"/><path d="M950 190 L995 150 L1035 130 L1075 70" stroke="#b5532a" stroke-dasharray="4 4" fill="none"/><circle cx="1090" cy="95" r="5" fill="#1f5f6b"/>
+ <text x="938" y="232" font-size="13">Streamlit + Leaflet map</text><text x="938" y="254" font-size="12" fill="#5b636b">true · inertial · VOID-NAV</text><text x="938" y="274" font-size="12" fill="#5b636b">live error in metres</text><text x="938" y="294" font-size="12" fill="#5b636b">quantum circuit panel</text>
+ </g>
+</svg>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>05</span></div>
+</section>
+
+<!-- 6 GROVER -->
+<section class="s">
+<div class="ey">05 · Quantum algorithm 1 · Grover's search</div>
+<h2>Grover's algorithm finds the matching spot on the map in about √N steps instead of N.</h2>
+<div style="display:grid;grid-template-columns:1.2fr 1fr;gap:46px;margin-top:22px">
+<div>
+<svg viewBox="0 0 600 230" width="100%">
+ <g font-size="13" font-family="IBM Plex Mono">
+ <text x="0" y="36">q0</text><text x="0" y="76">q1</text><text x="0" y="116">q2</text><text x="0" y="156">q3</text>
+ <g stroke="#16191d"><line x1="30" y1="32" x2="590" y2="32"/><line x1="30" y1="72" x2="590" y2="72"/><line x1="30" y1="112" x2="590" y2="112"/><line x1="30" y1="152" x2="590" y2="152"/></g>
+ <g fill="#e8f0f1" stroke="#1f5f6b"><rect x="50" y="18" width="30" height="28"/><rect x="50" y="58" width="30" height="28"/><rect x="50" y="98" width="30" height="28"/><rect x="50" y="138" width="30" height="28"/></g>
+ <g fill="#1f5f6b"><text x="59" y="37">H</text><text x="59" y="77">H</text><text x="59" y="117">H</text><text x="59" y="157">H</text></g>
+ <rect x="110" y="14" width="150" height="156" fill="#fbeee8" stroke="#b5532a"/><text x="140" y="88" fill="#b5532a">ORACLE</text><text x="122" y="108" fill="#b5532a" font-size="11">flips sign of cells</text><text x="122" y="124" fill="#b5532a" font-size="11">that match window</text>
+ <rect x="290" y="14" width="150" height="156" fill="#e8f0f1" stroke="#1f5f6b"/><text x="316" y="88" fill="#1f5f6b">DIFFUSER</text><text x="306" y="108" fill="#1f5f6b" font-size="11">amplifies marked</text><text x="306" y="124" fill="#1f5f6b" font-size="11">cells</text>
+ <text x="300" y="200" fill="#5b636b" font-size="12">× 3 iterations for 16 cells</text>
+ <g fill="#fff" stroke="#16191d"><rect x="480" y="18" width="30" height="28"/><rect x="480" y="58" width="30" height="28"/><rect x="480" y="98" width="30" height="28"/><rect x="480" y="138" width="30" height="28"/></g>
+ <g stroke="#16191d" fill="none"><path d="M484 40 q11 -12 22 0M484 80 q11 -12 22 0M484 120 q11 -12 22 0M484 160 q11 -12 22 0"/></g>
+ <text x="522" y="96" fill="#16191d">→ cell 1011</text>
+ </g></svg>
+<svg viewBox="0 0 600 140" width="100%" style="margin-top:6px">
+ <text x="0" y="14" font-size="11" fill="#5b636b" letter-spacing="2">MEASURED PROBABILITY PER CELL (SIMULATOR, EXAMPLE)</text>
+ <line x1="0" y1="124" x2="600" y2="124" stroke="#16191d"/>
+ <g fill="#cfd6da"><rect x="6" y="116" width="28" height="8"/><rect x="43" y="117" width="28" height="7"/><rect x="80" y="116" width="28" height="8"/><rect x="117" y="118" width="28" height="6"/><rect x="154" y="116" width="28" height="8"/><rect x="191" y="117" width="28" height="7"/><rect x="228" y="116" width="28" height="8"/><rect x="265" y="118" width="28" height="6"/><rect x="302" y="116" width="28" height="8"/><rect x="339" y="117" width="28" height="7"/><rect x="450" y="116" width="28" height="8"/><rect x="487" y="117" width="28" height="7"/><rect x="524" y="118" width="28" height="6"/><rect x="561" y="116" width="28" height="8"/></g>
+ <rect x="376" y="30" width="28" height="94" fill="#1f5f6b"/><rect x="413" y="116" width="28" height="8" fill="#cfd6da"/>
+ <text x="372" y="24" font-size="12" fill="#1f5f6b">1011 ≈ 96%</text>
+</svg>
+</div>
+<div>
+<div class="card" style="margin-bottom:18px"><h3>In plain terms</h3><p>The map is split into 16 cells (4 qubits). The oracle "marks" every cell whose stored field values match what the sensor just measured, within a tolerance. Grover then boosts the marked cells so that measuring the qubits gives the right cell with high probability.</p></div>
+<div class="card" style="margin-bottom:18px"><h3>Why it matters</h3><p>A classical search checks every cell. Grover needs about √N checks: 1 million cells → about 1,000 steps. That is what larger, country-scale maps will need.</p></div>
+<p class="note">Source: adapted from qiskit-community-tutorials/algorithms (Grover), ported to current Qiskit 1.x. At hackathon scale the oracle is built from a classical comparison, so the speed-up is shown in principle, not measured.</p>
+</div></div>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>06</span></div>
+</section>
+
+<!-- 7 QSVM -->
+<section class="s">
+<div class="ey">06 · Quantum algorithm 2 · Quantum-kernel SVM</div>
+<h2>A quantum kernel tells apart magnetic signatures that look alike to classical methods.</h2>
+<div style="display:grid;grid-template-columns:1fr 1.1fr;gap:46px;margin-top:14px">
+<div>
+<div class="n">INPUT FEATURES (PER 1-SECOND WINDOW)</div>
+<table style="font-size:14px">
+<tr><td>x₁</td><td>Total field strength |B| (μT)</td></tr>
+<tr><td>x₂</td><td>Vertical component B<sub>z</sub></td></tr>
+<tr><td>x₃</td><td>Change in |B| over the window</td></tr>
+<tr><td>x₄</td><td>Field inclination angle</td></tr>
+</table>
+<div class="card" style="margin-top:22px"><h3>How it works</h3><p>Each window of readings is encoded into 4 qubits with a <b>ZZ feature map</b>. The overlap between two encoded states is the "similarity" (kernel). A standard SVM uses that kernel to decide which zone of the map, e.g. <i>corridor A, stairwell, lab</i>, the device is in. This narrows the search before Grover runs.</p></div>
+</div>
+<div>
+<svg viewBox="0 0 560 250" width="100%" style="height:215px">
+ <g font-size="12" font-family="IBM Plex Mono">
+ <text x="0" y="14" font-size="11" fill="#5b636b" letter-spacing="2" font-family="IBM Plex Sans">ZZ FEATURE MAP · 4 QUBITS · 2 REPS</text>
+ <g stroke="#16191d"><line x1="30" y1="50" x2="550" y2="50"/><line x1="30" y1="95" x2="550" y2="95"/><line x1="30" y1="140" x2="550" y2="140"/><line x1="30" y1="185" x2="550" y2="185"/></g>
+ <text x="0" y="54">q0</text><text x="0" y="99">q1</text><text x="0" y="144">q2</text><text x="0" y="189">q3</text>
+ <g fill="#e8f0f1" stroke="#1f5f6b"><rect x="45" y="37" width="28" height="26"/><rect x="45" y="82" width="28" height="26"/><rect x="45" y="127" width="28" height="26"/><rect x="45" y="172" width="28" height="26"/>
+ <rect x="85" y="37" width="52" height="26"/><rect x="85" y="82" width="52" height="26"/><rect x="85" y="127" width="52" height="26"/><rect x="85" y="172" width="52" height="26"/></g>
+ <g fill="#1f5f6b"><text x="54" y="55">H</text><text x="54" y="100">H</text><text x="54" y="145">H</text><text x="54" y="190">H</text><text x="90" y="55">P(x₁)</text><text x="90" y="100">P(x₂)</text><text x="90" y="145">P(x₃)</text><text x="90" y="190">P(x₄)</text></g>
+ <g stroke="#16191d"><line x1="165" y1="50" x2="165" y2="95"/><circle cx="165" cy="50" r="4" fill="#16191d"/><circle cx="165" cy="95" r="8" fill="#fff"/><line x1="157" y1="95" x2="173" y2="95"/><line x1="165" y1="87" x2="165" y2="103"/></g>
+ <rect x="182" y="82" width="70" height="26" fill="#fbeee8" stroke="#b5532a"/><text x="186" y="100" fill="#b5532a" font-size="11">P(x₁·x₂)</text>
+ <g stroke="#16191d"><line x1="270" y1="50" x2="270" y2="95"/><circle cx="270" cy="50" r="4" fill="#16191d"/><circle cx="270" cy="95" r="8" fill="#fff"/><line x1="262" y1="95" x2="278" y2="95"/><line x1="270" y1="87" x2="270" y2="103"/></g>
+ <text x="300" y="120" fill="#5b636b" font-family="IBM Plex Sans">… same for each qubit pair, repeated ×2</text>
+ <text x="300" y="230" fill="#16191d" font-family="IBM Plex Sans">kernel K(x, x') = |⟨φ(x)|φ(x')⟩|²</text>
+ </g></svg>
+<table style="font-size:14px;margin-top:6px">
+<tr><th>Plan</th><th>Detail</th></tr>
+<tr><td>Training data</td><td>~300 labelled windows from the mapping walk</td></tr>
+<tr><td>Baseline</td><td>Classical RBF-kernel SVM on the same data</td></tr>
+<tr><td>Report</td><td>Accuracy of both, side by side, on held-out data</td></tr>
+</table>
+<p class="note" style="margin-top:8px">Adapted from the QSVM tutorial in qiskit-community-tutorials; implemented with FidelityQuantumKernel + QSVC.</p>
+</div></div>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>07</span></div>
+</section>
+
+<!-- 8 QUANTUM MAP -->
+<section class="s">
+<div class="ey">07 · Where quantum is used, exactly</div>
+<h2>Every algorithm in the system, and what runs where.</h2>
+<table style="margin-top:20px;font-size:14px" class="tight">
+<tr><th>#</th><th>Component</th><th>Type</th><th>What it does</th><th>Runs on</th><th>Built in 24 h?</th></tr>
+<tr class="hl"><td class="mono">Q1</td><td>Grover's search</td><td>Quantum algorithm</td><td>Finds map cells matching the live magnetic window</td><td>Qiskit Aer; one run on IBM Quantum hardware</td><td>Yes</td></tr>
+<tr class="hl"><td class="mono">Q2</td><td>Quantum-kernel SVM</td><td>Quantum machine learning</td><td>Classifies which zone of the map the device is in</td><td>qiskit-machine-learning (simulator)</td><td>Yes</td></tr>
+<tr class="hl"><td class="mono">Q3</td><td>Quantum magnetometer interface</td><td>Quantum sensing (planned)</td><td>Drop-in slot for an NV-diamond magnetometer, 1000× more sensitive</td><td>Same data format as today's sensor</td><td>Interface only</td></tr>
+<tr><td class="mono">C1</td><td>Sensor calibration</td><td>Classical</td><td>Removes hard/soft-iron distortion, tilt-compensates heading</td><td>ESP32 + Python</td><td>Yes</td></tr>
+<tr><td class="mono">C2</td><td>Dead reckoning</td><td>Classical</td><td>Predicts position from heading + distance</td><td>Python</td><td>Yes</td></tr>
+<tr><td class="mono">C3</td><td>Particle filter</td><td>Classical</td><td>Fuses prediction with quantum match results into one position</td><td>Python / NumPy</td><td>Yes</td></tr>
+</table>
+<p style="margin-top:16px;max-width:1080px;font-size:16px"><b>Why a hybrid?</b> Today's quantum computers are small and noisy, so we use them where they fit best: search and pattern comparison. Everything time-critical stays classical, which is how practical quantum systems are being built.</p>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>08</span></div>
+</section>
+
+<!-- 9 PROTOTYPE -->
+<section class="s">
+<div class="ey">08 · The prototype</div>
+<h2>A hand-carried sensor box on a small rover, plus a laptop dashboard.</h2>
+<div style="display:grid;grid-template-columns:1.35fr 1fr;gap:40px;margin-top:18px">
+<svg viewBox="0 0 700 420" width="100%">
+ <rect x="0" y="0" width="700" height="420" fill="#f1f3f2"/>
+ <text x="16" y="24" font-size="11" fill="#5b636b" letter-spacing="2">CONCEPT RENDER · REPLACE WITH BUILD PHOTOS</text>
+ <!-- rover -->
+ <ellipse cx="330" cy="352" rx="250" ry="20" fill="#dfe3e1"/>
+ <rect x="120" y="230" width="420" height="80" rx="8" fill="#3b444b"/>
+ <rect x="130" y="220" width="400" height="20" rx="4" fill="#4a545c"/>
+ <g><circle cx="170" cy="320" r="34" fill="#16191d"/><circle cx="170" cy="320" r="13" fill="#8a9197"/><circle cx="490" cy="320" r="34" fill="#16191d"/><circle cx="490" cy="320" r="13" fill="#8a9197"/></g>
+ <!-- box -->
+ <path d="M200 120 L420 120 L460 90 L240 90 Z" fill="#e6e9eb" stroke="#16191d"/>
+ <rect x="200" y="120" width="220" height="100" fill="#fbfaf7" stroke="#16191d"/>
+ <path d="M420 120 L460 90 L460 190 L420 220 Z" fill="#d3d8db" stroke="#16191d"/>
+ <text x="222" y="150" font-size="16" font-weight="700" font-family="Source Serif 4">VOID-NAV</text>
+ <rect x="222" y="164" width="120" height="36" fill="#1f5f6b"/><text x="230" y="186" font-size="11" fill="#fff" font-family="IBM Plex Mono">POS 12.4, 38.1 m</text>
+ <circle cx="390" cy="180" r="6" fill="#2e8b57"/>
+ <!-- mast -->
+ <line x1="330" y1="90" x2="330" y2="40" stroke="#16191d" stroke-width="3"/><rect x="310" y="30" width="40" height="18" fill="#1f5f6b"/>
+ <!-- callouts -->
+ <g font-size="12"><line x1="350" y1="38" x2="520" y2="50" stroke="#b5532a"/><text x="524" y="46" fill="#b5532a" font-weight="600">Magnetometer on a 15 cm mast</text><text x="524" y="62" fill="#5b636b">keeps motor noise away</text>
+ <line x1="440" y1="130" x2="560" y2="130" stroke="#b5532a"/><text x="564" y="126" fill="#b5532a" font-weight="600">ESP32 + IMU + GPS</text><text x="564" y="142" fill="#5b636b">inside 3D-printed case</text>
+ <line x1="490" y1="290" x2="590" y2="250" stroke="#b5532a"/><text x="594" y="246" fill="#b5532a" font-weight="600">Wheel encoders</text><text x="594" y="262" fill="#5b636b">distance travelled</text>
+ <line x1="220" y1="210" x2="80" y2="200" stroke="#b5532a"/><text x="20" y="190" fill="#b5532a" font-weight="600">OLED status</text>
+ <line x1="160" y1="260" x2="60" y2="260" stroke="#b5532a"/><text x="10" y="280" fill="#b5532a" font-weight="600">LiPo 2S</text></g>
+</svg>
+<div>
+<svg viewBox="0 0 420 200" width="100%">
+ <rect x="0" y="0" width="420" height="200" fill="#16191d"/>
+ <text x="14" y="22" font-size="10" fill="#9cc3c9" letter-spacing="2">DASHBOARD MOCK-UP</text>
+ <rect x="14" y="34" width="250" height="152" fill="#252b31"/>
+ <g stroke="#3a434b"><line x1="14" y1="72" x2="264" y2="72"/><line x1="14" y1="110" x2="264" y2="110"/><line x1="14" y1="148" x2="264" y2="148"/><line x1="76" y1="34" x2="76" y2="186"/><line x1="140" y1="34" x2="140" y2="186"/><line x1="202" y1="34" x2="202" y2="186"/></g>
+ <path d="M30 170 L80 140 L120 150 L170 90 L240 60" stroke="#fff" stroke-width="2" fill="none"/>
+ <path d="M30 170 L85 130 L140 95 L200 50 L250 40" stroke="#e08a63" stroke-dasharray="4 4" fill="none"/>
+ <path d="M30 170 L82 142 L118 146 L172 94 L238 64" stroke="#6fb3bd" stroke-width="2.5" fill="none"/>
+ <text x="278" y="52" font-size="10" fill="#9aa3aa">ERROR</text><text x="278" y="80" font-size="24" fill="#fff" font-family="Source Serif 4">2.8 m</text>
+ <text x="278" y="108" font-size="10" fill="#9aa3aa">INERTIAL ONLY</text><text x="278" y="130" font-size="16" fill="#e08a63" font-family="Source Serif 4">31.5 m</text>
+ <text x="278" y="156" font-size="10" fill="#9aa3aa">GROVER MATCH</text><text x="278" y="176" font-size="13" fill="#6fb3bd" font-family="IBM Plex Mono">cell 1011 · 0.96</text>
+</svg>
+<p class="note" style="margin:4px 0 16px">Numbers in the mock-up are placeholders; real values come from the demo run.</p>
+<div class="card"><h3>Two ways to carry it</h3><p><b>Rover:</b> a 4-wheel RC chassis for a repeatable demo track. <b>Handheld:</b> the same box in a backpack strap, using step counting instead of wheel encoders, to show the soldier use case.</p></div>
+</div></div>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>09</span></div>
+</section>
+
+<!-- 10 BOM -->
+<section class="s">
+<div class="ey">09 · Hardware bill of materials</div>
+<h2>Everything is available off the shelf in India, for under ₹5,000.</h2>
+<div style="display:grid;grid-template-columns:1.1fr 1fr;gap:48px;margin-top:24px">
+<table style="font-size:14.5px">
+<tr><th>Part</th><th>Role</th><th style="text-align:right">Approx. ₹</th></tr>
+<tr><td>ESP32 DevKit V1</td><td>Sensor hub, Wi-Fi</td><td class="mono" style="text-align:right">450</td></tr>
+<tr><td>ICM-20948 9-axis IMU</td><td>Accel, gyro, magnetometer</td><td class="mono" style="text-align:right">900</td></tr>
+<tr><td>NEO-6M GPS module</td><td>Mapping + ground truth</td><td class="mono" style="text-align:right">450</td></tr>
+<tr><td>4WD robot chassis + motors</td><td>Rover platform</td><td class="mono" style="text-align:right">1,200</td></tr>
+<tr><td>Encoders + L298N driver</td><td>Distance, motor control</td><td class="mono" style="text-align:right">400</td></tr>
+<tr><td>0.96" OLED display</td><td>On-device status</td><td class="mono" style="text-align:right">200</td></tr>
+<tr><td>2S LiPo + buck converter</td><td>Power</td><td class="mono" style="text-align:right">900</td></tr>
+<tr class="hl"><td>Total</td><td></td><td class="mono" style="text-align:right">≈ 4,500</td></tr>
+</table>
+<div>
+<div class="n">WIRING (I²C + UART)</div>
+<svg viewBox="0 0 460 260" width="100%">
+ <g font-size="12">
+ <rect x="170" y="80" width="120" height="100" fill="#16191d"/><text x="200" y="126" fill="#fff" font-weight="600">ESP32</text><text x="186" y="146" fill="#c9cfd4" font-size="11">3.3 V logic</text>
+ <rect x="0" y="20" width="120" height="50" fill="#fff" stroke="#16191d"/><text x="12" y="42" font-weight="600">ICM-20948</text><text x="12" y="58" font-size="11" fill="#5b636b">SDA 21 · SCL 22</text>
+ <rect x="0" y="190" width="120" height="50" fill="#fff" stroke="#16191d"/><text x="12" y="212" font-weight="600">OLED</text><text x="12" y="228" font-size="11" fill="#5b636b">shared I²C bus</text>
+ <rect x="340" y="20" width="120" height="50" fill="#fff" stroke="#16191d"/><text x="352" y="42" font-weight="600">NEO-6M</text><text x="352" y="58" font-size="11" fill="#5b636b">UART2 · RX16 TX17</text>
+ <rect x="340" y="190" width="120" height="50" fill="#fff" stroke="#16191d"/><text x="352" y="212" font-weight="600">Encoders</text><text x="352" y="228" font-size="11" fill="#5b636b">GPIO 34, 35 (IRQ)</text>
+ <g stroke="#1f5f6b" stroke-width="2" fill="none"><path d="M120 45 L145 45 L145 110 L170 110"/><path d="M120 215 L145 215 L145 150 L170 150"/></g>
+ <g stroke="#b5532a" stroke-width="2" fill="none"><path d="M340 45 L315 45 L315 110 L290 110"/><path d="M340 215 L315 215 L315 150 L290 150"/></g>
+ </g></svg>
+<p style="font-size:14.5px;margin-top:8px">A laptop or Raspberry Pi 5 runs the navigation engine and receives data from the ESP32 over USB serial or Wi-Fi (UDP).</p>
+</div></div>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>10</span></div>
+</section>
+
+<!-- 11 STACK -->
+<section class="s">
+<div class="ey">10 · Tech stack</div>
+<h2>Open-source tools a student team already knows.</h2>
+<div class="g4" style="margin-top:34px;row-gap:34px">
+<div class="card"><div class="n">FIRMWARE</div><h3>Arduino C++</h3><p>ESP32 core, SparkFun ICM-20948 library, TinyGPS++, Adafruit SSD1306</p></div>
+<div class="card"><div class="n">QUANTUM</div><h3>Qiskit 1.x</h3><p>qiskit-aer for simulation, qiskit-ibm-runtime for real hardware, qiskit-machine-learning for QSVM</p></div>
+<div class="card"><div class="n">NAVIGATION</div><h3>Python 3.11</h3><p>NumPy, SciPy, FilterPy (particle filter), pyserial</p></div>
+<div class="card"><div class="n">BASELINES</div><h3>scikit-learn</h3><p>Classical RBF-SVM and brute-force search to compare against quantum</p></div>
+<div class="card"><div class="n">DASHBOARD</div><h3>Streamlit + Folium</h3><p>Live map with three tracks, error meter, circuit and histogram panels</p></div>
+<div class="card"><div class="n">DATA</div><h3>CSV + Parquet</h3><p>Magnetic map grid, labelled training windows, run logs for replay</p></div>
+<div class="card"><div class="n">HARDWARE CAD</div><h3>Fusion 360 / Tinkercad</h3><p>3D-printed sensor case and mast mount</p></div>
+<div class="card"><div class="n">COLLABORATION</div><h3>GitHub</h3><p>One repo: /firmware, /quantum, /nav, /dashboard, /data</p></div>
+</div>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>11</span></div>
+</section>
+
+<!-- 12 24H -->
+<section class="s">
+<div class="ey">11 · 24-hour feasibility</div>
+<h2>Our build plan, hour by hour, with a fallback at every step.</h2>
+<svg viewBox="0 0 1120 250" width="1120" style="margin-top:22px">
+ <g font-size="13">
+ <line x1="0" y1="40" x2="1120" y2="40" stroke="#16191d" stroke-width="1.5"/>
+ <g font-size="11" fill="#5b636b" font-family="IBM Plex Mono"><text x="0" y="24">H0</text><text x="180" y="24">H4</text><text x="370" y="24">H8</text><text x="560" y="24">H12</text><text x="745" y="24">H16</text><text x="930" y="24">H20</text><text x="1090" y="24">H24</text></g>
+ <text x="0" y="74" font-size="11" fill="#5b636b" letter-spacing="1">HARDWARE</text>
+ <rect x="110" y="60" width="180" height="24" fill="#1f5f6b"/><text x="116" y="77" fill="#fff" font-size="12">Assemble + wire + firmware</text>
+ <rect x="290" y="60" width="180" height="24" fill="#5f9aa3"/><text x="296" y="77" fill="#fff" font-size="12">Calibrate + mapping walk</text>
+ <rect x="740" y="60" width="200" height="24" fill="#9cc3c9"/><text x="746" y="77" font-size="12">Test runs on demo track</text>
+ <text x="0" y="116" font-size="11" fill="#5b636b" letter-spacing="1">QUANTUM</text>
+ <rect x="110" y="102" width="270" height="24" fill="#16191d"/><text x="116" y="119" fill="#fff" font-size="12">Grover oracle for 16-cell map (Aer)</text>
+ <rect x="380" y="102" width="270" height="24" fill="#3b444b"/><text x="386" y="119" fill="#fff" font-size="12">QSVM train on mapping data</text>
+ <rect x="650" y="102" width="150" height="24" fill="#5b636b"/><text x="656" y="119" fill="#fff" font-size="12">IBM hardware run</text>
+ <text x="0" y="158" font-size="11" fill="#5b636b" letter-spacing="1">NAV + UI</text>
+ <rect x="110" y="144" width="270" height="24" fill="#b5532a"/><text x="116" y="161" fill="#fff" font-size="12">Dead reckoning + particle filter</text>
+ <rect x="470" y="144" width="270" height="24" fill="#d08462"/><text x="476" y="161" fill="#fff" font-size="12">Integrate quantum → filter</text>
+ <rect x="740" y="144" width="200" height="24" fill="#e6b8a2"/><text x="746" y="161" font-size="12">Dashboard polish</text>
+ <rect x="940" y="60" width="180" height="108" fill="#e8f0f1" stroke="#1f5f6b"/><text x="952" y="100" fill="#1f5f6b" font-weight="600">Demo rehearsal</text><text x="952" y="120" fill="#1f5f6b" font-size="12">record backup video</text><text x="952" y="138" fill="#1f5f6b" font-size="12">+ slides with real data</text>
+ <line x1="560" y1="40" x2="560" y2="200" stroke="#16191d" stroke-dasharray="3 4"/><text x="566" y="196" font-size="12">Checkpoint: end-to-end on recorded data</text>
+ </g></svg>
+<table style="font-size:14px;margin-top:6px">
+<tr><th>Risk</th><th>Fallback</th></tr>
+<tr><td>Magnetometer noise from motors</td><td>Mast mount + calibration; handheld mode needs no motors</td></tr>
+<tr><td>IBM Quantum queue too long</td><td>Run on Aer simulator live; show a pre-run hardware result</td></tr>
+<tr><td>Live demo fails on the day</td><td>Replay a logged run through the same pipeline + backup video</td></tr>
+</table>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>12</span></div>
+</section>
+
+<!-- 13 DEMO + NOVELTY -->
+<section class="s">
+<div class="ey">12 · Live demo &amp; what is new</div>
+<h2>What the judges will see, and why it is different.</h2>
+<div class="g2" style="margin-top:28px;gap:56px">
+<div>
+<div class="n">DEMO SCRIPT · 3 MINUTES</div>
+<ol style="padding-left:22px">
+<li><b>Show the map:</b> the magnetic heat-map of the corridor we recorded.</li>
+<li><b>Switch GPS off</b> on the dashboard and drive the rover along the track.</li>
+<li><b>Watch the drift:</b> the inertial-only track wanders off course.</li>
+<li><b>Quantum match:</b> Grover's histogram spikes on the right cell; QSVM names the zone.</li>
+<li><b>Correction:</b> the VOID-NAV track snaps back and the error meter drops.</li>
+<li><b>Result:</b> final error for both methods, shown side by side.</li>
+</ol>
+</div>
+<div>
+<div class="card" style="margin-bottom:16px"><div class="n">N-01</div><h3>Quantum map matching</h3><p>Grover's search used for navigation map matching, not a textbook example.</p></div>
+<div class="card" style="margin-bottom:16px"><div class="n">N-02</div><h3>Two quantum checks, one answer</h3><p>QSVM narrows the zone, Grover picks the cell, and the filter only trusts them when they agree.</p></div>
+<div class="card"><div class="n">N-03</div><h3>Quantum-sensor ready</h3><p>The sensor interface matches an NV-diamond magnetometer's output, so a quantum sensor can replace today's chip without changing the software.</p></div>
+</div></div>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>13</span></div>
+</section>
+
+<!-- 14 IMPACT/ROADMAP -->
+<section class="s">
+<div class="ey">13 · Impact &amp; roadmap</div>
+<h2>From a campus corridor to a field-ready defence module.</h2>
+<div class="g3" style="margin-top:30px">
+<div class="card"><div class="n">TODAY · HACKATHON</div><h3>Working prototype</h3><p>MEMS magnetometer, 16-cell map, Grover + QSVM on simulator, live dashboard. Target: several times lower error than inertial-only.</p></div>
+<div class="card"><div class="n">NEXT · 6 MONTHS</div><h3>Larger maps, real terrain</h3><p>Campus-wide map, outdoor trials using public geomagnetic anomaly data, larger Grover circuits on IBM hardware.</p></div>
+<div class="card"><div class="n">LATER · 18 MONTHS</div><h3>Quantum sensor upgrade</h3><p>Swap in an NV-diamond magnetometer with an NQM sensing-hub partner; trials with defence labs on UAVs and vehicles.</p></div>
+</div>
+<div class="rule"></div>
+<div class="g4">
+<div><div class="k">&lt;₹5k</div><div class="kl">prototype cost</div></div>
+<div><div class="k">0</div><div class="kl">radio emissions: fully passive</div></div>
+<div><div class="k">2</div><div class="kl">quantum algorithms in the loop</div></div>
+<div><div class="k">24 h</div><div class="kl">from parts to working demo</div></div>
+</div>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>14</span></div>
+</section>
+
+<!-- 15 -->
+<section class="s" style="padding-top:150px">
+<div class="ey">Summary</div>
+<h1 style="font-size:54px;max-width:1080px">When GPS goes dark,<br>the ground still knows where you are.</h1>
+<p class="sub">VOID-NAV: magnetic-fingerprint navigation with quantum search and quantum machine learning, built by students in 24 hours and ready for a quantum sensor.</p>
+<div style="position:absolute;left:80px;bottom:70px;right:80px;display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid #d9dde1;padding-top:20px">
+<div><div style="font-family:'Source Serif 4',serif;font-size:28px;font-weight:700">Team VOID</div><div class="ey" style="margin:6px 0 0">Thank you · Questions welcome</div></div>
+<div class="mono" style="font-size:12px;color:#8a9197;letter-spacing:.12em">UC-085 · QUANTUM SENSING · DEFENCE</div>
+</div>
+</section>
+</body></html>
