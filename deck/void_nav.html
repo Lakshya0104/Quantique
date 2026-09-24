@@ -1,0 +1,322 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>VOID-NAV</title>
+<link href="f/fonts.css" rel="stylesheet">
+<style>
+@page{size:1280px 720px;margin:0}
+:root{--ink:#16191d;--mut:#5b636b;--line:#d9dde1;--teal:#1f5f6b;--tl:#e8f0f1;--acc:#b5532a;--paper:#fbfaf7}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans','Liberation Sans',sans-serif}
+.s{width:1280px;height:720px;padding:64px 80px 56px;position:relative;page-break-after:always;overflow:hidden;background:var(--paper)}
+.ey{font-family:'IBM Plex Mono','Liberation Mono',monospace;font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--teal);margin-bottom:18px}
+h1{font-family:'Source Serif 4','Liberation Serif',serif;font-weight:700;font-size:64px;line-height:1.08;letter-spacing:-.01em}
+h2{font-family:'Source Serif 4','Liberation Serif',serif;font-weight:700;font-size:40px;line-height:1.15;letter-spacing:-.005em;max-width:1000px}
+.sub{font-family:'Source Serif 4','Liberation Serif',serif;font-size:22px;color:var(--mut);line-height:1.45;margin-top:18px;max-width:900px}
+p,li{font-size:17px;line-height:1.55;color:#2c3237}
+.ft{position:absolute;left:80px;right:80px;bottom:26px;display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;color:#8a9197;text-transform:uppercase;border-top:1px solid var(--line);padding-top:10px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:48px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.k{font-family:'Source Serif 4',serif;font-size:46px;font-weight:600;color:var(--teal);line-height:1}
+.kl{font-size:14px;color:var(--mut);margin-top:8px;line-height:1.45}
+.card{border-top:2px solid var(--ink);padding-top:14px}
+.card h3{font-family:'Source Serif 4',serif;font-size:21px;font-weight:600;margin-bottom:8px}
+.card p{font-size:15px}
+.n{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--acc);letter-spacing:.15em;margin-bottom:8px}
+.mono{font-family:'IBM Plex Mono',monospace}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);text-align:left;font-weight:500;border-bottom:1.5px solid var(--ink);padding:10px 12px}
+td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr.hl td{background:var(--tl);font-weight:600}
+.note{font-size:12.5px;color:#8a9197;font-style:italic}
+svg text{font-family:'IBM Plex Sans',sans-serif}
+.rule{height:1px;background:var(--line);margin:26px 0}
+.tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;border:1px solid var(--teal);color:var(--teal);padding:4px 9px;margin:0 6px 6px 0;text-transform:uppercase}
+</style></head><body>
+
+<!-- 1 TITLE -->
+<section class="s" style="padding-top:110px">
+<div class="ey">Quantum Hackathon · Defence &amp; Strategic Applications · UC-085</div>
+<h1>VOID-NAV: Navigating<br>Without the Sky</h1>
+<p class="sub">A diamond quantum magnetometer that locates a platform against the Earth's own magnetic fingerprint, when GPS is jammed, spoofed or unavailable.</p>
+<svg width="1120" height="170" viewBox="0 0 1120 170" style="position:absolute;left:80px;bottom:120px">
+ <g fill="none" stroke="#1f5f6b" stroke-width="1.2" opacity=".85">
+ <path d="M0 110 C120 60 200 150 320 95 S520 40 640 100 S860 150 980 80 S1080 90 1120 70"/>
+ <path d="M0 125 C130 80 210 160 330 112 S530 60 650 115 S870 160 990 98 S1085 105 1120 88" opacity=".55"/>
+ <path d="M0 140 C140 100 220 170 340 130 S540 80 660 130 S880 170 1000 116 S1090 120 1120 106" opacity=".3"/>
+ </g>
+ <path d="M0 150 L260 128 L520 132 L760 100 L1000 92" stroke="#b5532a" stroke-width="2" stroke-dasharray="6 6" fill="none"/>
+ <circle cx="1000" cy="92" r="6" fill="#b5532a"/><text x="880" y="72" font-size="12" fill="#b5532a" class="mono">FIX ± target &lt;50 m</text>
+ <text x="0" y="20" font-size="11" fill="#8a9197" letter-spacing="2">MAGNETIC ANOMALY CONTOURS · ESTIMATED TRACK</text>
+</svg>
+<div style="position:absolute;left:80px;bottom:60px;display:flex;gap:60px">
+<div><div class="ey" style="margin:0 0 4px">Team</div><div style="font-family:'Source Serif 4',serif;font-size:26px;font-weight:700">Team VOID</div></div>
+<div><div class="ey" style="margin:0 0 4px">Deliverable</div><div style="font-size:17px;padding-top:6px">Working hardware prototype + fusion software</div></div>
+</div>
+</section>
+
+<!-- 2 PROBLEM -->
+<section class="s">
+<div class="ey">01 · The problem</div>
+<h2>Modern forces fight in a contested electromagnetic spectrum. GPS is the first thing to go.</h2>
+<div class="g2" style="margin-top:36px;grid-template-columns:1.05fr 1fr">
+<div>
+<div class="g2" style="gap:28px">
+<div class="card"><div class="k">~10<sup style="font-size:22px">–16</sup> W</div><div class="kl">Typical GNSS signal power at the receiver. A low-cost jammer overwhelms it over many kilometres.</div></div>
+<div class="card"><div class="k">~1.8 km</div><div class="kl">Indicative position error per hour for a tactical-grade inertial unit left uncorrected.</div></div>
+<div class="card"><div class="k">0</div><div class="kl">Signals that reach a submerged submarine: it navigates blind for weeks.</div></div>
+<div class="card"><div class="k">Passive</div><div class="kl">What any fix must be: an emitting sensor gives away the platform's position.</div></div>
+</div>
+<p class="note" style="margin-top:18px">Figures are indicative, drawn from open literature; exact values vary by receiver and IMU class.</p>
+</div>
+<div>
+<svg viewBox="0 0 520 380" width="100%">
+ <text x="0" y="16" font-size="11" fill="#5b636b" letter-spacing="2">POSITION ERROR OVER TIME (ILLUSTRATIVE)</text>
+ <line x1="50" y1="340" x2="510" y2="340" stroke="#16191d"/><line x1="50" y1="40" x2="50" y2="340" stroke="#16191d"/>
+ <g stroke="#e3e6e9"><line x1="50" y1="265" x2="510" y2="265"/><line x1="50" y1="190" x2="510" y2="190"/><line x1="50" y1="115" x2="510" y2="115"/></g>
+ <path d="M50 340 Q260 320 380 200 T510 45" fill="none" stroke="#b5532a" stroke-width="2.5"/>
+ <text x="200" y="150" font-size="13" fill="#b5532a">INS only: unbounded drift</text>
+ <path d="M50 340 L100 318 L140 332 L190 316 L240 330 L290 317 L340 331 L390 315 L440 329 L510 318" fill="none" stroke="#1f5f6b" stroke-width="2.5"/>
+ <text x="250" y="300" font-size="13" fill="#1f5f6b">INS + quantum magnetic fix: bounded</text>
+ <line x1="120" y1="40" x2="120" y2="340" stroke="#16191d" stroke-dasharray="3 4"/><text x="126" y="56" font-size="11" fill="#16191d">GPS jammed</text>
+ <text x="480" y="360" font-size="11" fill="#5b636b">time →</text><text x="0" y="200" font-size="11" fill="#5b636b" transform="rotate(-90 12 200)">error →</text>
+</svg>
+</div></div>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>02</span></div>
+</section>
+
+<!-- 3 WHY THIS -->
+<section class="s">
+<div class="ey">02 · Problem selection</div>
+<h2>We scored all four defence use cases. UC-085 is the one we can prove on a bench.</h2>
+<table style="margin-top:34px">
+<tr><th style="width:34%">Use case</th><th>Defence urgency</th><th>Quantum advantage today</th><th>Hardware demo feasible</th><th>Indigenous build</th><th>Score</th></tr>
+<tr><td>UC-084 · QKD secure comms</td><td>●●●●●</td><td>●●●●○</td><td>●●○○○</td><td>●●●○○</td><td class="mono">15</td></tr>
+<tr class="hl"><td>UC-085 · GPS-denied navigation</td><td>●●●●●</td><td>●●●●●</td><td>●●●●●</td><td>●●●●○</td><td class="mono">19</td></tr>
+<tr><td>UC-086 · Radar/sonar QML</td><td>●●●●○</td><td>●●○○○</td><td>●●○○○</td><td>●●●○○</td><td class="mono">11</td></tr>
+<tr><td>UC-087 · Logistics optimisation</td><td>●●●○○</td><td>●●○○○</td><td>●○○○○</td><td>●●●●○</td><td class="mono">10</td></tr>
+</table>
+<div class="g3" style="margin-top:34px">
+<div class="card"><h3>Sensing is ready now</h3><p>Quantum sensing is the most mature quantum pillar; it works at room temperature, not in a cryostat.</p></div>
+<div class="card"><h3>Mission-aligned</h3><p>Directly supports the National Quantum Mission's sensing &amp; metrology hub.</p></div>
+<div class="card"><h3>Visible proof</h3><p>Judges watch a live resonance dip on screen; no simulation required.</p></div>
+</div>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>03</span></div>
+</section>
+
+<!-- 4 CONCEPT -->
+<section class="s">
+<div class="ey">03 · The concept</div>
+<h2>The Earth's crust is a map that cannot be jammed.</h2>
+<p class="sub" style="font-size:19px;max-width:1080px">Rocks carry a unique, stable magnetic signature. A sensitive enough magnetometer reads it like a barcode; matching the reading to a survey map gives position, with no transmission.</p>
+<svg viewBox="0 0 1120 330" width="1120" style="margin-top:22px">
+ <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#16191d"/></marker></defs>
+ <g font-size="14">
+ <rect x="0" y="40" width="230" height="200" fill="#fff" stroke="#16191d"/>
+ <text x="16" y="68" font-size="11" fill="#1f5f6b" letter-spacing="2">01 · SENSE</text>
+ <text x="16" y="96" font-weight="600" font-size="17">NV-diamond</text><text x="16" y="118" font-weight="600" font-size="17">magnetometer</text>
+ <text x="16" y="150" fill="#5b636b">Vector field, nT level,</text><text x="16" y="170" fill="#5b636b">room temperature</text>
+ <polygon points="160,200 180,180 200,200 180,225" fill="#e8f0f1" stroke="#1f5f6b"/>
+ <line x1="230" y1="140" x2="290" y2="140" stroke="#16191d" marker-end="url(#a)"/>
+ <rect x="296" y="40" width="230" height="200" fill="#fff" stroke="#16191d"/>
+ <text x="312" y="68" font-size="11" fill="#1f5f6b" letter-spacing="2">02 · CLEAN</text>
+ <text x="312" y="96" font-weight="600" font-size="17">Platform noise</text><text x="312" y="118" font-weight="600" font-size="17">compensation</text>
+ <text x="312" y="150" fill="#5b636b">Removes the vehicle's own</text><text x="312" y="170" fill="#5b636b">field + diurnal variation</text>
+ <path d="M320 212 l10 -14 l8 20 l10 -24 l8 26 l10 -10 M380 205 q20 -10 40 0 t40 0" fill="none" stroke="#1f5f6b"/>
+ <line x1="526" y1="140" x2="586" y2="140" stroke="#16191d" marker-end="url(#a)"/>
+ <rect x="592" y="40" width="230" height="200" fill="#fff" stroke="#16191d"/>
+ <text x="608" y="68" font-size="11" fill="#1f5f6b" letter-spacing="2">03 · MATCH</text>
+ <text x="608" y="96" font-weight="600" font-size="17">Anomaly-map</text><text x="608" y="118" font-weight="600" font-size="17">particle filter</text>
+ <text x="608" y="150" fill="#5b636b">Compares profile to</text><text x="608" y="170" fill="#5b636b">survey map (EMAG2 / NGRI)</text>
+ <g fill="#1f5f6b"><circle cx="630" cy="205" r="2.5"/><circle cx="650" cy="215" r="2.5"/><circle cx="668" cy="200" r="2.5"/><circle cx="700" cy="208" r="4" fill="#b5532a"/><circle cx="688" cy="220" r="2.5"/><circle cx="720" cy="198" r="2.5"/></g>
+ <line x1="822" y1="140" x2="882" y2="140" stroke="#16191d" marker-end="url(#a)"/>
+ <rect x="888" y="40" width="230" height="200" fill="#16191d"/>
+ <text x="904" y="68" font-size="11" fill="#9cc3c9" letter-spacing="2">04 · FUSE</text>
+ <text x="904" y="96" font-weight="600" font-size="17" fill="#fff">Error-state Kalman</text><text x="904" y="118" font-weight="600" font-size="17" fill="#fff">with the IMU</text>
+ <text x="904" y="150" fill="#c9cfd4">Bounded position output</text><text x="904" y="170" fill="#c9cfd4">over NMEA / MIL-STD-1553*</text>
+ </g>
+ <text x="0" y="290" font-size="13" fill="#5b636b">Fully passive: nothing is emitted, so there is nothing to jam, spoof or detect.</text>
+ <text x="0" y="312" font-size="12" fill="#8a9197">* 1553 interface is a Phase-2 target; prototype outputs NMEA over serial.</text>
+</svg>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>04</span></div>
+</section>
+
+<!-- 5 PHYSICS -->
+<section class="s">
+<div class="ey">04 · The quantum core</div>
+<h2>A single defect in diamond turns a magnetic field into a colour of light we can measure.</h2>
+<div class="g2" style="margin-top:30px;gap:56px">
+<svg viewBox="0 0 520 400" width="100%">
+ <text x="0" y="14" font-size="11" fill="#5b636b" letter-spacing="2">NV⁻ CENTRE · SPIN TRIPLET</text>
+ <line x1="40" y1="330" x2="200" y2="330" stroke="#16191d" stroke-width="2.5"/><text x="210" y="334" font-size="14">|m<tspan font-size="10" dy="3">s</tspan><tspan dy="-3">=0⟩</tspan></text>
+ <line x1="40" y1="270" x2="200" y2="270" stroke="#16191d" stroke-width="2.5"/><text x="210" y="266" font-size="14">|+1⟩</text>
+ <line x1="40" y1="290" x2="200" y2="290" stroke="#16191d" stroke-width="2.5"/><text x="210" y="298" font-size="14">|−1⟩</text>
+ <path d="M300 270 L300 290" stroke="#b5532a" stroke-width="1.5"/><text x="310" y="286" font-size="13" fill="#b5532a">Δf = 2γB</text>
+ <text x="40" y="360" font-size="12" fill="#5b636b">2.87 GHz zero-field splitting</text>
+ <line x1="40" y1="80" x2="200" y2="80" stroke="#16191d" stroke-width="2.5"/><text x="210" y="84" font-size="14">excited state</text>
+ <path d="M80 328 L80 84" stroke="#2e8b57" stroke-width="3"/><text x="20" y="200" font-size="12" fill="#2e8b57">532 nm</text>
+ <path d="M130 84 L130 326" stroke="#c0392b" stroke-width="2" stroke-dasharray="5 4"/><text x="138" y="200" font-size="12" fill="#c0392b">637–800 nm red</text><text x="138" y="216" font-size="12" fill="#c0392b">fluorescence</text>
+ <text x="0" y="395" font-size="12" fill="#5b636b">γ ≈ 28 GHz/T: field shifts the microwave resonance</text>
+</svg>
+<svg viewBox="0 0 520 400" width="100%">
+ <text x="0" y="14" font-size="11" fill="#5b636b" letter-spacing="2">OPTICALLY DETECTED MAGNETIC RESONANCE</text>
+ <line x1="40" y1="340" x2="510" y2="340" stroke="#16191d"/><line x1="40" y1="40" x2="40" y2="340" stroke="#16191d"/>
+ <path d="M40 90 L150 90 C180 90 185 230 200 230 C215 230 220 90 250 90 L310 90 C340 90 345 230 360 230 C375 230 380 90 410 90 L510 90" fill="none" stroke="#1f5f6b" stroke-width="2.5"/>
+ <path d="M40 90 L200 90 C230 90 245 250 275 250 C305 250 320 90 350 90 L510 90" fill="none" stroke="#9aa3aa" stroke-width="1.5" stroke-dasharray="4 4"/>
+ <text x="215" y="275" font-size="12" fill="#9aa3aa">B = 0 (single dip)</text>
+ <line x1="200" y1="310" x2="360" y2="310" stroke="#b5532a"/><path d="M200 304v12M360 304v12" stroke="#b5532a"/><text x="238" y="330" font-size="13" fill="#b5532a">splitting ∝ |B|</text>
+ <text x="440" y="362" font-size="12" fill="#5b636b">MW freq →</text><text x="4" y="220" font-size="12" fill="#5b636b" transform="rotate(-90 12 220)">red intensity</text>
+ <text x="60" y="70" font-size="12" fill="#1f5f6b">4 NV axes → full 3-D vector field</text>
+</svg>
+</div>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>05</span></div>
+</section>
+
+<!-- 6 HARDWARE -->
+<section class="s">
+<div class="ey">05 · Hardware prototype</div>
+<h2>A shoebox-sized quantum sensor built from components we can source in India.</h2>
+<div style="display:grid;grid-template-columns:1.25fr 1fr;gap:44px;margin-top:26px">
+<svg viewBox="0 0 640 400" width="100%">
+ <defs><marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#16191d"/></marker></defs>
+ <rect x="1" y="1" width="638" height="398" fill="none" stroke="#d9dde1" stroke-dasharray="4 4"/>
+ <text x="14" y="22" font-size="11" fill="#5b636b" letter-spacing="2">SENSOR HEAD · μ-METAL SHIELDED</text>
+ <g font-size="13">
+ <rect x="20" y="60" width="120" height="56" fill="#fff" stroke="#16191d"/><text x="32" y="84">532 nm laser</text><text x="32" y="102" fill="#5b636b" font-size="11">diode, 100 mW</text>
+ <path d="M140 88 L250 88" stroke="#2e8b57" stroke-width="3"/>
+ <polygon points="290,60 320,88 290,116 260,88" fill="#e8f0f1" stroke="#1f5f6b" stroke-width="1.5"/><text x="248" y="140">NV diamond</text><text x="248" y="156" fill="#5b636b" font-size="11">HPHT, ~ppm NV</text>
+ <path d="M290 60 C 270 30, 310 30, 290 60" fill="none" stroke="#b5532a"/><text x="318" y="36" fill="#b5532a" font-size="12">MW loop antenna</text>
+ <path d="M320 88 L420 88" stroke="#c0392b" stroke-width="2" stroke-dasharray="5 4"/>
+ <rect x="420" y="60" width="130" height="56" fill="#fff" stroke="#16191d"/><text x="432" y="84">Long-pass filter</text><text x="432" y="102" fill="#5b636b" font-size="11">+ Si photodiode</text>
+ <rect x="20" y="230" width="140" height="60" fill="#fff" stroke="#16191d"/><text x="32" y="254">MW synthesiser</text><text x="32" y="274" fill="#5b636b" font-size="11">ADF4351 + amp</text>
+ <path d="M90 230 L90 180 L290 180 L290 120" stroke="#16191d" fill="none" marker-end="url(#b)"/>
+ <rect x="230" y="230" width="170" height="60" fill="#fff" stroke="#16191d"/><text x="242" y="254">Lock-in / ADC</text><text x="242" y="274" fill="#5b636b" font-size="11">FM modulation, 24-bit</text>
+ <path d="M485 116 L485 260 L400 260" stroke="#16191d" fill="none" marker-end="url(#b)"/>
+ <rect x="230" y="320" width="170" height="60" fill="#16191d"/><text x="242" y="344" fill="#fff">Edge compute</text><text x="242" y="364" fill="#c9cfd4" font-size="11">Raspberry Pi 5 / Jetson</text>
+ <path d="M315 290 L315 318" stroke="#16191d" marker-end="url(#b)"/>
+ <rect x="460" y="320" width="160" height="60" fill="#fff" stroke="#16191d"/><text x="472" y="344">9-DoF MEMS IMU</text><text x="472" y="364" fill="#5b636b" font-size="11">+ fluxgate reference</text>
+ <path d="M460 350 L402 350" stroke="#16191d" marker-end="url(#b)"/>
+ <path d="M160 260 L228 260" stroke="#16191d" marker-end="url(#b)"/><text x="166" y="252" font-size="10" fill="#5b636b">ref</text>
+ </g>
+</svg>
+<div>
+<table style="font-size:14px">
+<tr><th>Subsystem</th><th style="text-align:right">Est. cost (₹)</th></tr>
+<tr><td>NV-diamond sample</td><td class="mono" style="text-align:right">25,000</td></tr>
+<tr><td>532 nm laser + optics</td><td class="mono" style="text-align:right">15,000</td></tr>
+<tr><td>MW synthesiser + amplifier</td><td class="mono" style="text-align:right">12,000</td></tr>
+<tr><td>Photodiode, lock-in, ADC</td><td class="mono" style="text-align:right">8,000</td></tr>
+<tr><td>Compute, IMU, shielding</td><td class="mono" style="text-align:right">15,000</td></tr>
+<tr class="hl"><td>Prototype total</td><td class="mono" style="text-align:right">≈ 75,000</td></tr>
+</table>
+<p class="note" style="margin-top:12px">Budgetary estimates. Commercial quantum navigation units cost orders of magnitude more.</p>
+<div style="margin-top:20px"><span class="tag">Room temperature</span><span class="tag">No cryogenics</span><span class="tag">No vacuum</span><span class="tag">COTS parts</span></div>
+</div></div>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>06</span></div>
+</section>
+
+<!-- 7 NOVELTY -->
+<section class="s">
+<div class="ey">06 · What is new</div>
+<h2>Four contributions that go beyond a lab magnetometer.</h2>
+<div class="g2" style="margin-top:34px;row-gap:34px">
+<div class="card"><div class="n">N-01</div><h3>Vector, not scalar, map matching</h3><p>The four NV axes give the full 3-D field. We match gradient direction as well as magnitude, which removes the ambiguity that limits scalar magnetic navigation over flat terrain.</p></div>
+<div class="card"><div class="n">N-02</div><h3>Learned self-field compensation</h3><p>A small on-device model learns the host vehicle's own magnetic signature (engines, current loops) during a short calibration run, then subtracts it in real time.</p></div>
+<div class="card"><div class="n">N-03</div><h3>Confidence-aware fusion</h3><p>The filter weights a quantum fix by local map "informativeness". Over magnetically bland regions it trusts the IMU; over rich anomalies it snaps the track back.</p></div>
+<div class="card"><div class="n">N-04</div><h3>Spoof detector for free</h3><p>Running beside a GPS receiver, VOID-NAV flags a spoofing attack the moment GNSS and the magnetic fix disagree beyond their joint error bound.</p></div>
+</div>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>07</span></div>
+</section>
+
+<!-- 8 RESULT -->
+<section class="s">
+<div class="ey">07 · Expected performance</div>
+<h2>In simulation over a real anomaly grid, drift stays bounded instead of growing.</h2>
+<div style="display:grid;grid-template-columns:1.5fr 1fr;gap:48px;margin-top:24px">
+<svg viewBox="0 0 700 390" width="100%">
+ <text x="0" y="14" font-size="11" fill="#5b636b" letter-spacing="2">SIMULATED 2-HOUR SORTIE · 300 KM TRACK</text>
+ <rect x="40" y="30" width="640" height="320" fill="#f1f3f2"/>
+ <g fill="none" stroke="#c9d6d8">
+ <ellipse cx="200" cy="160" rx="120" ry="70"/><ellipse cx="200" cy="160" rx="80" ry="44"/><ellipse cx="200" cy="160" rx="40" ry="20"/>
+ <ellipse cx="500" cy="250" rx="150" ry="80"/><ellipse cx="500" cy="250" rx="95" ry="50"/><ellipse cx="500" cy="250" rx="45" ry="22"/>
+ <ellipse cx="560" cy="90" rx="90" ry="45"/><ellipse cx="560" cy="90" rx="45" ry="20"/></g>
+ <path d="M70 320 C200 260 300 220 420 170 S600 90 650 70" fill="none" stroke="#16191d" stroke-width="2"/>
+ <path d="M70 320 C200 250 300 190 420 120 S590 30 640 20" fill="none" stroke="#b5532a" stroke-width="2" stroke-dasharray="6 5"/>
+ <path d="M70 320 C200 262 300 216 420 174 S600 86 652 66" fill="none" stroke="#1f5f6b" stroke-width="2.5"/>
+ <circle cx="70" cy="320" r="5" fill="#16191d"/><text x="80" y="340" font-size="12">Start, GPS lost</text>
+ <g font-size="13"><line x1="60" y1="370" x2="90" y2="370" stroke="#16191d" stroke-width="2"/><text x="96" y="374">True path</text>
+ <line x1="190" y1="370" x2="220" y2="370" stroke="#b5532a" stroke-width="2" stroke-dasharray="6 5"/><text x="226" y="374">MEMS INS only</text>
+ <line x1="350" y1="370" x2="380" y2="370" stroke="#1f5f6b" stroke-width="2.5"/><text x="386" y="374">VOID-NAV fused</text></g>
+</svg>
+<div>
+<div class="card" style="margin-bottom:26px"><div class="k">&gt;10×</div><div class="kl">Target reduction in end-of-mission error versus MEMS INS alone.</div></div>
+<div class="card" style="margin-bottom:26px"><div class="k">&lt;50 m</div><div class="kl">Target position fix over anomaly-rich terrain (airborne, low altitude).</div></div>
+<div class="card"><div class="k">~1 nT/√Hz</div><div class="kl">Prototype sensitivity goal; sub-nT is reported for optimised NV ensembles.</div></div>
+</div></div>
+<p class="note" style="margin-top:6px">All values are design targets from simulation and published NV literature, to be validated on the prototype and in field trials.</p>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>08</span></div>
+</section>
+
+<!-- 9 COMPARISON -->
+<section class="s">
+<div class="ey">08 · Positioning</div>
+<h2>Where VOID-NAV sits among alternatives.</h2>
+<table style="margin-top:34px">
+<tr><th>Approach</th><th>Jam / spoof proof</th><th>Long-term drift</th><th>Size &amp; power</th><th>Cost</th><th>Stealth</th></tr>
+<tr><td>GNSS receiver</td><td>No</td><td>None, if signal present</td><td>Tiny</td><td>Low</td><td>Passive</td></tr>
+<tr><td>MEMS / tactical INS</td><td>Yes</td><td>Grows with time</td><td>Small</td><td>Low–Med</td><td>Passive</td></tr>
+<tr><td>Cold-atom interferometer</td><td>Yes</td><td>Very low</td><td>Large, vacuum + lasers</td><td>Very high</td><td>Passive</td></tr>
+<tr><td>Terrain radar matching</td><td>Yes</td><td>Bounded</td><td>Medium</td><td>High</td><td>Emits, detectable</td></tr>
+<tr class="hl"><td>VOID-NAV (NV + INS)</td><td>Yes</td><td>Bounded</td><td>Compact, room-temp</td><td>Low</td><td>Passive</td></tr>
+</table>
+<p style="margin-top:28px;max-width:1000px">VOID-NAV complements cold-atom inertial sensors under the NQM roadmap: it delivers a deployable fix today, while atom-based INS matures.</p>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>09</span></div>
+</section>
+
+<!-- 10 DEPLOYMENT -->
+<section class="s">
+<div class="ey">09 · Applications</div>
+<h2>One sensor core, three defence platforms.</h2>
+<div class="g3" style="margin-top:36px">
+<div><svg viewBox="0 0 320 150" width="100%"><path d="M20 90 Q160 40 300 90 Q160 120 20 90Z" fill="#e8f0f1" stroke="#1f5f6b"/><rect x="140" y="52" width="40" height="18" fill="#e8f0f1" stroke="#1f5f6b"/><path d="M0 130 q20 -8 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0" fill="none" stroke="#9aa3aa"/></svg>
+<div class="card"><h3>Submarines &amp; UUVs</h3><p>Weeks submerged with no satellite contact. Magnetic fixes without surfacing preserve stealth.</p></div></div>
+<div><svg viewBox="0 0 320 150" width="100%"><path d="M60 75 L260 75 M160 30 L160 120 M110 50 L210 100 M210 50 L110 100" stroke="#1f5f6b" stroke-width="2"/><circle cx="160" cy="75" r="16" fill="#e8f0f1" stroke="#1f5f6b"/><g fill="none" stroke="#1f5f6b"><circle cx="60" cy="75" r="14"/><circle cx="260" cy="75" r="14"/><circle cx="160" cy="30" r="14"/><circle cx="160" cy="120" r="14"/></g></svg>
+<div class="card"><h3>UAVs &amp; loitering systems</h3><p>Resist jamming and spoofing over contested borders; low altitude maximises anomaly signal.</p></div></div>
+<div><svg viewBox="0 0 320 150" width="100%"><path d="M40 100 L60 70 L230 70 L260 90 L280 100 Z" fill="#e8f0f1" stroke="#1f5f6b"/><circle cx="90" cy="108" r="14" fill="#fff" stroke="#1f5f6b"/><circle cx="230" cy="108" r="14" fill="#fff" stroke="#1f5f6b"/><path d="M0 125 L320 125" stroke="#9aa3aa"/></svg>
+<div class="card"><h3>Border &amp; coastal patrol</h3><p>Reliable positioning for ground and maritime vehicles in high-altitude and jammed sectors.</p></div></div>
+</div>
+<div class="rule"></div>
+<p><b>Dual use:</b> civil aviation resilience, maritime shipping, mineral exploration and geophysical survey, supporting AP's quantum valley ecosystem.</p>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>10</span></div>
+</section>
+
+<!-- 11 ROADMAP -->
+<section class="s">
+<div class="ey">10 · Roadmap</div>
+<h2>From a bench demo to a trial-ready unit.</h2>
+<svg viewBox="0 0 1120 330" width="1120" style="margin-top:30px">
+ <line x1="0" y1="80" x2="1120" y2="80" stroke="#16191d" stroke-width="1.5"/>
+ <g font-size="14">
+ <circle cx="20" cy="80" r="9" fill="#1f5f6b"/><text x="0" y="50" font-size="11" fill="#1f5f6b" letter-spacing="2">HACKATHON · TRL 3</text>
+ <text x="0" y="118" font-weight="600" font-size="17">Bench prototype</text><text x="0" y="142" fill="#5b636b">Live ODMR spectrum</text><text x="0" y="162" fill="#5b636b">Field tracking vs magnet</text><text x="0" y="182" fill="#5b636b">Simulated map matching</text>
+ <circle cx="300" cy="80" r="9" fill="#fff" stroke="#1f5f6b" stroke-width="2"/><text x="280" y="50" font-size="11" fill="#5b636b" letter-spacing="2">+6 MONTHS · TRL 4</text>
+ <text x="280" y="118" font-weight="600" font-size="17">Vehicle-mounted unit</text><text x="280" y="142" fill="#5b636b">Road trials on surveyed</text><text x="280" y="162" fill="#5b636b">anomaly corridor</text>
+ <circle cx="580" cy="80" r="9" fill="#fff" stroke="#1f5f6b" stroke-width="2"/><text x="560" y="50" font-size="11" fill="#5b636b" letter-spacing="2">+12 MONTHS · TRL 5</text>
+ <text x="560" y="118" font-weight="600" font-size="17">Airborne trial</text><text x="560" y="142" fill="#5b636b">Drone flights with GNSS</text><text x="560" y="162" fill="#5b636b">as ground truth</text>
+ <circle cx="860" cy="80" r="9" fill="#fff" stroke="#1f5f6b" stroke-width="2"/><text x="840" y="50" font-size="11" fill="#5b636b" letter-spacing="2">+24 MONTHS · TRL 6</text>
+ <text x="840" y="118" font-weight="600" font-size="17">Ruggedised module</text><text x="840" y="142" fill="#5b636b">With DRDO / defence PSU</text><text x="840" y="162" fill="#5b636b">partners, MIL-STD tests</text>
+ </g>
+ <rect x="0" y="230" width="1120" height="80" fill="#e8f0f1"/>
+ <text x="24" y="262" font-size="11" fill="#1f5f6b" letter-spacing="2">WHAT WE ASK FOR</text>
+ <text x="24" y="290" font-size="16">Access to regional magnetic survey data · a trial range · mentorship from the NQM sensing hub · seed funding for TRL 4</text>
+</svg>
+<div class="ft"><span>Team VOID · VOID-NAV</span><span>11</span></div>
+</section>
+
+<!-- 12 CLOSE -->
+<section class="s" style="padding-top:150px">
+<div class="ey">Summary</div>
+<h1 style="font-size:56px;max-width:1050px">When the satellites go dark,<br>the ground still knows where you are.</h1>
+<p class="sub">VOID-NAV: a passive, room-temperature quantum sensor for jam-proof navigation, built in India and demonstrable today.</p>
+<div style="position:absolute;left:80px;bottom:70px;right:80px;display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid #d9dde1;padding-top:20px">
+<div><div style="font-family:'Source Serif 4',serif;font-size:28px;font-weight:700">Team VOID</div><div class="ey" style="margin:6px 0 0">Thank you · Questions welcome</div></div>
+<div class="mono" style="font-size:12px;color:#8a9197;letter-spacing:.12em">UC-085 · QUANTUM SENSING · DEFENCE</div>
+</div>
+</section>
+</body></html>
