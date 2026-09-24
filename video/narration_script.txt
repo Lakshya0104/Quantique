@@ -1,0 +1,44 @@
+SLIDE 1
+We are Team VOID. This is VOID-NAV: a navigation system that keeps working when GPS goes dark. It senses the Earth's magnetic field, matches it against a map using two quantum algorithms, and gives a live position. And we can build it from scratch in twenty four hours.
+
+SLIDE 2
+Here is the problem. GPS signals are very weak, and they disappear in tunnels, bunkers, forests and under water. The usual backup is an inertial sensor, but its small errors keep adding up. A low cost unit can be off by hundreds of metres within minutes. Good alternatives cost lakhs to crores.
+
+SLIDE 3
+So our problem statement is simple. Give soldiers, vehicles and drones a position they can trust without GPS, using a sensor that emits nothing, costs under five thousand rupees, and is ready for a quantum magnetometer when one is available. This is use case U C zero eight five.
+
+SLIDE 4
+Our idea: every place has its own magnetic fingerprint. First, we walk the area once with GPS on and record the field in two metre squares. That is our magnetic map. Then, with GPS off, the device records a short window of readings as it moves. Finally, quantum algorithms find where that window fits on the map, and the drifting track is corrected.
+
+SLIDE 5
+This is the architecture. An E S P thirty two reads the motion and magnetic sensors fifty times a second. A laptop or Raspberry Pi runs five steps: calibration, dead reckoning, Grover's search, the quantum kernel classifier, and a particle filter that combines everything. A dashboard shows the true path, the drifting path, and our corrected path.
+
+SLIDE 6
+Quantum algorithm one is Grover's search. The map is split into sixteen cells, stored in four qubits. The oracle marks the cells that match what the sensor just measured. The diffuser boosts those cells, so when we measure, the right cell comes out with high probability. A normal search checks every cell. Grover needs roughly the square root. At our small size this shows the principle; the benefit grows with larger maps.
+
+SLIDE 7
+Quantum algorithm two is a quantum kernel support vector machine. Four features from each second of readings are encoded into four qubits with a Z Z feature map. The overlap between two encoded states tells us how similar they are. The classifier uses that to decide which zone we are in, such as a corridor or a stairwell. We compare it directly with a classical model.
+
+SLIDE 8
+This table shows exactly where quantum is used. Grover's search and the quantum classifier are the two quantum algorithms, running on the Qiskit simulator, with one run on real IBM hardware. The sensor interface is ready for a future quantum magnetometer. Everything time critical stays classical. That is how practical quantum systems are built today.
+
+SLIDE 9
+This is the prototype: a sensor box on a small rover, with the magnetometer on a short mast to keep it away from motor noise. The same box can also be carried by hand. The dashboard shows the live error for each method side by side.
+
+SLIDE 10
+All the parts are available in India for about four thousand five hundred rupees: an E S P thirty two, a nine axis sensor, a GPS module for mapping, a rover chassis with wheel encoders, a small display and a battery.
+
+SLIDE 11
+Our tech stack is open source. Arduino code on the board. Qiskit for the quantum parts. Python for navigation. Scikit learn for classical baselines. And Streamlit for the dashboard.
+
+SLIDE 12
+Here is our twenty four hour plan, split into hardware, quantum, and navigation work streams. By hour twelve we have the full pipeline working on recorded data. Every risk has a fallback: a handheld mode, a simulator if the quantum queue is long, and a recorded run for the demo.
+
+SLIDE 13
+In the live demo, we show the map, switch GPS off and drive. The inertial path drifts away. Grover's search picks the right cell, the classifier names the zone, and our path snaps back. What is new: quantum search used for map matching, two quantum checks that must agree, and a design ready for a quantum sensor.
+
+SLIDE 14
+Next: larger maps and outdoor trials within six months, and a diamond quantum magnetometer with defence partners within eighteen months. Under five thousand rupees, zero emissions, two quantum algorithms, twenty four hours.
+
+SLIDE 15
+When GPS goes dark, the ground still knows where you are. We are Team VOID. Thank you.

@@ -1,0 +1,239 @@
+1
+00:00:00,500 --> 00:00:01,799
+We are Team VOID.
+
+2
+00:00:01,799 --> 00:00:07,610
+This is VOID-NAV: a navigation system that keeps working when GPS goes dark.
+
+3
+00:00:07,610 --> 00:00:16,709
+It senses the Earth's magnetic field, matches it against a map using two quantum algorithms, and gives a live position.
+
+4
+00:00:16,709 --> 00:00:20,914
+And we can build it from scratch in 24-hours.
+
+5
+00:00:22,114 --> 00:00:23,655
+Here is the problem.
+
+6
+00:00:23,655 --> 00:00:30,664
+GPS signals are very weak, and they disappear in tunnels, bunkers, forests and under water.
+
+7
+00:00:30,664 --> 00:00:36,519
+The usual backup is an inertial sensor, but its small errors keep adding up.
+
+8
+00:00:36,519 --> 00:00:41,448
+A low-cost unit can be off by hundreds of metres within minutes.
+
+9
+00:00:41,448 --> 00:00:44,530
+Good alternatives cost lakhs to crores.
+
+10
+00:00:45,730 --> 00:00:48,365
+So our problem statement is simple.
+
+11
+00:00:48,365 --> 00:01:03,800
+Give soldiers, vehicles and drones a position they can trust without GPS, using a sensor that emits nothing, costs under ₹5,000, and is ready for a quantum magnetometer when one is available.
+
+12
+00:01:03,800 --> 00:01:06,661
+This is use case UC-085.
+
+13
+00:01:07,861 --> 00:01:12,195
+Our idea: every place has its own magnetic fingerprint.
+
+14
+00:01:12,195 --> 00:01:18,735
+First, we walk the area once with GPS on and record the field in 2 m squares.
+
+15
+00:01:18,735 --> 00:01:20,705
+That is our magnetic map.
+
+16
+00:01:20,705 --> 00:01:26,852
+Then, with GPS off, the device records a short window of readings as it moves.
+
+17
+00:01:26,852 --> 00:01:35,126
+Finally, quantum algorithms find where that window fits on the map, and the drifting track is corrected.
+
+18
+00:01:36,326 --> 00:01:38,260
+This is the architecture.
+
+19
+00:01:38,260 --> 00:01:44,373
+An ESP32 reads the motion and magnetic sensors 50 times a second.
+
+20
+00:01:44,373 --> 00:01:57,216
+A laptop or Raspberry Pi runs five steps: calibration, dead reckoning, Grover's search, the quantum kernel classifier, and a particle filter that combines everything.
+
+21
+00:01:57,216 --> 00:02:03,097
+A dashboard shows the true path, the drifting path, and our corrected path.
+
+22
+00:02:04,296 --> 00:02:07,346
+Quantum algorithm one is Grover's search.
+
+23
+00:02:07,346 --> 00:02:11,735
+The map is split into 16 cells, stored in four qubits.
+
+24
+00:02:11,735 --> 00:02:16,794
+The oracle marks the cells that match what the sensor just measured.
+
+25
+00:02:16,794 --> 00:02:24,233
+The diffuser boosts those cells, so when we measure, the right cell comes out with high probability.
+
+26
+00:02:24,233 --> 00:02:26,762
+A normal search checks every cell.
+
+27
+00:02:26,762 --> 00:02:29,515
+Grover needs roughly the square root.
+
+28
+00:02:29,515 --> 00:02:35,466
+At our small size this shows the principle; the benefit grows with larger maps.
+
+29
+00:02:36,666 --> 00:02:41,502
+Quantum algorithm two is a quantum kernel support vector machine.
+
+30
+00:02:41,502 --> 00:02:48,571
+Four features from each second of readings are encoded into four qubits with a ZZ feature map.
+
+31
+00:02:48,571 --> 00:02:53,705
+The overlap between two encoded states tells us how similar they are.
+
+32
+00:02:53,705 --> 00:03:00,476
+The classifier uses that to decide which zone we are in, such as a corridor or a stairwell.
+
+33
+00:03:00,476 --> 00:03:03,973
+We compare it directly with a classical model.
+
+34
+00:03:05,173 --> 00:03:08,727
+This table shows exactly where quantum is used.
+
+35
+00:03:08,727 --> 00:03:19,464
+Grover's search and the quantum classifier are the two quantum algorithms, running on the Qiskit simulator, with one run on real IBM hardware.
+
+36
+00:03:19,464 --> 00:03:24,303
+The sensor interface is ready for a future quantum magnetometer.
+
+37
+00:03:24,303 --> 00:03:27,403
+Everything time-critical stays classical.
+
+38
+00:03:27,403 --> 00:03:31,562
+That is how practical quantum systems are built today.
+
+39
+00:03:32,762 --> 00:03:42,249
+This is the prototype: a sensor box on a small rover, with the magnetometer on a short mast to keep it away from motor noise.
+
+40
+00:03:42,249 --> 00:03:45,360
+The same box can also be carried by hand.
+
+41
+00:03:45,360 --> 00:03:50,294
+The dashboard shows the live error for each method side by side.
+
+42
+00:03:51,494 --> 00:04:07,731
+All the parts are available in India for about ₹4,500: an ESP32, a 9-axis sensor, a GPS module for mapping, a rover chassis with wheel encoders, a small display and a battery.
+
+43
+00:04:08,931 --> 00:04:11,299
+Our tech stack is open source.
+
+44
+00:04:11,299 --> 00:04:13,352
+Arduino code on the board.
+
+45
+00:04:13,352 --> 00:04:15,642
+Qiskit for the quantum parts.
+
+46
+00:04:15,642 --> 00:04:17,379
+Python for navigation.
+
+47
+00:04:17,379 --> 00:04:20,300
+scikit-learn for classical baselines.
+
+48
+00:04:20,300 --> 00:04:22,905
+And Streamlit for the dashboard.
+
+49
+00:04:24,105 --> 00:04:31,204
+Here is our 24-hour plan, split into hardware, quantum, and navigation work streams.
+
+50
+00:04:31,204 --> 00:04:36,241
+By hour 12 we have the full pipeline working on recorded data.
+
+51
+00:04:36,241 --> 00:04:45,324
+Every risk has a fallback: a handheld mode, a simulator if the quantum queue is long, and a recorded run for the demo.
+
+52
+00:04:46,524 --> 00:04:51,271
+In the live demo, we show the map, switch GPS off and drive.
+
+53
+00:04:51,271 --> 00:04:53,644
+The inertial path drifts away.
+
+54
+00:04:53,644 --> 00:05:01,002
+Grover's search picks the right cell, the classifier names the zone, and our path snaps back.
+
+55
+00:05:01,002 --> 00:05:11,128
+What is new: quantum search used for map matching, two quantum checks that must agree, and a design ready for a quantum sensor.
+
+56
+00:05:12,328 --> 00:05:22,722
+Next: larger maps and outdoor trials within 6 months, and a diamond quantum magnetometer with defence partners within 18 months.
+
+57
+00:05:22,722 --> 00:05:29,372
+Under ₹5,000, zero emissions, two quantum algorithms, 24-hours.
+
+58
+00:05:30,572 --> 00:05:35,223
+When GPS goes dark, the ground still knows where you are.
+
+59
+00:05:35,223 --> 00:05:36,610
+We are Team VOID.
+
+60
+00:05:36,610 --> 00:05:37,507
+Thank you.
