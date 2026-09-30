@@ -1,0 +1,36 @@
+<html><body style="margin:0;background:transparent">
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="840" viewBox="0 0 1400 840" font-family="Calibri, Carlito, Arial, sans-serif">
+<defs><marker id="d" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="8" markerHeight="8"><circle cx="5" cy="5" r="4" fill="#F237A6"/></marker></defs>
+<ellipse cx="640" cy="820" rx="440" ry="28" fill="#F2F2F4"/>
+<!-- arms -->
+<g stroke="#121216" stroke-width="16" stroke-linecap="round"><line x1="640" y1="330" x2="280" y2="250"/><line x1="640" y1="330" x2="1000" y2="250"/><line x1="640" y1="330" x2="360" y2="420"/><line x1="640" y1="330" x2="920" y2="420"/></g>
+<!-- motors + props -->
+<g><g transform="translate(280,250)"><rect x="-22" y="-40" width="44" height="40" rx="6" fill="#2A2A30"/><ellipse cx="0" cy="-44" rx="150" ry="16" fill="#F237A6" opacity=".18"/><ellipse cx="0" cy="-44" rx="150" ry="16" fill="none" stroke="#F237A6" stroke-width="2"/></g>
+<g transform="translate(1000,250)"><rect x="-22" y="-40" width="44" height="40" rx="6" fill="#2A2A30"/><ellipse cx="0" cy="-44" rx="150" ry="16" fill="#F237A6" opacity=".18"/><ellipse cx="0" cy="-44" rx="150" ry="16" fill="none" stroke="#F237A6" stroke-width="2"/></g>
+<g transform="translate(360,420)"><rect x="-22" y="-40" width="44" height="40" rx="6" fill="#2A2A30"/><ellipse cx="0" cy="-44" rx="150" ry="16" fill="#F237A6" opacity=".18"/><ellipse cx="0" cy="-44" rx="150" ry="16" fill="none" stroke="#F237A6" stroke-width="2"/></g>
+<g transform="translate(920,420)"><rect x="-22" y="-40" width="44" height="40" rx="6" fill="#2A2A30"/><ellipse cx="0" cy="-44" rx="150" ry="16" fill="#F237A6" opacity=".18"/><ellipse cx="0" cy="-44" rx="150" ry="16" fill="none" stroke="#F237A6" stroke-width="2"/></g></g>
+<!-- body -->
+<path d="M540 300 L740 300 L770 350 L510 350 Z" fill="#121216"/>
+<rect x="585" y="280" width="110" height="22" rx="4" fill="#3A3A42"/><text x="600" y="296" font-size="14" fill="#fff">PIXHAWK FC</text>
+<!-- mast -->
+<line x1="640" y1="280" x2="640" y2="130" stroke="#121216" stroke-width="6"/>
+<rect x="596" y="96" width="88" height="38" rx="5" fill="#F237A6"/><text x="610" y="121" font-size="16" fill="#fff" font-weight="bold">MAG</text>
+<!-- payload -->
+<line x1="600" y1="350" x2="590" y2="420" stroke="#121216" stroke-width="5"/><line x1="680" y1="350" x2="690" y2="420" stroke="#121216" stroke-width="5"/>
+<path d="M500 420 L780 420 L820 395 L540 395 Z" fill="#E7E7EC" stroke="#121216" stroke-width="2"/>
+<rect x="500" y="420" width="280" height="150" fill="#FFFFFF" stroke="#121216" stroke-width="2.5"/>
+<path d="M780 420 L820 395 L820 545 L780 570 Z" fill="#D5D5DC" stroke="#121216" stroke-width="2"/>
+<text x="520" y="458" font-size="26" font-weight="bold" fill="#121216" font-family="Cambria, Caladea, serif">VOID-NAV</text>
+<text x="520" y="482" font-size="14" fill="#6A6A74" letter-spacing="2">QUANTUM PNT PAYLOAD</text>
+<rect x="520" y="498" width="170" height="52" rx="4" fill="#121216"/><text x="532" y="520" font-size="14" fill="#F9A8D8" font-family="Consolas, monospace">POS 12.4 · 38.1</text><text x="532" y="540" font-size="14" fill="#fff" font-family="Consolas, monospace">CONF 94%</text>
+<circle cx="745" cy="524" r="9" fill="#F237A6"/>
+<!-- optical flow -->
+<rect x="610" y="570" width="60" height="22" fill="#2A2A30"/><circle cx="640" cy="592" r="9" fill="#F237A6"/>
+<path d="M640 600 L560 800 L720 800 Z" fill="#F237A6" opacity=".08"/>
+<!-- callouts -->
+<g font-size="22" fill="#121216">
+<line x1="684" y1="115" x2="900" y2="100" stroke="#F237A6" stroke-width="2" marker-start="url(#d)"/><text x="910" y="94" font-weight="bold">Quantum-ready magnetometer</text><text x="910" y="120" fill="#6A6A74" font-size="18">on mast, away from motor fields</text>
+<line x1="820" y1="470" x2="1000" y2="520" stroke="#F237A6" stroke-width="2" marker-start="url(#d)"/><text x="1010" y="515" font-weight="bold">VOID-NAV core</text><text x="1010" y="541" fill="#6A6A74" font-size="18">ESP32 · IMU · barometer · GPS</text>
+<line x1="670" y1="590" x2="1000" y2="660" stroke="#F237A6" stroke-width="2" marker-start="url(#d)"/><text x="1010" y="655" font-weight="bold">Optical-flow sensor</text><text x="1010" y="681" fill="#6A6A74" font-size="18">ground motion without GPS</text>
+<line x1="515" y1="345" x2="240" y2="565" stroke="#F237A6" stroke-width="2" marker-start="url(#d)"/><text x="30" y="590" font-weight="bold">Flight controller</text><text x="30" y="616" fill="#6A6A74" font-size="18">receives corrected position</text><text x="30" y="640" fill="#6A6A74" font-size="18">over MAVLink</text>
+</g></svg></body></html>
