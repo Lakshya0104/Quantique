@@ -1,0 +1,38 @@
+[Slide 1]
+Hi, we're Team VOID. Picture a drone out on a mission, and suddenly, GPS is gone. Jammed, blocked by terrain, or simply not there. What does it do next? Our project, VOID NAV, is our answer to use case U C zero eight five: quantum sensing for GPS denied navigation. It's a small payload that rides on a drone and keeps it on track, using something nobody can jam. The Earth's own magnetic field.
+
+[Slide 2]
+So why does this matter? By the time a GPS signal reaches the ground, it's incredibly weak, which makes it easy to lose. When it's gone, a drone falls back on its inertial sensors, and those drift. Tiny errors keep piling up. In our simulation, a low cost unit is off by around two hundred and sixty metres after just three minutes. The systems that solve this properly cost lakhs of rupees, so they never make it onto small tactical drones. That's the gap we're going after.
+
+[Animation: drift]
+Here's what that looks like. The grey path is the drone guessing on its own, and it slowly wanders off. The pink path is VOID NAV. Every time it recognises the magnetic fingerprint of where it is, it snaps right back on track.
+
+[Slide 3]
+So, what are we actually building? A payload that mounts under a drone. On a short mast sits a magnetometer, kept away from motor noise. Inside, there's an E S P thirty two with a motion sensor, a barometer, an optical flow sensor watching the ground, and a GPS that we only use for mapping. It works in four steps. We map the area once, recording the magnetic field every two metres. Then we switch GPS off. The payload keeps sensing, matches what it feels against the map, fixes the drift, and hands a clean position straight to the drone's autopilot.
+
+[Slide 4]
+What makes it different? Most teams will show one quantum algorithm. We built a whole pipeline, where every quantum piece has a real job: sensing, searching, learning, and planning. We match a five dimensional magnetic fingerprint, including the gradient, not just a single number. The design is ready for a real quantum magnetometer, so we can plug in a diamond sensor later without touching the software. And it's completely passive. It sends out nothing, so there's nothing for anyone to detect.
+
+[Slide 5]
+Now, the quantum part. First, sensing. A diamond N V sensor is really a qubit. We put it into superposition, the magnetic field twists its phase, and iterative phase estimation reads that phase out, bit by bit. That's how a quantum sensor turns a field into a number. Second, Grover's search. Our map has sixteen cells, held in just four qubits. The oracle flags the cells that match, and amplitude amplification pushes their probability up.
+
+[Animation: grover]
+Watch it happen. Every cell starts out equally likely. After two rounds of Grover, the two matching cells tower over everything else.
+
+[Slide 5]
+Third, a quantum kernel classifier. A Z Z feature map turns each fingerprint into a quantum state, and we measure how much two states overlap. That tells us which zone we're in, and it breaks the tie when Grover finds two similar cells. And fourth, Q A O A, which plans routes through magnetically rich areas, so the drone gets more position fixes along the way.
+
+[Slide 6]
+Qiskit is at the heart of all of this. Every circuit you've seen is built in Qiskit. We run them on the Air simulator while we develop, and on real IBM quantum hardware through Qiskit Runtime. The classifier uses Qiskit Machine Learning's fidelity quantum kernel. Around that, we use Python for navigation, ArduPilot's simulator for flight, and a live Streamlit dashboard. And the hardware? Under four thousand rupees, and most of it, we're borrowing.
+
+[Slide 7]
+Here's the full workflow. Sensor data streams in fifty times a second. We calibrate it, build the fingerprint, and estimate motion. Once every second, the quantum engine takes a window of readings and returns candidate positions. A particle filter only accepts a correction when Grover and the classifier agree, and then sends position and confidence to the autopilot. So the quantum side runs alongside flight control, and never gets in its way.
+
+[Slide 8]
+Can we really build this in twenty four hours? Yes, because we planned for it. We split into three parallel tracks: hardware, quantum, and navigation. By hour twelve, the whole pipeline runs end to end on recorded data. And our demo has three levels. Level one, we carry the payload down a mapped corridor. That one's guaranteed. Level two, we mount it on a drone and replay the flight in the simulator. Level three, a real flight, but only if it's safe and allowed.
+
+[Slide 9]
+These are early results from our own runs. Grover put ninety four percent of its shots on the two matching cells. The quantum kernel clearly groups fingerprints by zone. And in simulation, magnetic fixes cut drift by around fifty times, with roughly six times more once a quantum sensor is in place. At the hackathon, we'll replace these with real measurements.
+
+[Slide 10]
+So where does this go next? Bigger maps and outdoor trials. Then a real diamond quantum magnetometer, working with the National Quantum Mission's sensing hub. And eventually, field trials with defence partners. VOID NAV brings quantum sensing, search, learning, and planning together, in one small, passive payload. Because when GPS goes dark, the ground still knows where you are. We're Team VOID. Thank you.
