@@ -33,6 +33,7 @@ def tb(s,x,y,w,h,runs,size=12,color=INK,font=SANS,bold=False,align=A.LEFT,anchor
             r=pp.add_run(); r.text=txt; f=r.font
             f.name=o.get('font',font); f.size=Pt(o.get('size',size)); f.bold=o.get('bold',bold); f.italic=o.get('italic',italic)
             f.color.rgb=o.get('color',color)
+            if o.get('link'): r.hyperlink.address=o['link']
             sp=o.get('spc',spc)
             if sp: r._r.get_or_add_rPr().set('spc',str(sp))
     return b
@@ -76,6 +77,9 @@ for c in chips:
 eyebrow(s,0.75,4.85,'Team',color=GREY); tb(s,0.75,5.08,3,0.45,'Team VOID',size=24,bold=True,font=SERIF)
 eyebrow(s,3.4,4.85,'Deliverable',color=GREY); tb(s,3.4,5.12,3.5,0.5,'Working payload prototype + Qiskit pipeline + live dashboard',size=12,color=INK)
 img(s,'drone.png',7.15,1.6,w=5.75)
+box(s,7.3,5.05,5.4,0.62,fill=TINT,shape=S.ROUNDED_RECTANGLE,radius=0.2)
+tb(s,7.5,5.05,1.9,0.62,'VIDEO PITCH',size=10,font=MONO,bold=True,color=PINK,anchor=V.MIDDLE,spc=100)
+tb(s,9.35,5.05,3.3,0.62,[('https://youtu.be/BV2KYV-yhL0',{'link':'https://youtu.be/BV2KYV-yhL0','color':DEEP,'bold':True})],size=14,anchor=V.MIDDLE)
 
 # ---------- 2 PROBLEM
 s=SL[1]; title(s,'PROBLEM STATEMENT'); head(s,'Without GNSS, a drone\'s inertial position drifts without bound.')
@@ -254,5 +258,7 @@ box(s,0.7,4.45,12.0,1.65,fill=INK)
 tb(s,1.0,4.6,8.2,0.9,'"When GPS goes dark, the ground still knows where you are."',size=22,font=SERIF,italic=True,color=WHITE)
 tb(s,1.0,5.45,8.2,0.5,'VOID-NAV: quantum sensing, quantum search, quantum learning and quantum planning, flying on one passive payload.',size=11.5,color=C(0xD6,0xD6,0xDE))
 tb(s,9.5,4.7,3.0,0.5,'Team VOID',size=24,font=SERIF,bold=True,color=WHITE,align=A.RIGHT)
+box(s,9.45,5.52,3.05,0.4,fill=WHITE,shape=S.ROUNDED_RECTANGLE,radius=0.3)
+tb(s,9.45,5.52,3.05,0.4,[('Video: ',{'color':PINK}),('https://youtu.be/BV2KYV-yhL0',{'link':'https://youtu.be/BV2KYV-yhL0','color':DEEP})],size=11,align=A.CENTER,anchor=V.MIDDLE,bold=True)
 tb(s,9.5,5.2,3.0,0.3,'THANK YOU · QUESTIONS WELCOME',size=9,font=MONO,color=C(0xF9,0xA8,0xD8),align=A.RIGHT,spc=150)
 p.save('/home/user/Quantique/deck/VOID-NAV_QiskitFallFest.pptx'); print('saved')
