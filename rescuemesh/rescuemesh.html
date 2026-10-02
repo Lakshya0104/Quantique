@@ -1,0 +1,401 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>RescueMesh</title>
+<link href="f/fonts.css" rel="stylesheet">
+<style>
+@page{size:A4;margin:0}
+:root{--ink:#16191d;--mut:#5b636b;--line:#d9dde1;--teal:#1f5f6b;--tl:#e8f0f1;--acc:#b5532a;--al:#fbeee8;--paper:#ffffff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans','Liberation Sans',sans-serif;color:var(--ink);background:#fff}
+.pg{width:210mm;height:297mm;padding:20mm 18mm 18mm;position:relative;page-break-after:always;overflow:hidden}
+.ey{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
+h1{font-family:'Source Serif 4',serif;font-size:46px;line-height:1.05;font-weight:700}
+h2{font-family:'Source Serif 4',serif;font-size:27px;line-height:1.18;font-weight:700;margin-bottom:12px}
+h3{font-family:'Source Serif 4',serif;font-size:15.5px;font-weight:600;margin:0 0 5px}
+p,li{font-size:11.3px;line-height:1.55;color:#2c3237}
+p+p{margin-top:7px}
+ul,ol{padding-left:17px} li{margin-bottom:3px}
+.lead{font-family:'Source Serif 4',serif;font-size:15px;color:var(--mut);line-height:1.5;margin-bottom:16px}
+.ft{position:absolute;left:18mm;right:18mm;bottom:9mm;display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.14em;color:#8a9197;text-transform:uppercase;border-top:1px solid var(--line);padding-top:6px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.card{border-top:2px solid var(--ink);padding-top:8px}
+.box{background:#f4f6f7;padding:12px 14px}
+.tbox{background:var(--tl);padding:12px 14px}
+.abox{background:var(--al);padding:12px 14px}
+.k{font-family:'Source Serif 4',serif;font-size:30px;font-weight:700;color:var(--teal);line-height:1}
+.kl{font-size:10px;color:var(--mut);margin-top:4px;line-height:1.4}
+.n{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--acc);letter-spacing:.14em;margin-bottom:4px;text-transform:uppercase}
+table{border-collapse:collapse;width:100%;font-size:10.6px}
+th{font-family:'IBM Plex Mono',monospace;font-size:8.8px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);text-align:left;font-weight:500;border-bottom:1.5px solid var(--ink);padding:6px 7px}
+td{padding:6px 7px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.45}
+tr.hl td{background:var(--tl);font-weight:600}
+.mono{font-family:'IBM Plex Mono',monospace}
+.note{font-size:9.8px;color:#7a828a;font-style:italic}
+svg text{font-family:'IBM Plex Sans',sans-serif}
+.sec{margin-top:16px}
+.tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.1em;border:1px solid var(--teal);color:var(--teal);padding:3px 7px;margin:0 4px 4px 0;text-transform:uppercase}
+.quote{font-family:'Source Serif 4',serif;font-size:17px;line-height:1.45;border-left:3px solid var(--teal);padding-left:14px;color:var(--ink)}
+</style></head><body>
+
+<!-- 1 COVER -->
+<section class="pg" style="padding-top:34mm">
+<div class="ey">Tech Horizon 2.0 · Next-Gen Communication · Build Plan</div>
+<h1>RescueMesh</h1>
+<p class="lead" style="font-size:19px;margin-top:10px;max-width:150mm">A carry-and-drop emergency network that finds survivors through their phones and lets them call for help when every tower is down.</p>
+<svg viewBox="0 0 700 330" width="100%" style="margin-top:12mm">
+ <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1f5f6b"/></marker></defs>
+ <!-- rubble -->
+ <path d="M20 280 L80 230 L130 250 L170 205 L230 245 L280 220 L300 280 Z" fill="#eef0f1" stroke="#9aa3aa"/>
+ <g font-size="11" fill="#b5532a"><circle cx="110" cy="255" r="5" fill="#b5532a"/><circle cx="200" cy="240" r="5" fill="#b5532a"/><circle cx="250" cy="262" r="5" fill="#b5532a"/>
+ <circle cx="110" cy="255" r="16" fill="none" stroke="#b5532a" opacity=".5"/><circle cx="110" cy="255" r="28" fill="none" stroke="#b5532a" opacity=".25"/>
+ <circle cx="200" cy="240" r="16" fill="none" stroke="#b5532a" opacity=".5"/><circle cx="250" cy="262" r="16" fill="none" stroke="#b5532a" opacity=".5"/>
+ <text x="40" y="305">Trapped survivors with phones · no network</text></g>
+ <!-- rescuer node -->
+ <rect x="330" y="200" width="70" height="44" rx="6" fill="#16191d"/><text x="341" y="226" fill="#fff" font-size="11" font-weight="600">NODE A</text>
+ <text x="318" y="262" font-size="10.5" fill="#5b636b">rescuer backpack</text>
+ <path d="M300 245 Q315 240 328 228" stroke="#b5532a" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+ <!-- balloon relay -->
+ <g><ellipse cx="500" cy="60" rx="20" ry="24" fill="#e8f0f1" stroke="#1f5f6b"/><ellipse cx="530" cy="70" rx="18" ry="22" fill="#e8f0f1" stroke="#1f5f6b"/><ellipse cx="514" cy="40" rx="18" ry="22" fill="#e8f0f1" stroke="#1f5f6b"/>
+ <line x1="514" y1="90" x2="514" y2="118" stroke="#1f5f6b"/><rect x="494" y="118" width="40" height="26" rx="4" fill="#1f5f6b"/><text x="500" y="135" fill="#fff" font-size="10">RELAY</text>
+ <line x1="514" y1="144" x2="514" y2="290" stroke="#9aa3aa" stroke-dasharray="2 3"/></g>
+ <path d="M402 210 L490 140" stroke="#1f5f6b" stroke-width="2" marker-end="url(#a)"/><text x="410" y="160" font-size="10.5" fill="#1f5f6b">LoRa · km range</text>
+ <!-- command -->
+ <rect x="590" y="200" width="100" height="70" rx="6" fill="#fff" stroke="#16191d"/><text x="600" y="218" font-size="10" font-weight="600">COMMAND</text>
+ <rect x="600" y="226" width="80" height="36" fill="#e8f0f1"/><circle cx="620" cy="240" r="4" fill="#b5532a"/><circle cx="650" cy="250" r="4" fill="#b5532a"/><circle cx="665" cy="236" r="4" fill="#d9a21b"/>
+ <path d="M536 135 L600 198" stroke="#1f5f6b" stroke-width="2" marker-end="url(#a)"/>
+ <text x="560" y="300" font-size="10.5" fill="#5b636b">live triage map · no internet</text>
+</svg>
+<div class="g4" style="margin-top:12mm">
+<div class="card"><div class="n">Find</div><p>Detect phones under rubble from their Wi-Fi and Bluetooth signals</p></div>
+<div class="card"><div class="n">Connect</div><p>"SOS – Rescue Network": any phone, no app, no internet</p></div>
+<div class="card"><div class="n">Compress</div><p>AI turns each SOS into a 16-byte triage code</p></div>
+<div class="card"><div class="n">Relay</div><p>Self-healing LoRa mesh, relays placed with quantum optimisation</p></div>
+</div>
+<div style="position:absolute;left:18mm;bottom:18mm"><div class="ey" style="margin:0 0 3px">Team</div><div style="font-family:'Source Serif 4',serif;font-size:22px;font-weight:700">Team VOID</div></div>
+</section>
+
+<!-- 2 PROBLEM -->
+<section class="pg">
+<div class="ey">01 · The problem</div>
+<h2>In a disaster, the network dies first, and the people who need it most are the ones who can't reach anyone.</h2>
+<p class="lead">Earthquakes, floods, cyclones and landslides knock out power and mobile towers within minutes. Survivors often still hold working phones, but with no network those phones are silent.</p>
+<div class="g3">
+<div class="box"><div class="k">72 h</div><div class="kl">The "golden window": survival chances fall sharply the longer someone stays trapped.</div></div>
+<div class="box"><div class="k">0 bars</div><div class="kl">Towers lose power or backhaul; the networks people depend on vanish exactly when needed.</div></div>
+<div class="box"><div class="k">Blind</div><div class="kl">Rescuers search building by building with no idea where people are or who is most critical.</div></div>
+</div>
+<div class="sec g2">
+<div><h3>Who is affected</h3><ul>
+<li><b>Survivors:</b> trapped or stranded, unable to say where they are or what they need.</li>
+<li><b>Rescue teams (NDRF, SDRF, fire services, Army):</b> spend precious hours searching blindly.</li>
+<li><b>Command centres:</b> no live picture of who needs help first.</li></ul></div>
+<div><h3>Why current solutions fall short</h3>
+<table><tr><th>Today</th><th>Limitation</th></tr>
+<tr><td>Satellite phones</td><td>Expensive, few units, rescuers only, survivors can't use them</td></tr>
+<tr><td>Walkie-talkies</td><td>Voice only; survivors don't have them</td></tr>
+<tr><td>Cell-on-Wheels trucks</td><td>Need roads, take hours or days to arrive</td></tr>
+<tr><td>Offline mesh apps</td><td>Must be installed <i>before</i> the disaster</td></tr>
+<tr><td>Thermal / sniffer dogs</td><td>Find people, but can't receive their needs</td></tr></table></div>
+</div>
+<div class="sec quote">Problem statement: give survivors a way to call for help, and rescuers a way to find and prioritise them, within minutes of a disaster, using the phones people already carry and no infrastructure at all.</div>
+<div class="ft"><span>RescueMesh · Team VOID</span><span>02</span></div>
+</section>
+
+<!-- 3 SOLUTION -->
+<section class="pg">
+<div class="ey">02 · The solution</div>
+<h2>RescueMesh: a pocket emergency network that rescuers carry in and drop on site.</h2>
+<p class="lead">Three small battery-powered nodes create a working network in minutes. They find survivors, give them a way to ask for help, and carry those messages kilometres to the command post.</p>
+<div class="g2" style="row-gap:16px">
+<div class="box"><div class="n">Function 1 · Find</div><h3>Survivor detection from phone signals</h3><p>Even with no network, phones keep broadcasting Wi-Fi probe requests and Bluetooth adverts while they search. Node A listens for them and logs signal strength (RSSI) with its GPS position. As the rescuer walks, the dashboard builds a <b>heat map of where phones, and people, probably are</b>.</p></div>
+<div class="box"><div class="n">Function 2 · Connect</div><h3>"SOS – Rescue Network" hotspot</h3><p>Node A also opens an open Wi-Fi network. Joining it pops up a one-page help form automatically (captive portal, like hotel Wi-Fi): <i>people count, injuries, needs, a short message</i>. The phone's location is attached. <b>No app, no internet, any phone.</b></p></div>
+<div class="box"><div class="n">Function 3 · Compress</div><h3>AI semantic compression</h3><p>LoRa reaches kilometres but carries only tiny packets. Instead of sending the whole form, an AI step extracts the meaning ("3 people, 1 critical, needs medical + water") and packs it into a <b>16-byte triage code</b>. This is "semantic communication", a 6G research direction: send the meaning, not the data.</p></div>
+<div class="box"><div class="n">Function 4 · Relay</div><h3>Self-healing LoRa mesh</h3><p>Relay nodes on a pole, a helium balloon or a building edge pass packets hop by hop to the command node. If a relay dies, packets reroute. Relay positions are chosen by a <b>quantum optimisation (QAOA)</b> step that maximises how many survivors stay connected.</p></div>
+</div>
+<div class="sec tbox"><h3>What command sees</h3><p>A live map with colour-coded pins (<b style="color:#b5532a">red = critical</b>, amber = urgent, green = stable), the phone-signal heat map, which relay each message came through, and an audible alert for critical cases. All of it works <b>fully offline</b>.</p></div>
+<div class="ft"><span>RescueMesh · Team VOID</span><span>03</span></div>
+</section>
+
+<!-- 4 ARCHITECTURE -->
+<section class="pg">
+<div class="ey">03 · How it works</div>
+<h2>System architecture</h2>
+<svg viewBox="0 0 700 430" width="100%">
+ <defs><marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#16191d"/></marker></defs>
+ <g font-size="11">
+ <rect x="0" y="20" width="130" height="300" fill="#fbeee8"/><text x="10" y="40" font-size="9" fill="#b5532a" letter-spacing="2">SURVIVORS</text>
+ <rect x="15" y="60" width="100" height="60" rx="8" fill="#fff" stroke="#b5532a"/><text x="27" y="84" font-weight="600">Phone</text><text x="27" y="102" fill="#5b636b" font-size="10">Wi-Fi/BT probes</text>
+ <rect x="15" y="150" width="100" height="60" rx="8" fill="#fff" stroke="#b5532a"/><text x="27" y="174" font-weight="600">Phone</text><text x="27" y="192" fill="#5b636b" font-size="10">joins SOS Wi-Fi</text>
+ <rect x="15" y="240" width="100" height="60" rx="8" fill="#fff" stroke="#b5532a"/><text x="27" y="264" font-weight="600">Phone</text><text x="27" y="282" fill="#5b636b" font-size="10">fills help form</text>
+ <path d="M130 90 L175 140" stroke="#16191d" marker-end="url(#b)"/><path d="M130 180 L175 180" stroke="#16191d" marker-end="url(#b)"/><path d="M130 270 L175 220" stroke="#16191d" marker-end="url(#b)"/>
+ <rect x="180" y="20" width="160" height="300" fill="#16191d"/><text x="192" y="40" font-size="9" fill="#9cc3c9" letter-spacing="2">NODE A · BACKPACK</text>
+ <text x="192" y="70" fill="#fff" font-weight="600">ESP32 #1</text>
+ <text x="192" y="92" fill="#c9cfd4" font-size="10">• Probe/BLE scanner (RSSI)</text>
+ <text x="192" y="110" fill="#c9cfd4" font-size="10">• SOS hotspot + captive portal</text>
+ <text x="192" y="128" fill="#c9cfd4" font-size="10">• GPS tag (NEO-6M)</text>
+ <text x="192" y="146" fill="#c9cfd4" font-size="10">• Triage encoder (16 B)</text>
+ <rect x="192" y="170" width="136" height="40" fill="#2a3036"/><text x="202" y="195" fill="#fff" font-size="10.5">LoRa radio (SX127x)</text>
+ <rect x="192" y="225" width="136" height="80" fill="#2a3036"/><text x="202" y="246" fill="#9cc3c9" font-size="9.5">PACKET (16 bytes)</text><text x="202" y="264" fill="#fff" font-size="9.5" class="mono">id · lat · lon · n</text><text x="202" y="280" fill="#fff" font-size="9.5" class="mono">severity · needs</text><text x="202" y="296" fill="#fff" font-size="9.5" class="mono">time · hops · crc</text>
+ <path d="M340 190 L395 190" stroke="#1f5f6b" stroke-width="2" marker-end="url(#b)"/>
+ <rect x="400" y="110" width="120" height="160" fill="#e8f0f1" stroke="#1f5f6b"/><text x="410" y="130" font-size="9" fill="#1f5f6b" letter-spacing="2">RELAY NODES</text>
+ <text x="410" y="155" font-weight="600">ESP32 + LoRa</text><text x="410" y="175" font-size="10" fill="#5b636b">pole · balloon · rooftop</text><text x="410" y="195" font-size="10" fill="#5b636b">store-and-forward</text><text x="410" y="215" font-size="10" fill="#5b636b">duplicate filtering</text><text x="410" y="235" font-size="10" fill="#5b636b">placed by QAOA</text><text x="410" y="255" font-size="10" fill="#5b636b">self-healing routes</text>
+ <path d="M520 190 L565 190" stroke="#1f5f6b" stroke-width="2" marker-end="url(#b)"/>
+ <rect x="570" y="40" width="130" height="300" fill="#fff" stroke="#16191d"/><text x="580" y="60" font-size="9" fill="#5b636b" letter-spacing="2">COMMAND POST</text>
+ <text x="580" y="85" font-weight="600">ESP32 + LoRa gateway</text><text x="580" y="103" font-size="10" fill="#5b636b">USB to laptop</text>
+ <rect x="580" y="120" width="110" height="90" fill="#e8f0f1"/><circle cx="600" cy="145" r="5" fill="#b5532a"/><circle cx="640" cy="170" r="5" fill="#d9a21b"/><circle cx="665" cy="140" r="5" fill="#2e8b57"/><circle cx="620" cy="190" r="5" fill="#b5532a"/>
+ <text x="580" y="230" font-size="10">Python dashboard</text><text x="580" y="248" font-size="10" fill="#5b636b">triage map · heat map</text><text x="580" y="266" font-size="10" fill="#5b636b">AI message decoder</text><text x="580" y="284" font-size="10" fill="#5b636b">QAOA relay planner</text><text x="580" y="302" font-size="10" fill="#5b636b">critical-case alarm</text>
+ </g>
+ <rect x="0" y="350" width="700" height="70" fill="#f4f6f7"/>
+ <text x="14" y="374" font-size="9" fill="#1f5f6b" letter-spacing="2">DATA FLOW</text>
+ <text x="14" y="396" font-size="11">Phone signal / SOS form → Node A encodes 16-byte triage packet → LoRa hop(s) through relays → gateway → dashboard decodes,</text>
+ <text x="14" y="412" font-size="11">plots and prioritises. End-to-end in seconds, no internet anywhere in the chain.</text>
+</svg>
+<div class="sec"><h3>The 16-byte triage packet</h3>
+<table><tr><th>Field</th><th>Bytes</th><th>Example</th></tr>
+<tr><td>Message ID + source node</td><td class="mono">2</td><td>#0042 from Node A</td></tr>
+<tr><td>Latitude, longitude (scaled integers)</td><td class="mono">8</td><td>17.3850, 78.4867</td></tr>
+<tr><td>People count · severity (critical / urgent / stable)</td><td class="mono">1</td><td>3 people · critical</td></tr>
+<tr><td>Needs bitmask (medical, water, food, evacuation, shelter, child, elderly, trapped)</td><td class="mono">1</td><td>medical + water + trapped</td></tr>
+<tr><td>Timestamp offset · hop count</td><td class="mono">2</td><td>+04:12 min · 2 hops</td></tr>
+<tr><td>Checksum (CRC-16)</td><td class="mono">2</td><td>integrity check</td></tr></table>
+<p class="note" style="margin-top:6px">A typical web form submission is several hundred bytes, often more with free text. 16 bytes keeps each LoRa transmission short, so more survivors can be served on the same channel.</p></div>
+<div class="ft"><span>RescueMesh · Team VOID</span><span>04</span></div>
+</section>
+
+<!-- 5 NOVELTY -->
+<section class="pg">
+<div class="ey">04 · Novelty</div>
+<h2>What makes RescueMesh different</h2>
+<div class="g2" style="row-gap:14px">
+<div class="card"><div class="n">N-01</div><h3>Find and talk in one device</h3><p>Existing tools either locate people (thermal, dogs, radar) or give rescuers comms (sat phones, radios). RescueMesh does both and lets the <i>survivor</i> speak.</p></div>
+<div class="card"><div class="n">N-02</div><h3>Zero-install for survivors</h3><p>A captive portal works on any smartphone with no app, account or internet. Most offline-mesh solutions only work if an app was installed beforehand.</p></div>
+<div class="card"><div class="n">N-03</div><h3>Semantic compression with AI</h3><p>We send the <i>meaning</i> of a message, not its raw data, a core idea in 6G research. Free-text pleas become structured triage codes that fit long-range, low-bandwidth radio.</p></div>
+<div class="card"><div class="n">N-04</div><h3>Quantum-optimised relay placement</h3><p>Choosing where to put a few relays to cover the most survivors is a combinatorial optimisation. We solve it with QAOA on Qiskit and compare against brute force.</p></div>
+<div class="card"><div class="n">N-05</div><h3>Triage built into the network</h3><p>Packets carry severity, so the command map and alarms put critical cases first. The network itself does triage.</p></div>
+<div class="card"><div class="n">N-06</div><h3>Deploy anywhere, cheaply</h3><p>Under ₹4,000 per kit, battery powered, carried in a backpack, raised on a pole or a helium balloon. No trucks, towers or roads needed.</p></div>
+</div>
+<div class="sec"><h3>Compared with existing options</h3>
+<table><tr><th>Capability</th><th>Sat phone</th><th>Walkie-talkie</th><th>Cell-on-Wheels</th><th>Mesh app</th><th>RescueMesh</th></tr>
+<tr><td>Survivors can use their own phones</td><td>✗</td><td>✗</td><td>✓</td><td>only if pre-installed</td><td><b>✓</b></td></tr>
+<tr><td>Finds people who can't respond</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td><b>✓</b></td></tr>
+<tr><td>Works with no infrastructure</td><td>✓</td><td>✓</td><td>needs roads</td><td>✓ (short range)</td><td><b>✓ (km range)</b></td></tr>
+<tr><td>Prioritises critical cases</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td><b>✓</b></td></tr>
+<tr><td>Deploy time</td><td>minutes</td><td>minutes</td><td>hours to days</td><td>minutes</td><td><b>minutes</b></td></tr>
+<tr><td>Cost per kit</td><td>very high</td><td>low</td><td>very high</td><td>free</td><td><b>&lt; ₹4,000</b></td></tr></table></div>
+<div class="ft"><span>RescueMesh · Team VOID</span><span>05</span></div>
+</section>
+
+<!-- 6 QUANTUM -->
+<section class="pg">
+<div class="ey">05 · The quantum part</div>
+<h2>Where should the relays go? A quantum optimisation answers it.</h2>
+<p class="lead">With only a few relays, where you place them decides how many survivors stay connected. That's a "choose K of N" problem, and it grows explosively as maps get bigger.</p>
+<div class="g2">
+<div>
+<h3>How we use QAOA</h3>
+<ol>
+<li><b>Input:</b> candidate relay spots (rooftops, poles, open ground) and survivor clusters from the phone-signal heat map, weighted by estimated people.</li>
+<li><b>Formulate:</b> maximise survivors within radio range of a relay, with a penalty if we don't place exactly K relays. This becomes a <b>QUBO</b>, then a <b>cost Hamiltonian H<sub>C</sub></b>.</li>
+<li><b>Quantum circuit:</b> one qubit per candidate spot. QAOA alternates the cost layer e<sup>−iγH<sub>C</sub></sup> with a mixer layer e<sup>−iβΣX</sup>, with p = 2 layers.</li>
+<li><b>Optimise:</b> a classical optimiser (COBYLA) tunes γ and β on <b>Qiskit Aer</b>.</li>
+<li><b>Output:</b> the relay placement, shown on the dashboard map.</li>
+</ol></div>
+<div>
+<svg viewBox="0 0 330 260" width="100%">
+ <rect x="0" y="0" width="330" height="260" fill="#f4f6f7"/>
+ <text x="10" y="18" font-size="9" fill="#5b636b" letter-spacing="2">OUR TEST MAP (6 SPOTS, 8 CLUSTERS)</text>
+ <g fill="#b5532a" opacity=".85"><circle cx="40" cy="190" r="9"/><circle cx="100" cy="225" r="5"/><circle cx="190" cy="225" r="7"/><circle cx="250" cy="170" r="11"/><circle cx="70" cy="70" r="7"/><circle cx="130" cy="70" r="12"/><circle cx="190" cy="100" r="5"/><circle cx="250" cy="45" r="9"/></g>
+ <g fill="none" stroke="#9aa3aa" stroke-dasharray="3 3"><circle cx="40" cy="225" r="2"/></g>
+ <g font-size="10">
+ <rect x="27" y="212" width="14" height="14" fill="#fff" stroke="#16191d"/><text x="22" y="244">0</text>
+ <rect x="117" y="212" width="14" height="14" fill="#fff" stroke="#16191d"/><text x="113" y="244">1</text>
+ <rect x="207" y="182" width="14" height="14" fill="#1f5f6b"/><text x="203" y="214">2 ✓</text>
+ <rect x="57" y="92" width="14" height="14" fill="#1f5f6b"/><text x="53" y="124">3 ✓</text>
+ <rect x="147" y="92" width="14" height="14" fill="#fff" stroke="#16191d"/><text x="143" y="124">4</text>
+ <rect x="237" y="62" width="14" height="14" fill="#fff" stroke="#16191d"/><text x="233" y="94">5</text>
+ <circle cx="214" cy="189" r="70" fill="#1f5f6b" opacity=".08"/><circle cx="64" cy="99" r="70" fill="#1f5f6b" opacity=".08"/>
+ </g>
+ <text x="10" y="255" font-size="9.5" fill="#5b636b">■ relay spot (teal = chosen) · ● survivor cluster</text>
+</svg></div></div>
+<div class="sec"><h3>Our result (run on Qiskit Aer)</h3>
+<table><tr><th>Setting</th><th>Value</th></tr>
+<tr><td>Qubits / candidate relay spots</td><td>6</td></tr>
+<tr><td>Relays to place (K)</td><td>2</td></tr>
+<tr><td>QAOA depth</td><td>p = 2, COBYLA, 8,192 shots</td></tr>
+<tr class="hl"><td>QAOA best placement</td><td>spots 2 and 3 → covers 13 of 21 people</td></tr>
+<tr class="hl"><td>Brute-force optimum</td><td>spots 2 and 3 → 13 people (match ✓)</td></tr>
+<tr><td>Chance QAOA samples the optimum</td><td>3.7 % vs 1.6 % random (≈ 2.3× better)</td></tr></table></div>
+<div class="sec abox"><h3>Being honest with judges</h3><p>At 6 spots a laptop solves this instantly by trying every option, so we don't claim a speed-up today. QAOA is the method that scales as maps grow to hundreds of spots and quantum hardware matures. We show it working, verify it against the exact answer, and keep a classical solver as the fallback. Judges respect that honesty.</p></div>
+<div class="ft"><span>RescueMesh · Team VOID</span><span>06</span></div>
+</section>
+
+<!-- 7 HARDWARE -->
+<section class="pg">
+<div class="ey">06 · Hardware</div>
+<h2>Hardware requirements</h2>
+<p class="lead">Everything is off-the-shelf and available in India. Buy one spare ESP32 and one spare LoRa module; parts burn out at hackathons.</p>
+<h3>Must-have (≈ ₹3,500)</h3>
+<table><tr><th>#</th><th>Part</th><th>Qty</th><th>Used for</th><th style="text-align:right">₹ approx.</th></tr>
+<tr><td>1</td><td>ESP32 DevKit V1 (WROOM-32)</td><td>3 (+1 spare)</td><td>Node A, relay, command gateway</td><td style="text-align:right">450 each</td></tr>
+<tr><td>2</td><td>LoRa module: RFM95W / Ra-01H (865–867 MHz) <i>or</i> Ra-02 (433 MHz). All three must match</td><td>3 (+1 spare)</td><td>long-range mesh</td><td style="text-align:right">350–600 each</td></tr>
+<tr><td>3</td><td>Antennas matching the LoRa frequency (spring or SMA)</td><td>3</td><td>range (never power LoRa without an antenna)</td><td style="text-align:right">50–150 each</td></tr>
+<tr><td>4</td><td>NEO-6M GPS module + antenna</td><td>1</td><td>geo-tag detections and SOS on Node A</td><td style="text-align:right">450</td></tr>
+<tr><td>5</td><td>Breadboards + male/female jumper wires</td><td>3 sets</td><td>wiring</td><td style="text-align:right">300</td></tr>
+<tr><td>6</td><td>Power banks with micro-USB / USB-C cables</td><td>3</td><td>portable power</td><td style="text-align:right">borrow</td></tr>
+<tr><td>7</td><td>Laptop</td><td>1–2</td><td>dashboard, AI decoder, QAOA</td><td style="text-align:right">have</td></tr></table>
+<h3 style="margin-top:12px">Nice-to-have (adds polish)</h3>
+<table><tr><th>Part</th><th>Why</th><th style="text-align:right">₹</th></tr>
+<tr><td>0.96" OLED displays (I²C) ×3</td><td>each node shows "SOS: 3 · Phones: 12"</td><td style="text-align:right">200 each</td></tr>
+<tr><td>Buzzer + red LED</td><td>command post alarm on critical SOS</td><td style="text-align:right">50</td></tr>
+<tr><td>Small plastic or 3D-printed boxes</td><td>makes nodes look like real products</td><td style="text-align:right">~200</td></tr>
+<tr><td>Tripod or 2–3 m pole</td><td>relay "mast mode"</td><td style="text-align:right">borrow</td></tr>
+<tr><td>6–8 helium party balloons + string</td><td>relay "aerostat mode", the visual wow</td><td style="text-align:right">300–500</td></tr>
+<tr><td>Backpack / chest strap</td><td>Node A rescuer mount</td><td style="text-align:right">have</td></tr></table>
+<h3 style="margin-top:12px">Wiring (every node)</h3>
+<div class="g2"><table><tr><th>LoRa pin</th><th>ESP32 pin</th></tr>
+<tr><td>VCC</td><td>3.3 V (never 5 V)</td></tr><tr><td>GND</td><td>GND</td></tr><tr><td>SCK / MISO / MOSI</td><td>GPIO 18 / 19 / 23</td></tr><tr><td>NSS (CS) · RST · DIO0</td><td>GPIO 5 · 14 · 26</td></tr></table>
+<table><tr><th>Other</th><th>ESP32 pin</th></tr><tr><td>GPS TX → RX2</td><td>GPIO 16 (Node A only)</td></tr><tr><td>OLED SDA / SCL</td><td>GPIO 21 / 22</td></tr><tr><td>Buzzer (+)</td><td>GPIO 25 (command)</td></tr><tr><td>LED (+) via 220 Ω</td><td>GPIO 27 (command)</td></tr></table></div>
+<p class="note" style="margin-top:8px">Where to buy: Robu.in, Robocraze, ElectronicsComp, or a local electronics market (Hyderabad: Koti / CTC). India's 865–867 MHz and 433 MHz bands are licence-exempt for low-power devices; keep transmit power at module defaults.</p>
+<div class="ft"><span>RescueMesh · Team VOID</span><span>07</span></div>
+</section>
+
+<!-- 8 SOFTWARE -->
+<section class="pg">
+<div class="ey">07 · Software</div>
+<h2>Software and tech stack</h2>
+<table style="margin-top:6px"><tr><th style="width:24%">Layer</th><th>Tools</th><th>What it does</th></tr>
+<tr><td><b>Node A firmware</b></td><td>Arduino C++ · ESP32 core · WiFi promiscuous mode · NimBLE · DNSServer + WebServer · TinyGPS++ · LoRa (sandeepmistry)</td><td>scans probes and BLE, serves the captive portal, encodes 16-byte packets, sends over LoRa</td></tr>
+<tr><td><b>Relay firmware</b></td><td>Arduino C++ · LoRa</td><td>store-and-forward, duplicate filter by message ID, hop count, retry</td></tr>
+<tr><td><b>Gateway firmware</b></td><td>Arduino C++ · LoRa · Serial</td><td>receives packets, checks CRC, forwards to laptop over USB, sounds alarm</td></tr>
+<tr><td><b>AI triage</b></td><td>Python · small on-device language model or keyword/rule extractor as fallback</td><td>turns free text ("my father can't move his leg, we have no water") into severity + needs codes</td></tr>
+<tr><td><b>Quantum</b></td><td>Qiskit · Qiskit Aer · SciPy (COBYLA)</td><td>QAOA relay placement, verified against brute force</td></tr>
+<tr><td><b>Dashboard</b></td><td>Python · Streamlit or Flask · Folium / Leaflet (offline map tiles cached)</td><td>live triage map, phone heat map, relay paths, alarms</td></tr></table>
+<div class="sec g2">
+<div class="box"><h3>Survivor detection: honest limits</h3><p>Modern phones randomise their Wi-Fi MAC address, so we <b>estimate device count and rough location; we never identify people</b>. Signal strength gives distance only roughly (a few metres to tens of metres), so we combine readings from several positions to narrow it down. Phones in airplane mode or switched off can't be found, which is why the SOS hotspot is the second channel.</p></div>
+<div class="box"><h3>AI triage: why it matters</h3><p>Panicked people type messy messages. The AI extracts what rescuers need (how many, how bad, what's needed) and fills the triage fields, so even an unstructured plea becomes a 16-byte, prioritised packet. If the model fails, the form's checkboxes still fill the packet.</p></div></div>
+<div class="sec"><h3>Repository layout (to create)</h3>
+<pre class="mono" style="font-size:10px;background:#f4f6f7;padding:10px 12px;line-height:1.5">rescuemesh/
+├── firmware/node_a/     scanner + captive portal + GPS + LoRa TX
+├── firmware/relay/      store-and-forward mesh
+├── firmware/gateway/    LoRa RX → USB serial + alarm
+├── ai/triage.py         free text → severity + needs bitmask
+├── quantum/qaoa_relay.py   relay placement (Qiskit Aer)
+└── dashboard/app.py     live map, heat map, alerts</pre></div>
+<div class="ft"><span>RescueMesh · Team VOID</span><span>08</span></div>
+</section>
+
+<!-- 9 PLAN -->
+<section class="pg">
+<div class="ey">08 · 24-hour plan</div>
+<h2>Who does what, hour by hour</h2>
+<p class="lead">Written for a team of four; with three, merge the AI and dashboard roles.</p>
+<svg viewBox="0 0 700 250" width="100%">
+ <g font-size="10">
+ <g fill="#5b636b" class="mono" font-size="9"><text x="120" y="14">H0</text><text x="215" y="14">H4</text><text x="310" y="14">H8</text><text x="405" y="14">H12</text><text x="500" y="14">H16</text><text x="595" y="14">H20</text><text x="680" y="14">H24</text></g>
+ <g stroke="#e3e6e9"><line x1="125" y1="20" x2="125" y2="230"/><line x1="220" y1="20" x2="220" y2="230"/><line x1="315" y1="20" x2="315" y2="230"/><line x1="410" y1="20" x2="410" y2="230"/><line x1="505" y1="20" x2="505" y2="230"/><line x1="600" y1="20" x2="600" y2="230"/><line x1="695" y1="20" x2="695" y2="230"/></g>
+ <text x="0" y="45" font-weight="600">P1 · Hardware</text>
+ <rect x="125" y="30" width="95" height="24" fill="#16191d"/><text x="130" y="46" fill="#fff">wire 3 nodes</text>
+ <rect x="220" y="30" width="142" height="24" fill="#3b444b"/><text x="225" y="46" fill="#fff">LoRa ping + relay hop</text>
+ <rect x="410" y="30" width="190" height="24" fill="#9aa3aa"/><text x="415" y="46">range tests, boxes, balloon/pole</text>
+ <text x="0" y="95" font-weight="600">P2 · Node A</text>
+ <rect x="125" y="80" width="118" height="24" fill="#1f5f6b"/><text x="130" y="96" fill="#fff">captive portal + form</text>
+ <rect x="243" y="80" width="118" height="24" fill="#2f7c89"/><text x="248" y="96" fill="#fff">probe/BLE scanner</text>
+ <rect x="361" y="80" width="95" height="24" fill="#5f9aa3"/><text x="366" y="96" fill="#fff">GPS + packet</text>
+ <text x="0" y="145" font-weight="600">P3 · AI + Quantum</text>
+ <rect x="125" y="130" width="142" height="24" fill="#b5532a"/><text x="130" y="146" fill="#fff">AI triage extractor</text>
+ <rect x="267" y="130" width="142" height="24" fill="#d08462"/><text x="272" y="146" fill="#fff">QAOA relay planner</text>
+ <text x="0" y="195" font-weight="600">P4 · Dashboard</text>
+ <rect x="125" y="180" width="190" height="24" fill="#d9a21b"/><text x="130" y="196">map + serial reader + pins</text>
+ <rect x="315" y="180" width="142" height="24" fill="#e8c46b"/><text x="320" y="196">heat map + alarms</text>
+ <rect x="456" y="80" width="144" height="124" fill="#e8f0f1" stroke="#1f5f6b"/><text x="466" y="120" fill="#1f5f6b" font-weight="600">INTEGRATION</text><text x="466" y="138" fill="#1f5f6b">end-to-end runs</text><text x="466" y="154" fill="#1f5f6b">fix bugs together</text>
+ <rect x="600" y="30" width="95" height="174" fill="#fbeee8" stroke="#b5532a"/><text x="608" y="100" fill="#b5532a" font-weight="600">DEMO PREP</text><text x="608" y="118" fill="#b5532a">rehearse ×3</text><text x="608" y="134" fill="#b5532a">record backup</text><text x="608" y="150" fill="#b5532a">video</text>
+ <line x1="410" y1="20" x2="410" y2="230" stroke="#16191d" stroke-dasharray="4 4"/><text x="414" y="226" font-size="9">Checkpoint: SOS from a phone reaches the laptop</text>
+ </g></svg>
+<div class="sec"><h3>Build order (de-risked)</h3>
+<ol><li><b>H0–H4:</b> two ESP32s exchange "hello" over LoRa. <i>If this works, the project works.</i></li>
+<li><b>H4–H8:</b> captive portal on Node A; phone submits the form; packet reaches the laptop through one hop.</li>
+<li><b>H8–H12:</b> add the relay hop and the dashboard map. <b>Minimum viable demo done.</b></li>
+<li><b>H12–H16:</b> phone-signal scanner and heat map, AI triage, QAOA planner.</li>
+<li><b>H16–H20:</b> polish: OLEDs, alarm, boxes, balloon or pole, range test across the venue.</li>
+<li><b>H20–H24:</b> rehearse, record a backup video, prepare the pitch.</li></ol></div>
+<div class="sec abox"><h3>Before the hackathon (allowed prep)</h3><p>Order parts now. Install Arduino IDE with the ESP32 core and LoRa library, and Python with Qiskit and Streamlit. Test that every board flashes. Cache offline map tiles of the venue area. Do <b>not</b> arrive with untested boards.</p></div>
+<div class="ft"><span>RescueMesh · Team VOID</span><span>09</span></div>
+</section>
+
+<!-- 10 DEMO -->
+<section class="pg">
+<div class="ey">09 · Impressing the judges</div>
+<h2>The 5-minute demo that makes judges remember you</h2>
+<div class="g2">
+<div><h3>Set-up before judges arrive</h3><ul>
+<li>Hide 2–3 team phones around the area as "trapped survivors", Wi-Fi on.</li>
+<li>Relay on a balloon or pole at the far end of the hall, or outside the room.</li>
+<li>Command laptop at your table, <b>Wi-Fi visibly turned off</b>.</li>
+<li>Node A in a backpack, OLED showing status.</li></ul></div>
+<div><h3>Demo script</h3><ol>
+<li><b>Story (30 s):</b> "Earthquake. Towers down. Priya is trapped on the second floor. Her phone works. There's no signal."</li>
+<li><b>Find (60 s):</b> walk with the backpack; the heat map lights up where the hidden phones are.</li>
+<li><b>Connect (60 s):</b> hand the judge your phone. They join "SOS – Rescue Network" and type a message.</li>
+<li><b>Relay (30 s):</b> seconds later a red pin appears on the command map and the alarm beeps.</li>
+<li><b>Resilience (30 s):</b> unplug the relay; show the packet still arriving via the other route, or the queue flushing when it returns.</li>
+<li><b>Quantum + AI (60 s):</b> show the free text turning into a 16-byte code, and QAOA choosing relay spots.</li></ol></div></div>
+<div class="sec"><h3>Ten things that win</h3>
+<div class="g2"><ol>
+<li><b>Make the judge the survivor.</b> Personal involvement beats any slide.</li>
+<li><b>Prove "no internet"</b> by switching Wi-Fi off in front of them.</li>
+<li><b>Show one number:</b> "a message several hundred bytes long becomes 16 bytes."</li>
+<li><b>Show range:</b> the relay is visibly far away.</li>
+<li><b>Lead with people, not tech:</b> start with Priya, not ESP32s.</li></ol>
+<ol start="6"><li><b>Be honest about limits:</b> MAC randomisation, RSSI accuracy, quantum scale.</li>
+<li><b>Have a backup video</b> of the full flow, in case the venue is noisy.</li>
+<li><b>Look like a product:</b> boxed nodes, labels, a one-page leaflet.</li>
+<li><b>Know your cost:</b> "a complete kit costs less than one smartphone."</li>
+<li><b>Name the users:</b> NDRF, SDRF, district disaster authorities, Army disaster-relief units.</li></ol></div></div>
+<div class="sec quote">Pitch line: "When the towers fall, RescueMesh turns every phone into a beacon and every rescuer into a cell tower."</div>
+<div class="ft"><span>RescueMesh · Team VOID</span><span>10</span></div>
+</section>
+
+<!-- 11 RISKS + QNA -->
+<section class="pg">
+<div class="ey">10 · Risks and judge questions</div>
+<h2>What could go wrong, and how we're covered</h2>
+<table><tr><th>Risk</th><th>Fallback</th></tr>
+<tr><td>LoRa modules don't talk</td><td>Check frequency match, antenna, 3.3 V and pins first; spare module; fall back to ESP-NOW (Wi-Fi-based, short range) for the demo</td></tr>
+<tr><td>Captive portal doesn't pop up on some phones</td><td>Show the address (192.168.4.1) on the OLED and a QR code; Android and iOS both handle it with the standard DNS redirect</td></tr>
+<tr><td>Phone scanner shows too much noise in a crowded hall</td><td>Filter by signal strength and show only the strongest; demo with known team phones</td></tr>
+<tr><td>Venue bans balloons</td><td>Pole or tripod mast mode</td></tr>
+<tr><td>AI model too slow on the laptop</td><td>Rule-based keyword extractor with the same output format</td></tr>
+<tr><td>Laptop or dashboard crash</td><td>Gateway OLED still shows incoming SOS; backup video</td></tr></table>
+<div class="sec"><h3>Questions judges will ask, with answers</h3>
+<table><tr><th style="width:38%">Question</th><th>Answer</th></tr>
+<tr><td>Isn't scanning phones a privacy problem?</td><td>We only count and estimate location from randomised, temporary identifiers; nothing is stored beyond the incident; it's opt-in for the SOS channel.</td></tr>
+<tr><td>What's the range?</td><td>LoRa typically reaches hundreds of metres in cities and several kilometres in open line-of-sight; each relay extends it. We'll show a measured number from the venue.</td></tr>
+<tr><td>Why not just use satellite?</td><td>Survivors don't have satellite phones; RescueMesh uses the phones they already carry. A satellite uplink at the command node is a natural extension.</td></tr>
+<tr><td>Why quantum?</td><td>Relay placement is an optimisation that grows explosively with map size; QAOA is a leading quantum method for it. We show it matches the exact answer today and explain where it pays off.</td></tr>
+<tr><td>How much battery?</td><td>An ESP32 + LoRa node runs many hours on a 10,000 mAh power bank; relays can sleep between packets.</td></tr>
+<tr><td>Who would buy this?</td><td>NDRF / SDRF, state disaster authorities, fire services, the Army's disaster-relief units, NGOs and large campuses.</td></tr></table></div>
+<div class="ft"><span>RescueMesh · Team VOID</span><span>11</span></div>
+</section>
+
+<!-- 12 FUTURE -->
+<section class="pg">
+<div class="ey">11 · Impact and future scope</div>
+<h2>From a hackathon kit to a standard rescue tool</h2>
+<div class="g3">
+<div class="box"><div class="k">Minutes</div><div class="kl">to deploy a working network, versus hours to days for towers on wheels</div></div>
+<div class="box"><div class="k">&lt; ₹4k</div><div class="kl">per kit: cheap enough for every rescue team and village panchayat</div></div>
+<div class="box"><div class="k">Any phone</div><div class="kl">no app, no SIM signal, no internet needed</div></div></div>
+<div class="sec"><h3>Roadmap</h3>
+<table><tr><th>Stage</th><th>What</th></tr>
+<tr><td>Hackathon</td><td>3-node kit, SOS portal, phone heat map, AI triage, QAOA relay planning, live dashboard</td></tr>
+<tr><td>Next 3 months</td><td>Field test on campus; measure range and detection accuracy; ruggedised waterproof cases</td></tr>
+<tr><td>6 months</td><td>Drone-carried node for large areas; solar-powered drop relays; satellite uplink at the command post</td></tr>
+<tr><td>12 months</td><td>Pilot with a district disaster management authority or NDRF battalion; integration with state emergency response systems</td></tr>
+<tr><td>Beyond</td><td>Quantum-secure keys for sensitive defence use; larger QAOA problems on IBM Quantum hardware</td></tr></table></div>
+<div class="sec g2">
+<div><h3>Dual use: defence</h3><p>The same kit gives troops an instant private network where there's no infrastructure, a quick count of active devices in a building before entry, and a low-power, long-range channel for short status messages.</p></div>
+<div><h3>Dual use: everyday</h3><p>Large events and pilgrimages, mines and tunnels, remote villages without coverage, and campus emergency drills.</p></div></div>
+<div class="sec quote" style="margin-top:22px">"When the towers fall, RescueMesh turns every phone into a beacon and every rescuer into a cell tower."</div>
+<div style="margin-top:14mm"><span class="tag">Next-Gen Communication</span><span class="tag">Disaster Management</span><span class="tag">LoRa Mesh</span><span class="tag">Semantic Comms</span><span class="tag">QAOA · Qiskit</span></div>
+<div style="position:absolute;left:18mm;bottom:22mm"><div style="font-family:'Source Serif 4',serif;font-size:22px;font-weight:700">Team VOID</div><div class="ey" style="margin:4px 0 0">Tech Horizon 2.0</div></div>
+<div class="ft"><span>RescueMesh · Team VOID</span><span>12</span></div>
+</section>
+</body></html>
