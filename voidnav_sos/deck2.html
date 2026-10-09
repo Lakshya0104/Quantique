@@ -1,0 +1,373 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>VOID-NAV SOS</title>
+<link href="f/fonts.css" rel="stylesheet">
+<style>
+@page{size:1280px 720px;margin:0}
+:root{--ink:#16191d;--mut:#4a525a;--line:#d9dde1;--teal:#1f5f6b;--tl:#e8f0f1;--rust:#b5532a;--rl:#fbeee8;--or:#e07b1a;--ol:#fdf1e6;--gr:#2e8b57;--gl:#e7f4ec;--grey:#f3f5f6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',sans-serif;color:var(--ink);background:#fff}
+.s{width:1280px;height:720px;padding:40px 56px 44px;position:relative;page-break-after:always;overflow:hidden;background:#fff}
+.ey{font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:6px;font-weight:500}
+h1{font-family:'Source Serif 4',serif;font-size:84px;line-height:1;font-weight:700}
+h2{font-family:'Source Serif 4',serif;font-size:40px;line-height:1.1;font-weight:700;margin-bottom:8px}
+h3{font-family:'Source Serif 4',serif;font-size:23px;font-weight:700;margin-bottom:6px;line-height:1.2}
+.sub{font-family:'Source Serif 4',serif;font-size:21px;color:var(--mut);line-height:1.35}
+p,li{font-size:18px;line-height:1.42;color:#22272c}
+.sm{font-size:16.5px}.xs{font-size:14px;color:var(--mut);line-height:1.4}
+.ft{position:absolute;left:56px;right:56px;bottom:14px;display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;color:#8a9197;border-top:1px solid var(--line);padding-top:6px}
+.box{background:var(--grey);padding:16px 18px;border-radius:8px}
+.dash{border:2px dashed #c3cbd1;border-radius:10px;padding:16px 18px}
+.n{font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:var(--rust);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;font-weight:600}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:24px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+svg text{font-family:'IBM Plex Sans',sans-serif}
+.mono{font-family:'IBM Plex Mono',monospace}
+table{border-collapse:collapse;width:100%}th{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);text-align:left;font-weight:600;border-bottom:2px solid var(--ink);padding:8px 10px}td{padding:8px 10px;border-bottom:1px solid var(--line);font-size:16px;vertical-align:top;line-height:1.35}
+.tagA{display:inline-block;background:var(--teal);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:.06em}
+.tagB{display:inline-block;background:var(--rust);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:.06em}
+.real{color:var(--gr);font-weight:700}.prop{color:var(--or);font-weight:700}
+</style></head><body>
+
+<!-- 1 TITLE -->
+<section class="s">
+<div class="ey">Tech Horizon 2.0 · Next-Gen Communication</div>
+<h1 style="margin-top:8px">VOID-NAV</h1>
+<p class="sub" style="font-size:27px;margin-top:14px;max-width:560px;color:var(--ink)">When the towers fall, every phone can still call for help.</p>
+<p style="margin-top:18px;max-width:540px;font-size:19px">A LoRa relay network that phones connect to over local Wi-Fi. <b>No cellular, no internet, no app.</b> Messages are prioritised, kept jam-free, and confirmed back to the sender.</p>
+<div style="margin-top:22px;display:flex;flex-direction:column;gap:10px;max-width:540px">
+<div><span class="tagA">SCENARIO A</span> <span style="font-size:18px;margin-left:6px">Trapped with a phone → <b>rescuers bring the network</b></span></div>
+<div><span class="tagB">SCENARIO B</span> <span style="font-size:18px;margin-left:6px">Can move → <b>walk to a public SOS point</b></span></div></div>
+<div style="position:absolute;left:56px;bottom:56px;display:flex;gap:44px">
+<div><div class="ey" style="margin:0 0 2px;color:var(--mut)">Team</div><div style="font-family:'Source Serif 4',serif;font-size:30px;font-weight:700">Team VOID</div></div>
+<div><div class="ey" style="margin:0 0 2px;color:var(--mut)">Team ID</div><div style="font-size:20px;padding-top:8px">[to be filled]</div></div></div>
+<svg viewBox="0 0 600 600" width="600" style="position:absolute;right:36px;top:60px">
+ <defs><marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1f5f6b"/></marker>
+ <radialGradient id="h"><stop offset="0" stop-color="#b5532a" stop-opacity=".45"/><stop offset="1" stop-color="#b5532a" stop-opacity="0"/></radialGradient></defs>
+ <rect x="0" y="0" width="600" height="600" rx="16" fill="#f6f8f9"/>
+ <g transform="translate(36,30)" stroke="#9aa3aa" stroke-width="4" fill="none"><path d="M30 130 L52 10 L74 130"/><path d="M38 90 L66 90 M44 56 L60 56"/></g>
+ <g stroke="#b5532a" stroke-width="6"><line x1="66" y1="60" x2="124" y2="140"/><line x1="124" y1="60" x2="66" y2="140"/></g>
+ <text x="30" y="195" font-size="17" fill="#b5532a" font-weight="700">towers · internet · power: down</text>
+ <circle cx="130" cy="330" r="95" fill="url(#h)"/><circle cx="160" cy="490" r="70" fill="url(#h)"/>
+ <!-- scenario A: rubble + rescuer -->
+ <path d="M40 400 L90 350 L130 370 L170 330 L220 380 L230 420 L40 420Z" fill="#e3e6e8" stroke="#9aa3aa"/>
+ <g fill="#b5532a"><rect x="110" y="380" width="16" height="26" rx="3"/></g><text x="40" y="445" font-size="15" fill="#1f5f6b" font-weight="700">A · trapped, phone on</text>
+ <rect x="250" y="330" width="60" height="44" rx="8" fill="#1f5f6b"/><text x="257" y="357" fill="#fff" font-size="13" font-weight="700">NODE</text><text x="232" y="395" font-size="14" fill="#5b636b">rescuer's node</text>
+ <path d="M134 386 Q190 360 248 350" stroke="#e07b1a" stroke-width="2.5" stroke-dasharray="6 5" fill="none"/><text x="160" y="345" font-size="13" fill="#e07b1a">Wi-Fi</text>
+ <!-- scenario B: public point -->
+ <rect x="40" y="480" width="150" height="80" rx="10" fill="#fff" stroke="#16191d"/><text x="52" y="506" font-size="15" font-weight="700">Hospital</text><rect x="52" y="516" width="62" height="30" rx="6" fill="#1f5f6b"/><text x="62" y="536" fill="#fff" font-size="13" font-weight="700">NODE</text>
+ <text x="40" y="585" font-size="15" fill="#b5532a" font-weight="700">B · walks to SOS point</text>
+ <!-- relays -->
+ <g fill="#fff" stroke="#5b636b" stroke-width="2.5"><circle cx="380" cy="300" r="16"/><circle cx="420" cy="460" r="16"/></g><g fill="#5b636b"><circle cx="380" cy="300" r="6"/><circle cx="420" cy="460" r="6"/></g>
+ <text x="354" y="336" font-size="14" fill="#5b636b">relay</text><text x="394" y="496" font-size="14" fill="#5b636b">relay</text>
+ <rect x="470" y="160" width="110" height="100" rx="12" fill="#16191d"/><text x="482" y="186" fill="#fff" font-size="15" font-weight="700">SOS station</text><rect x="482" y="196" width="86" height="52" fill="#e8f0f1"/><circle cx="500" cy="214" r="6" fill="#b5532a"/><circle cx="530" cy="232" r="6" fill="#e07b1a"/><circle cx="552" cy="212" r="6" fill="#2e8b57"/>
+ <g stroke="#1f5f6b" stroke-width="3" fill="none" marker-end="url(#m)"><path d="M312 346 L364 308"/><path d="M396 292 L468 234"/><path d="M192 516 L402 466"/><path d="M432 446 L512 262"/></g>
+</svg>
+</section>
+
+<!-- 2 PROBLEM -->
+<section class="s">
+<div class="ey">01 · The problem</div>
+<h2>After a disaster, everyone needs to talk.<br>That's exactly when the network disappears.</h2>
+<div class="g3" style="margin-top:28px">
+<div class="box" style="padding:22px"><div class="n">Pain 1</div><h3>Trapped, with a phone that can't call</h3><p class="sm">Under rubble or stranded by water. The phone works, but there's no network to reach anyone.</p></div>
+<div class="box" style="padding:22px"><div class="n">Pain 2</div><h3>Rescuers search blind</h3><p class="sm">Nobody knows where people are, how many there are, or who is most critical.</p></div>
+<div class="box" style="padding:22px"><div class="n">Pain 3</div><h3>Emergency networks jam</h3><p class="sm">If every relay rebroadcasts every message, a small radio channel chokes exactly when traffic peaks.</p></div></div>
+<div style="margin-top:34px;border-left:5px solid var(--teal);padding:6px 0 6px 22px">
+<p style="font-family:'Source Serif 4',serif;font-size:25px;line-height:1.4;color:var(--ink)">We need a way to send SOS messages with <b>zero infrastructure</b>, using the <b>phones people already have</b>, that tells the sender the message <b>arrived</b> and <b>stays fast</b> when hundreds of people use it at once.</p></div>
+<div class="ft"><span>TEAM VOID · VOID-NAV</span><span>02</span></div>
+</section>
+
+<!-- 3 TWO SCENARIOS -->
+<section class="s">
+<div class="ey">02 · Two situations, one network</div>
+<h2>Who is the survivor, and who brings the network?</h2>
+<div class="g2" style="margin-top:22px;gap:28px">
+<div class="dash" style="border-color:#1f5f6b;padding:22px">
+<span class="tagA">SCENARIO A</span>
+<h3 style="font-size:28px;margin-top:12px">Trapped, but has a phone</h3>
+<p>Under rubble, on a rooftop, cut off by flood. Can't move.</p>
+<div class="box" style="background:var(--tl);margin-top:14px"><p><b>Rescuers bring the network to them:</b></p>
+<ul style="padding-left:22px;margin-top:6px"><li>carry nodes into the area</li><li>place relays where <b>quantum planning</b> says</li><li>detect phones, open "SOS" Wi-Fi</li><li>see everything on an offline dashboard</li></ul></div></div>
+<div class="dash" style="border-color:#b5532a;padding:22px">
+<span class="tagB">SCENARIO B</span>
+<h3 style="font-size:28px;margin-top:12px">Can move, may have no phone</h3>
+<p>Mobile but cut off: a lost or dead phone, or no network.</p>
+<div class="box" style="background:var(--rl);margin-top:14px"><p><b>They go to a public SOS point:</b></p>
+<ul style="padding-left:22px;margin-top:6px"><li>nodes pre-placed at hospitals, panchayats, stations</li><li>alert + map tell people where</li><li>use own phone, or the <b>shared phone/tablet</b> kept there</li><li>same relays, same dashboard</li></ul></div></div></div>
+<p class="sm" style="margin-top:18px;text-align:center;color:var(--mut)">Both use the <b>same node</b> (ESP32 + LoRa), the <b>same relay network</b> and the <b>same dashboard</b>. Only who places the node changes.</p>
+<div class="ft"><span>TEAM VOID · VOID-NAV</span><span>03</span></div>
+</section>
+
+<!-- 4 SCENARIO A -->
+<section class="s">
+<div class="ey" style="color:var(--teal)">03 · Scenario A · trapped with a phone</div>
+<h2>Rescuers carry the network in</h2>
+<svg viewBox="0 0 1168 330" width="1168" style="margin-top:8px">
+ <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1f5f6b"/></marker><radialGradient id="h2"><stop offset="0" stop-color="#d62f1f" stop-opacity=".5"/><stop offset="1" stop-color="#e07b1a" stop-opacity="0"/></radialGradient></defs>
+ <rect x="0" y="0" width="1168" height="330" rx="14" fill="#f6f8f9"/>
+ <!-- rubble survivors -->
+ <path d="M20 250 L80 190 L130 215 L180 170 L240 220 L260 280 L20 280Z" fill="#e3e6e8" stroke="#9aa3aa" stroke-width="2"/>
+ <circle cx="110" cy="232" r="55" fill="url(#h2)"/><circle cx="200" cy="215" r="45" fill="url(#h2)"/>
+ <g fill="#16191d"><rect x="102" y="220" width="16" height="26" rx="3"/><rect x="192" y="203" width="16" height="26" rx="3"/></g>
+ <text x="20" y="310" font-size="17" font-weight="700">① Trapped survivors' phones</text>
+ <!-- rescuer node -->
+ <rect x="330" y="150" width="120" height="70" rx="12" fill="#1f5f6b"/><text x="346" y="182" fill="#fff" font-size="17" font-weight="700">NODE</text><text x="346" y="205" fill="#c9e2e6" font-size="14">ESP32 + LoRa</text>
+ <path d="M216 214 Q280 180 328 182" stroke="#e07b1a" stroke-width="3" stroke-dasharray="7 6" fill="none" marker-end="url(#a)"/>
+ <text x="210" y="138" font-size="15" fill="#e07b1a" font-weight="700">"SOS-Rescue" Wi-Fi</text>
+ <text x="300" y="250" font-size="17" font-weight="700">② Rescuer's backpack node</text><text x="300" y="272" font-size="15" fill="#4a525a">finds phones + opens SOS page</text>
+ <!-- relays -->
+ <g fill="#fff" stroke="#5b636b" stroke-width="3"><circle cx="560" cy="120" r="20"/><circle cx="700" cy="200" r="20"/><circle cx="830" cy="110" r="20"/></g>
+ <g fill="#5b636b"><circle cx="560" cy="120" r="7"/><circle cx="700" cy="200" r="7"/><circle cx="830" cy="110" r="7"/></g>
+ <g fill="#6929c4" font-size="13" font-weight="700"><text x="530" y="85">QAOA ✓</text><text x="672" y="245">QAOA ✓</text><text x="800" y="75">QAOA ✓</text></g>
+ <g stroke="#1f5f6b" stroke-width="3" fill="none" marker-end="url(#a)"><path d="M452 172 L536 128"/><path d="M582 128 L676 190"/><path d="M722 192 L806 120"/><path d="M852 110 L948 110"/></g>
+ <text x="520" y="300" font-size="17" font-weight="700">③ Relays placed by quantum planner</text>
+ <!-- station -->
+ <rect x="950" y="60" width="200" height="150" rx="14" fill="#16191d"/><text x="966" y="88" fill="#fff" font-size="17" font-weight="700">Command post</text><rect x="966" y="100" width="168" height="94" fill="#e8f0f1"/><circle cx="1010" cy="140" r="26" fill="url(#h2)"/><circle cx="1010" cy="140" r="7" fill="#d62f1f"/><circle cx="1090" cy="170" r="7" fill="#e07b1a"/>
+ <text x="950" y="250" font-size="17" font-weight="700">④ Offline live dashboard</text><text x="950" y="272" font-size="15" fill="#4a525a">heatmap · SOS list · replies</text>
+</svg>
+<div class="g3" style="margin-top:18px;gap:16px">
+<div class="box"><div class="n" style="color:var(--teal)">Find</div><p class="sm">Phones keep sending Wi-Fi/Bluetooth signals. The node logs signal strength + GPS → a <b>heatmap of where phones are</b>.</p></div>
+<div class="box"><div class="n" style="color:var(--teal)">Talk</div><p class="sm">Survivor joins open Wi-Fi <b>"SOS-Rescue"</b>; a help page pops up by itself. No app, no internet.</p></div>
+<div class="box"><div class="n" style="color:var(--teal)">Reply</div><p class="sm">Rescuers reply from the dashboard: <i>"Team coming, stay where you are."</i> The survivor sees it on the same page.</p></div></div>
+<div class="ft"><span>TEAM VOID · VOID-NAV</span><span>04</span></div>
+</section>
+
+<!-- 5 SCENARIO B -->
+<section class="s">
+<div class="ey" style="color:var(--rust)">04 · Scenario B · can move, may have no phone</div>
+<h2>Public SOS points, pre-placed and announced</h2>
+<svg viewBox="0 0 1168 360" width="1168" style="margin-top:6px">
+ <defs><marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0L10 5L0 10z" fill="#16191d"/></marker></defs>
+ <!-- 1 alert phone -->
+ <rect x="10" y="10" width="190" height="330" rx="26" fill="#16191d"/><rect x="22" y="36" width="166" height="286" rx="8" fill="#fff"/>
+ <rect x="30" y="46" width="150" height="110" rx="8" fill="#fbeee8" stroke="#b5532a" stroke-width="2"/><text x="40" y="70" font-size="13" font-weight="700" fill="#b5532a">⚠ EMERGENCY ALERT</text><text x="40" y="94" font-size="14">Earthquake.</text><text x="40" y="114" font-size="14">Go to nearest</text><text x="40" y="134" font-size="14" font-weight="700">SOS point ↓</text>
+ <rect x="30" y="166" width="150" height="110" fill="#e8f0f1"/><g fill="#1f5f6b"><circle cx="60" cy="196" r="8"/><circle cx="150" cy="226" r="8"/><circle cx="100" cy="260" r="8"/></g><circle cx="105" cy="218" r="7" fill="#e07b1a" stroke="#fff" stroke-width="2"/>
+ <text x="34" y="300" font-size="13">Hospital · 1.2 km</text>
+ <path d="M208 175 L250 175" stroke="#16191d" stroke-width="2.5" marker-end="url(#b)"/>
+ <!-- 2 public point -->
+ <rect x="260" y="40" width="250" height="250" rx="14" fill="#f6f8f9"/>
+ <rect x="285" y="70" width="200" height="120" rx="10" fill="#fff" stroke="#16191d" stroke-width="2"/><text x="300" y="98" font-size="18" font-weight="700">Hospital</text>
+ <rect x="300" y="112" width="80" height="48" rx="8" fill="#1f5f6b"/><text x="312" y="142" fill="#fff" font-size="16" font-weight="700">NODE</text>
+ <rect x="400" y="110" width="40" height="64" rx="6" fill="#16191d"/><rect x="404" y="118" width="32" height="46" fill="#e8f0f1"/><text x="392" y="190" font-size="12" fill="#4a525a">shared tablet</text>
+ <circle cx="455" cy="128" r="9" fill="#e07b1a"/><circle cx="455" cy="152" r="9" fill="#2e8b57"/>
+ <text x="285" y="225" font-size="15">Also: panchayat office,</text><text x="285" y="246" font-size="15">railway station, school</text>
+ <path d="M518 175 L560 175" stroke="#16191d" stroke-width="2.5" marker-end="url(#b)"/>
+ <!-- 3 phone page -->
+ <rect x="570" y="10" width="190" height="330" rx="26" fill="#16191d"/><rect x="582" y="36" width="166" height="286" rx="8" fill="#fff"/>
+ <rect x="582" y="36" width="166" height="34" fill="#1f5f6b"/><text x="592" y="58" fill="#fff" font-size="13" font-weight="700">SOS · Hospital node</text>
+ <g font-size="13" font-weight="700" fill="#fff"><rect x="592" y="80" width="146" height="34" rx="6" fill="#b5532a"/><text x="602" y="102">Need rescue now</text><rect x="592" y="120" width="146" height="34" rx="6" fill="#b5532a"/><text x="602" y="142">Injured / medical</text><rect x="592" y="160" width="146" height="34" rx="6" fill="#e07b1a"/><text x="602" y="182">Food / water</text><rect x="592" y="200" width="146" height="34" rx="6" fill="#2e8b57"/><text x="602" y="222">I'm safe, tell family</text></g>
+ <rect x="592" y="244" width="146" height="30" rx="6" fill="#f3f5f6" stroke="#c3cbd1"/><text x="600" y="264" font-size="12" fill="#4a525a">type a message…</text>
+ <circle cx="604" cy="298" r="8" fill="#e07b1a"/><text x="618" y="303" font-size="13">Sent</text><circle cx="668" cy="298" r="8" fill="#c3cbd1"/><text x="682" y="303" font-size="13">Read</text>
+ <path d="M768 175 L810 175" stroke="#16191d" stroke-width="2.5" marker-end="url(#b)"/>
+ <!-- 4 relays to station -->
+ <g fill="#fff" stroke="#5b636b" stroke-width="3"><circle cx="850" cy="175" r="18"/><circle cx="950" cy="175" r="18"/></g><g fill="#5b636b"><circle cx="850" cy="175" r="7"/><circle cx="950" cy="175" r="7"/></g>
+ <g stroke="#1f5f6b" stroke-width="3" fill="none" marker-end="url(#b)"><path d="M870 175 L928 175"/><path d="M970 175 L1018 175"/></g>
+ <rect x="1022" y="110" width="140" height="130" rx="12" fill="#16191d"/><text x="1036" y="138" fill="#fff" font-size="16" font-weight="700">SOS station</text><rect x="1036" y="150" width="112" height="72" fill="#e8f0f1"/><circle cx="1070" cy="180" r="7" fill="#d62f1f"/><circle cx="1110" cy="200" r="7" fill="#e07b1a"/>
+ </g>
+ <g font-size="17" font-weight="700"><text x="10" y="358">① Alert + map</text><text x="260" y="320">② Reach SOS point</text><text x="570" y="358">③ Send from phone / tablet</text><text x="840" y="270">④ Relays → station</text></g>
+</svg>
+<div class="g3" style="margin-top:10px;gap:16px">
+<div class="box"><p class="sm"><b>No phone?</b> Use the shared tablet at the point, or ask staff there. Same page, same node.</p></div>
+<div class="box"><p class="sm"><b>Location:</b> the node's coordinates are saved when it's installed, labelled "Hospital node 07".</p></div>
+<div class="box"><p class="sm"><b>Alert:</b> attaching "nearest SOS points" to official alerts is a <span class="prop">proposed</span> integration.</p></div></div>
+<div class="ft"><span>TEAM VOID · VOID-NAV</span><span>05</span></div>
+</section>
+
+<!-- 6 THE PHONE PAGE -->
+<section class="s">
+<div class="ey">05 · What the survivor sees · both scenarios</div>
+<h2>No app. Connect to Wi-Fi, and the SOS page opens.</h2>
+<div style="display:grid;grid-template-columns:330px 1fr;gap:40px;margin-top:14px">
+<svg viewBox="0 0 330 560" width="330">
+ <rect x="10" y="0" width="310" height="560" rx="40" fill="#16191d"/><rect x="26" y="40" width="278" height="490" rx="10" fill="#fff"/>
+ <rect x="26" y="40" width="278" height="54" fill="#1f5f6b"/><text x="42" y="66" fill="#fff" font-size="17" font-weight="700">VOID-NAV SOS</text><text x="42" y="86" fill="#c9e2e6" font-size="13">no internet needed</text>
+ <text x="42" y="124" font-size="16" font-weight="700">1 · What do you need?</text>
+ <g font-size="15" font-weight="700" fill="#fff"><rect x="42" y="136" width="246" height="40" rx="8" fill="#b5532a"/><text x="56" y="162">🆘 Rescue now</text><rect x="42" y="182" width="246" height="40" rx="8" fill="#b5532a"/><text x="56" y="208">✚ Injured / medical</text><rect x="42" y="228" width="120" height="40" rx="8" fill="#e07b1a"/><text x="54" y="254">Trapped</text><rect x="168" y="228" width="120" height="40" rx="8" fill="#e07b1a"/><text x="178" y="254">Food/water</text></g>
+ <text x="42" y="300" font-size="16" font-weight="700">2 · Anyone injured?</text>
+ <g font-size="15" font-weight="700"><rect x="42" y="310" width="76" height="36" rx="8" fill="#2e8b57"/><text x="62" y="334" fill="#fff">YES</text><rect x="126" y="310" width="76" height="36" rx="8" fill="#e3e6e8"/><text x="150" y="334">NO</text><rect x="210" y="310" width="78" height="36" rx="8" fill="#e3e6e8"/><text x="218" y="334">MAYBE</text></g>
+ <text x="42" y="378" font-size="16" font-weight="700">3 · How many people?</text>
+ <g font-size="15" font-weight="700"><rect x="42" y="388" width="76" height="36" rx="8" fill="#e3e6e8"/><text x="74" y="412">1</text><rect x="126" y="388" width="76" height="36" rx="8" fill="#1f5f6b"/><text x="146" y="412" fill="#fff">2–5</text><rect x="210" y="388" width="78" height="36" rx="8" fill="#e3e6e8"/><text x="238" y="412">6+</text></g>
+ <rect x="42" y="440" width="246" height="44" rx="10" fill="#16191d"/><text x="122" y="468" fill="#fff" font-size="17" font-weight="700">SEND SOS</text>
+ <circle cx="56" cy="506" r="9" fill="#e07b1a"/><text x="72" y="511" font-size="14" font-weight="700">Sent</text><circle cx="150" cy="506" r="9" fill="#2e8b57"/><text x="166" y="511" font-size="14" font-weight="700">Read by SOS</text>
+</svg>
+<div>
+<div class="g2" style="gap:18px">
+<div class="box"><div class="n">Quick buttons first</div><p class="sm">Most urgent options at the top. One tap + 2 questions. Answers fit in a <b>~21-byte</b> message.</p></div>
+<div class="box"><div class="n">Yes / No / Maybe</div><p class="sm">Short questions anyone can answer under stress. Local languages supported.</p></div>
+<div class="box"><div class="n">Custom text</div><p class="sm">Optional short note (≤ 40 characters) to the SOS station <b>or to family at another node</b>.</p></div>
+<div class="box"><div class="n">Location</div><p class="sm">Node's saved coordinates or its GPS, clearly labelled. Phone GPS isn't relied on (browsers block it on plain local pages).</p></div></div>
+<div class="box" style="margin-top:18px;background:#16191d;color:#fff;padding:20px 22px">
+<div class="n" style="color:#e07b1a">Two status lights · on the page and on the node</div>
+<p style="color:#fff;margin-top:4px"><b style="color:#f2a65a">● Orange: Sent.</b> The node transmitted it. The page then shows "Delivered ✓" when the station's automatic receipt comes back.</p>
+<p style="color:#fff;margin-top:8px"><b style="color:#7ed3a0">● Green: Read by SOS.</b> An operator opened it and assigned help. This only happens after a person acts, never automatically.</p></div>
+</div></div>
+<div class="ft"><span>TEAM VOID · VOID-NAV</span><span>06</span></div>
+</section>
+
+<!-- 7 NETWORK -->
+<section class="s">
+<div class="ey">06 · The network · our core engineering</div>
+<h2>Fast for urgent cases, never jammed</h2>
+<div style="display:grid;grid-template-columns:560px 1fr;gap:28px;margin-top:14px">
+<svg viewBox="0 0 560 440" width="560">
+ <defs><marker id="t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1f5f6b"/></marker><marker id="x" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b5532a"/></marker></defs>
+ <rect x="0" y="0" width="560" height="440" rx="14" fill="#f6f8f9"/>
+ <text x="18" y="32" font-size="16" fill="#4a525a" font-weight="600">Number = hops to the SOS station</text>
+ <rect x="440" y="170" width="106" height="74" rx="12" fill="#16191d"/><text x="454" y="202" fill="#fff" font-weight="700" font-size="16">Station</text><text x="454" y="226" fill="#9cc3c9" font-size="15">0</text>
+ <g font-size="18" font-weight="700"><circle cx="340" cy="120" r="26" fill="#fff" stroke="#1f5f6b" stroke-width="3"/><text x="334" y="127">1</text>
+ <circle cx="340" cy="310" r="26" fill="#fff" stroke="#1f5f6b" stroke-width="3"/><text x="334" y="317">1</text>
+ <circle cx="210" cy="210" r="26" fill="#fff" stroke="#1f5f6b" stroke-width="3"/><text x="204" y="217">2</text>
+ <circle cx="170" cy="340" r="24" fill="#fff" stroke="#9aa3aa" stroke-width="2.5"/><text x="164" y="347" fill="#9aa3aa">3</text>
+ <rect x="20" y="180" width="110" height="62" rx="12" fill="#1f5f6b"/><text x="36" y="208" fill="#fff" font-size="16">SOS node</text><text x="36" y="230" fill="#9cc3c9" font-size="15">3</text></g>
+ <g stroke="#1f5f6b" stroke-width="3.5" fill="none" marker-end="url(#t)"><path d="M132 211 L182 211"/><path d="M234 196 L314 132"/><path d="M366 128 L438 186"/></g>
+ <path d="M234 224 L314 298" stroke="#1f5f6b" stroke-width="2.5" stroke-dasharray="7 6" fill="none" marker-end="url(#t)"/><path d="M366 302 L438 230" stroke="#1f5f6b" stroke-width="2.5" stroke-dasharray="7 6" fill="none" marker-end="url(#t)"/>
+ <path d="M200 236 L178 314" stroke="#b5532a" stroke-width="2.5" fill="none" marker-end="url(#x)"/>
+ <text x="20" y="300" font-size="15" fill="#b5532a" font-weight="700">farther (3 ≥ 2):</text><text x="20" y="320" font-size="15" fill="#b5532a" font-weight="700">stays silent</text>
+ <text x="250" y="380" font-size="15" fill="#1f5f6b" font-weight="600">dashed = backup path</text>
+ <text x="18" y="420" font-size="15" fill="#4a525a">21-byte packet ≈ 185 ms on air (SF9, 125 kHz, calculated)</text>
+</svg>
+<div>
+<div class="g2" style="gap:14px">
+<div class="box"><div class="n">1 · Forget repeats</div><p class="sm">Unique message ID; relays drop copies.</p></div>
+<div class="box"><div class="n">2 · Hop limit + expiry</div><p class="sm">Max 4 hops; old messages expire.</p></div>
+<div class="box"><div class="n">3 · Closer-only</div><p class="sm">Forward only if nearer the station. No blind flooding.</p></div>
+<div class="box"><div class="n">4 · Priority lanes</div><p class="sm">Rescue/medical first; waiting ones move up.</p></div>
+<div class="box"><div class="n">5 · Listen, then talk</div><p class="sm">Check the channel, short random wait, cancel if already sent.</p></div>
+<div class="box"><div class="n">6 · Capped retries</div><p class="sm">Retry with growing gaps, then stop.</p></div></div>
+<div style="margin-top:14px;background:#16191d;border-radius:10px;padding:14px 20px;display:flex;gap:30px">
+<div><div style="font-family:'Source Serif 4',serif;font-size:32px;font-weight:700;color:#e07b1a">≈ 0.3 s</div><div style="font-size:14px;color:#c9cfd4">per hop, urgent (est.)</div></div>
+<div><div style="font-family:'Source Serif 4',serif;font-size:32px;font-weight:700;color:#e07b1a">≈ 1.6 s</div><div style="font-size:14px;color:#c9cfd4">3 hops + receipt (est.)</div></div>
+<div><div style="font-family:'Source Serif 4',serif;font-size:32px;font-weight:700;color:#e07b1a">1 channel</div><div style="font-size:14px;color:#c9cfd4">more relays ≠ more capacity</div></div></div>
+<p class="xs" style="margin-top:6px">Estimates, to be measured on our prototype. Collisions are reduced, not eliminated.</p>
+</div></div>
+<div class="ft"><span>TEAM VOID · VOID-NAV</span><span>07</span></div>
+</section>
+
+<!-- 8 DASHBOARD -->
+<section class="s">
+<div class="ey">07 · Live offline dashboard · rescue side</div>
+<h2>Who needs help, where, and how urgent</h2>
+<svg viewBox="0 0 1168 520" width="1168" style="margin-top:8px">
+ <defs><radialGradient id="hh"><stop offset="0" stop-color="#d62f1f" stop-opacity=".6"/><stop offset=".5" stop-color="#e07b1a" stop-opacity=".3"/><stop offset="1" stop-color="#e07b1a" stop-opacity="0"/></radialGradient></defs>
+ <rect x="0" y="0" width="1168" height="520" rx="14" fill="#16191d"/>
+ <text x="22" y="34" fill="#fff" font-size="20" font-weight="700" font-family="Source Serif 4">VOID-NAV Command</text><text x="250" y="34" fill="#9aa3aa" font-size="15">runs offline on a laptop · sample data</text>
+ <g font-size="14" fill="#c9cfd4"><rect x="22" y="50" width="170" height="62" rx="8" fill="#24292f"/><text x="34" y="72">Phones detected (A)</text><text x="34" y="100" fill="#fff" font-size="24" font-weight="700">38</text>
+ <rect x="202" y="50" width="170" height="62" rx="8" fill="#24292f"/><text x="214" y="72">Open urgent SOS</text><text x="214" y="100" fill="#ff7a5c" font-size="24" font-weight="700">5</text>
+ <rect x="382" y="50" width="170" height="62" rx="8" fill="#24292f"/><text x="394" y="72">People reported</text><text x="394" y="100" fill="#fff" font-size="24" font-weight="700">63</text>
+ <rect x="562" y="50" width="170" height="62" rx="8" fill="#24292f"/><text x="574" y="72">Relays online</text><text x="574" y="100" fill="#7ed3a0" font-size="24" font-weight="700">6 / 7</text></g>
+ <rect x="22" y="126" width="710" height="376" rx="8" fill="#e9edee"/>
+ <g stroke="#fff" stroke-width="9"><path d="M22 250 L732 290"/><path d="M260 126 L300 502"/><path d="M520 126 L470 502"/></g>
+ <path d="M22 430 C150 410 260 460 420 430 S620 390 732 410" stroke="#a9c9d6" stroke-width="20" fill="none"/>
+ <circle cx="150" cy="200" r="110" fill="url(#hh)"/><circle cx="400" cy="370" r="80" fill="url(#hh)"/><circle cx="620" cy="200" r="55" fill="url(#hh)"/>
+ <g stroke="#5b636b" stroke-width="2" stroke-dasharray="6 5"><line x1="150" y1="200" x2="340" y2="270"/><line x1="340" y1="270" x2="560" y2="330"/><line x1="400" y1="370" x2="560" y2="330"/><line x1="620" y1="200" x2="560" y2="330"/></g>
+ <g fill="#fff" stroke="#5b636b" stroke-width="3"><circle cx="340" cy="270" r="11"/><circle cx="560" cy="330" r="11"/></g>
+ <rect x="640" y="440" width="80" height="50" rx="8" fill="#16191d"/><text x="652" y="470" fill="#fff" font-size="14" font-weight="700">STATION</text>
+ <g stroke="#fff" stroke-width="3"><circle cx="150" cy="200" r="12" fill="#d62f1f"/><circle cx="400" cy="370" r="12" fill="#d62f1f"/><circle cx="620" cy="200" r="11" fill="#e07b1a"/><circle cx="90" cy="340" r="10" fill="#2e8b57"/></g>
+ <rect x="168" y="140" width="210" height="48" rx="6" fill="#fff"/><text x="178" y="161" font-size="14" font-weight="700">Rubble zone · node A2</text><text x="178" y="180" font-size="13" fill="#4a525a">~11 phones · 2 SOS sent</text>
+ <g font-size="14"><rect x="34" y="458" width="300" height="34" rx="6" fill="#fff" opacity=".92"/><circle cx="50" cy="475" r="7" fill="#d62f1f"/><text x="62" y="480">urgent</text><circle cx="124" cy="475" r="7" fill="#e07b1a"/><text x="136" y="480">help</text><circle cx="186" cy="475" r="7" fill="#2e8b57"/><text x="198" y="480">safe</text><text x="240" y="480" fill="#d62f1f">▒ heat</text></g>
+ <text x="752" y="146" fill="#fff" font-size="16" font-weight="700">INCOMING · urgent first</text>
+ <g font-size="15">
+ <rect x="752" y="158" width="396" height="82" rx="8" fill="#2b2125" stroke="#d62f1f" stroke-width="2"/><text x="766" y="182" fill="#ff7a5c" font-weight="700">URGENT · trapped · 5 people</text><text x="766" y="204" fill="#c9cfd4">A · rubble zone node A2 · 2 hops</text><rect x="1040" y="196" width="96" height="32" rx="6" fill="#2e8b57"/><text x="1052" y="218" fill="#fff" font-weight="700">Mark read</text>
+ <rect x="752" y="250" width="396" height="82" rx="8" fill="#2b2125" stroke="#d62f1f" stroke-width="2"/><text x="766" y="274" fill="#ff7a5c" font-weight="700">URGENT · injured · 3 people</text><text x="766" y="296" fill="#c9cfd4">B · Govt Hospital node 07 · 3 hops</text><text x="1056" y="318" fill="#7ed3a0" font-weight="700">✓ read</text>
+ <rect x="752" y="342" width="396" height="66" rx="8" fill="#2a2620" stroke="#e07b1a" stroke-width="2"/><text x="766" y="366" fill="#f2a65a" font-weight="700">HELP · food / water · 14 people</text><text x="766" y="390" fill="#c9cfd4">B · School node 09</text>
+ <rect x="752" y="418" width="396" height="84" rx="8" fill="#24292f"/><text x="766" y="442" fill="#7ed3a0" font-weight="700">SAFE · "Ravi safe, call Amma"</text><text x="766" y="466" fill="#c9cfd4">→ forwarded to Panchayat node 05</text><text x="766" y="488" fill="#9aa3aa">reply: "Team coming, stay put" ▸</text></g>
+</svg>
+<div class="ft"><span>TEAM VOID · VOID-NAV</span><span>08</span></div>
+</section>
+
+<!-- 9 IMPLEMENTATIONS COMPARED -->
+<section class="s">
+<div class="ey">08 · Two implementations, side by side</div>
+<h2>What's the same, what's different, what's real</h2>
+<table style="margin-top:14px">
+<tr><th style="width:20%"></th><th style="width:31%"><span class="tagA">A · TRAPPED + PHONE</span></th><th style="width:31%"><span class="tagB">B · PUBLIC SOS POINT</span></th><th>Status</th></tr>
+<tr><td><b>Who places nodes</b></td><td>rescue teams, carried in after the event</td><td>authorities, installed before disasters</td><td><span class="real">buildable</span></td></tr>
+<tr><td><b>How a message is typed</b></td><td>survivor's own phone → "SOS-Rescue" Wi-Fi page</td><td>own phone, or shared tablet at the point</td><td><span class="real">buildable</span></td></tr>
+<tr><td><b>Finding people</b></td><td>phone-signal scan → heatmap (counts, no IDs)</td><td>people come to the point</td><td><span class="real">buildable</span>*</td></tr>
+<tr><td><b>Location shown</b></td><td>rescuer node GPS + signal strength (rough area)</td><td>saved coordinates of the fixed node</td><td><span class="real">buildable</span></td></tr>
+<tr><td><b>Relay placement</b></td><td>chosen with <b>QAOA quantum planner</b></td><td>chosen in preparedness planning (QAOA can help)</td><td><span class="real">Qiskit sim</span></td></tr>
+<tr><td><b>How people find it</b></td><td>open Wi-Fi name "SOS-Rescue"</td><td>official alert + map of SOS points</td><td><span class="prop">alert: proposed</span></td></tr>
+<tr><td><b>Shared by both</b></td><td colspan="2">same ESP32 + LoRa node · same 6 traffic rules · same orange/green status · same offline dashboard</td><td><span class="real">buildable</span></td></tr></table>
+<p class="xs" style="margin-top:10px">*Modern phones randomise Wi-Fi IDs, so the scan estimates how many phones and roughly where, not who. Phones that are off or in airplane mode can't be detected. "Buildable" = standard ESP32/LoRa capability; to be shown in our demo or next build, not yet field-tested.</p>
+<div class="ft"><span>TEAM VOID · VOID-NAV</span><span>09</span></div>
+</section>
+
+<!-- 10 DEMO -->
+<section class="s">
+<div class="ey">09 · Proof of concept · our kit</div>
+<h2>1 ESP32 · 2 LoRa radios · 2 antennas · breadboard</h2>
+<div style="display:grid;grid-template-columns:600px 1fr;gap:28px;margin-top:12px">
+<svg viewBox="0 0 600 470" width="600">
+ <rect x="0" y="0" width="600" height="470" rx="14" fill="#f6f8f9"/>
+ <text x="190" y="100" font-size="17" fill="#1f5f6b" font-weight="700">real over-the-air LoRa link</text>
+ <g stroke="#1f5f6b" stroke-width="2.5" fill="none" opacity=".7"><path d="M150 60 Q300 10 450 60"/><path d="M165 78 Q300 35 435 78"/></g>
+ <rect x="24" y="150" width="552" height="180" rx="10" fill="#f2efe6" stroke="#cfc9b8"/>
+ <rect x="235" y="170" width="130" height="140" rx="8" fill="#16191d"/><rect x="270" y="182" width="60" height="40" fill="#9aa3aa"/><text x="262" y="252" fill="#fff" font-weight="700" font-size="20">ESP32</text>
+ <rect x="44" y="180" width="120" height="120" rx="8" fill="#1f5f6b"/><text x="62" y="234" fill="#fff" font-weight="700" font-size="18">LoRa A</text><text x="62" y="258" fill="#c9e2e6" font-size="15">"node"</text>
+ <line x1="150" y1="182" x2="152" y2="60" stroke="#16191d" stroke-width="6"/>
+ <rect x="436" y="180" width="120" height="120" rx="8" fill="#b5532a"/><text x="454" y="234" fill="#fff" font-weight="700" font-size="18">LoRa B</text><text x="454" y="258" fill="#fbe0d4" font-size="15">"station"</text>
+ <line x1="450" y1="182" x2="448" y2="60" stroke="#16191d" stroke-width="6"/>
+ <g stroke-width="4" fill="none"><path d="M164 210 C200 205 210 205 235 208" stroke="#e07b1a"/><path d="M164 240 C200 238 210 238 235 238" stroke="#2e8b57"/><path d="M164 270 C200 272 210 270 235 268" stroke="#3a6fd8"/><path d="M436 210 C400 205 390 205 365 208" stroke="#e07b1a"/><path d="M436 240 C400 238 390 238 365 238" stroke="#2e8b57"/><path d="M436 270 C400 272 390 270 365 268" stroke="#3a6fd8"/></g>
+ <rect x="215" y="370" width="170" height="86" rx="8" fill="#16191d"/><rect x="225" y="378" width="150" height="62" fill="#e8f0f1"/><circle cx="255" cy="400" r="6" fill="#d62f1f"/><circle cx="290" cy="420" r="6" fill="#e07b1a"/><text x="305" y="425" font-size="13">dashboard</text>
+ <line x1="300" y1="310" x2="300" y2="370" stroke="#5b636b" stroke-width="4"/><text x="308" y="350" font-size="14" fill="#4a525a">USB</text>
+ <text x="24" y="360" font-size="14" fill="#4a525a">phone connects to ESP32 Wi-Fi →</text><text x="24" y="378" font-size="14" fill="#4a525a">SOS page (captive portal)</text>
+</svg>
+<div>
+<div class="n">Demo script · 3 minutes</div>
+<ol style="padding-left:24px;line-height:1.5"><li>Judge joins Wi-Fi <b>"SOS-Rescue"</b>; the SOS page opens</li>
+<li>Taps "Rescue now"; LoRa A sends it over the air; <b style="color:var(--or)">orange</b></li>
+<li>LoRa B receives it; a pin appears on the dashboard</li>
+<li>We click "Mark read"; the reply comes back; <b style="color:var(--gr)">green</b></li>
+<li>Resend the same ID: dropped. Urgent jumps the queue.</li></ol>
+<div class="box" style="margin-top:14px;background:var(--ol)"><p class="sm"><b>Honest scope:</b> one ESP32 runs both radios (shared SPI, separate CS pins), so this proves the message, receipt, status lights, priority and duplicate logic on a real radio link. <b>Real relay hops need 1 ESP32 + 1 LoRa per node (≥ 3 boards):</b> our next step.</p></div>
+<p class="xs" style="margin-top:8px">Pins: SPI 18/19/23 shared · A: CS 5, RST 14, DIO0 26 · B: CS 4, RST 27, DIO0 25 · 3.3 V only · antennas on before TX</p>
+</div></div>
+<div class="ft"><span>TEAM VOID · VOID-NAV</span><span>10</span></div>
+</section>
+
+<!-- 11 QUANTUM -->
+<section class="s">
+<div class="ey">10 · Quantum · where it really helps</div>
+<h2>Quantum plans where rescuers put relays (Scenario A)</h2>
+<div class="g2" style="margin-top:16px;grid-template-columns:1fr 1.05fr">
+<div>
+<div class="box" style="background:var(--tl)"><p><b>The problem:</b> a team carries only a few relays. Put them in the wrong place and survivors stay cut off. Choosing K sites out of N is an optimisation that <b>grows explosively</b> with map size.</p></div>
+<div class="box" style="margin-top:14px"><p><b>Our approach:</b> turn the phone heatmap into survivor clusters → write it as a <b>QUBO</b> → solve with <b>QAOA on Qiskit</b> → show the chosen sites on the dashboard.</p></div>
+<table style="margin-top:14px"><tr><th>Our run (Qiskit Aer)</th><th>Result</th></tr>
+<tr><td>6 sites, place 2 relays</td><td>6 qubits, p = 2</td></tr>
+<tr><td>QAOA's choice</td><td><b>sites 2 + 3 → 13 of 21 people</b></td></tr>
+<tr><td>Exact answer</td><td><b>same ✓</b></td></tr></table>
+<p class="xs" style="margin-top:8px">At this size a laptop is just as fast; we show the method works, not a speed-up. The radio network itself is fully classical.</p>
+</div>
+<svg viewBox="0 0 560 450" width="100%">
+ <rect x="0" y="0" width="560" height="450" rx="14" fill="#f6f8f9"/>
+ <text x="18" y="32" font-size="16" fill="#4a525a" font-weight="600">Relay planner · 6 sites · 8 survivor clusters</text>
+ <circle cx="360" cy="320" r="115" fill="#1f5f6b" opacity=".09"/><circle cx="130" cy="180" r="105" fill="#1f5f6b" opacity=".09"/>
+ <g fill="#b5532a" opacity=".85"><circle cx="70" cy="330" r="16"/><circle cx="170" cy="400" r="9"/><circle cx="320" cy="400" r="12"/><circle cx="430" cy="290" r="19"/><circle cx="120" cy="130" r="12"/><circle cx="220" cy="130" r="21"/><circle cx="330" cy="180" r="9"/><circle cx="440" cy="90" r="16"/></g>
+ <g font-size="17" font-weight="700"><rect x="45" y="365" width="26" height="26" fill="#fff" stroke="#16191d" stroke-width="2"/><text x="52" y="414">0</text>
+ <rect x="195" y="365" width="26" height="26" fill="#fff" stroke="#16191d" stroke-width="2"/><text x="202" y="414">1</text>
+ <rect x="347" y="307" width="26" height="26" fill="#1f5f6b"/><text x="380" y="327">2 ✓</text>
+ <rect x="117" y="167" width="26" height="26" fill="#1f5f6b"/><text x="150" y="187">3 ✓</text>
+ <rect x="247" y="167" width="26" height="26" fill="#fff" stroke="#16191d" stroke-width="2"/><text x="254" y="216">4</text>
+ <rect x="407" y="117" width="26" height="26" fill="#fff" stroke="#16191d" stroke-width="2"/><text x="414" y="166">5</text></g>
+</svg></div>
+<div class="ft"><span>TEAM VOID · VOID-NAV</span><span>11</span></div>
+</section>
+
+<!-- 12 IMPACT / CLOSE -->
+<section class="s">
+<div class="ey">11 · Impact · roadmap</div>
+<h2>A lifeline when everything else is down</h2>
+<div class="g3" style="margin-top:22px">
+<div class="box"><div style="font-family:'Source Serif 4',serif;font-size:40px;font-weight:700;color:var(--teal)">0</div><p class="sm">towers, internet, cloud or apps needed</p></div>
+<div class="box"><div style="font-family:'Source Serif 4',serif;font-size:40px;font-weight:700;color:var(--teal)">Any phone</div><p class="sm">or a shared tablet at the SOS point</p></div>
+<div class="box"><div style="font-family:'Source Serif 4',serif;font-size:40px;font-weight:700;color:var(--teal)">2 lights</div><p class="sm">sent → read by SOS</p></div></div>
+<div class="g2" style="margin-top:26px">
+<div><div class="n">Who benefits</div>
+<table><tr><td><b>Trapped survivors</b></td><td>reach rescuers from where they are</td></tr><tr><td><b>Displaced people</b></td><td>ask for help or tell family they're safe</td></tr><tr><td><b>Rescue teams</b></td><td>heatmap + urgent list instead of searching blind</td></tr><tr><td><b>Authorities</b></td><td>live picture of needs across the area</td></tr></table></div>
+<div><div class="n">Roadmap</div>
+<table><tr><td><b>Now</b></td><td>1 ESP32 + 2 LoRa: SOS page, link, receipt, dashboard</td></tr><tr><td><b>Next</b></td><td>3+ boards: real relay hops, phone-signal heatmap</td></tr><tr><td><b>Then</b></td><td>load + failure tests, measure delay, QAOA planner in dashboard</td></tr><tr><td><b>Pilot</b></td><td>district drill with an SDMA partner (proposed)</td></tr></table></div></div>
+<div style="margin-top:24px;background:#16191d;border-radius:10px;padding:22px 28px;display:flex;justify-content:space-between;align-items:center">
+<div style="font-family:'Source Serif 4',serif;font-size:27px;color:#fff;font-style:italic">"When the towers fall, every phone can still call for help."</div>
+<div style="text-align:right"><div style="font-family:'Source Serif 4',serif;font-size:27px;font-weight:700;color:#fff">Team VOID</div><div class="mono" style="font-size:13px;letter-spacing:.2em;color:#e07b1a">THANK YOU</div></div></div>
+<div class="ft"><span>TEAM VOID · VOID-NAV</span><span>12</span></div>
+</section>
+</body></html>
