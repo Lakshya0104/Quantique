@@ -175,3 +175,33 @@ h4{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan
 @keyframes draw{to{stroke-dashoffset:0}}
 #three canvas{position:absolute!important;top:0;left:0;display:block}
 #scenarioBanner{white-space:nowrap}
+/* ---- 2D map ---- */
+#three.leaflet-container{background:#05080f;font-family:inherit}
+.leaflet-control-attribution{background:rgba(5,8,15,.7)!important;color:#6b7f96!important;font-size:10px}.leaflet-control-attribution a{color:#8fb8d8!important}
+.leaflet-bar a{background:#0d1626!important;color:#cfe6ff!important;border-color:#1d2c44!important}
+#three .leaflet-control-zoom{margin-top:120px;margin-left:350px}
+.wlbl{background:none!important;border:0!important;box-shadow:none!important;color:#9fd6ff;font:700 11px/1 inherit;letter-spacing:.14em;text-transform:uppercase;text-shadow:0 0 4px #000,0 0 8px #000}
+.wlbl:before{display:none}
+.heat{mix-blend-mode:screen}
+.nd2{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.nd2 b{width:12px;height:12px;border-radius:50%;background:var(--c);box-shadow:0 0 0 3px rgba(0,0,0,.6),0 0 12px var(--c);animation:pulse2 2s infinite}
+.nd2.node b{border-radius:3px;transform:rotate(45deg)}
+.nd2.gw b{width:18px;height:18px;border-radius:4px}
+.nd2 span{font:600 11px 'JetBrains Mono',monospace;color:var(--c);text-shadow:0 0 4px #000,0 0 6px #000}
+.nd2.down b{background:#7a2a3a;box-shadow:none;animation:none}.nd2.down span{color:#7a2a3a;text-decoration:line-through}
+@keyframes pulse2{50%{box-shadow:0 0 0 3px rgba(0,0,0,.6),0 0 22px var(--c)}}
+.hs2{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.hs2 b{width:20px;height:20px;border-radius:5px;background:#2fe08a;color:#04120a;display:grid;place-items:center;font-size:13px;box-shadow:0 0 12px #2fe08a88}
+.hs2 span{font-weight:700;font-size:12px;color:#7ff0b4;text-shadow:0 0 4px #000,0 0 6px #000}
+.pin2{position:absolute;transform:translate(-50%,-100%)}
+.pin2 .pulse{position:absolute;left:50%;bottom:-8px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--c);box-shadow:0 0 0 0 var(--c);animation:ring2 1.8s infinite}
+@keyframes ring2{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--c) 70%,transparent)}100%{box-shadow:0 0 0 34px transparent}}
+.pin2 .pin{position:relative;margin-bottom:16px;cursor:pointer}
+.amb2{position:absolute;transform:translate(-50%,-50%);font-size:20px;white-space:nowrap;filter:drop-shadow(0 0 6px #ff2d55)}.amb2 span{font:600 10px 'JetBrains Mono',monospace;color:#fff;background:#ff2d55;border-radius:4px;padding:1px 4px;margin-left:4px}
+.q2{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;display:flex;gap:6px;align-items:center}.q2 b{color:#a78bfa;font-size:20px;text-shadow:0 0 10px #a78bfa}.q2 span{color:#d6c8ff;font-weight:700;font-size:12px;text-shadow:0 0 4px #000}
+#situation .panel,#situation .sc,#situation .ctx{background:rgba(7,11,20,.94)!important;backdrop-filter:blur(6px)}
+.sc{width:min(760px,calc(100vw - 820px))!important;min-width:560px!important}
+.pin2 .pin{padding:3px 9px 3px 3px;gap:6px;border-width:1.5px}
+.pin2 .pin i{min-width:26px;height:26px;font-size:13px}
+.pin2 .pin span{font-size:12px}.pin2 .pin span small{font-size:10px}
+.wlbl{font-size:10px;opacity:.75}

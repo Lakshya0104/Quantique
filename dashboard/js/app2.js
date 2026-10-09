@@ -1,6 +1,4 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+const Lf = window.L;
 import * as Z from './zone.js';
 import { buildProblem, qaoaState, bits, sample, cvar } from './quantum.js';
 
@@ -14,128 +12,84 @@ const S = { msgs: [], clusters: new Map(), running: false, t0: null, selected: n
 Z.HOSPITALS.forEach((h, i) => { for (let k = 0; k < (h.trauma ? 2 : 1); k++) S.ambs.push({ id: `TS-108-${String(i * 2 + k + 21).padStart(3, '0')}`, base: h, lat: h.lat, lon: h.lon, status: 'AVAILABLE' }); });
 const nodeOf = id => Z.NET.find(n => n.id === id);
 
-/* ============ RENDERER ============ */
-const wrap = $('#three');
-const renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-Object.assign(renderer.domElement.style,{position:"absolute",top:0,left:0,display:"block"}); wrap.appendChild(renderer.domElement);
-const labelR = new CSS2DRenderer(); Object.assign(labelR.domElement.style, { position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }); wrap.appendChild(labelR.domElement);
-const scene = new THREE.Scene(); scene.background = new THREE.Color(0x04070d); scene.fog = new THREE.Fog(0x04070d, 60, 140);
-const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 400); camera.position.set(0, 40, 46);
-const controls = new OrbitControls(camera, renderer.domElement);
-Object.assign(controls, { enableDamping: true, dampingFactor: .07, maxPolarAngle: Math.PI * .44, minDistance: 8, maxDistance: 95, autoRotate: false, autoRotateSpeed: .3 });
-function fit() { const w = wrap.clientWidth, h = wrap.clientHeight; if (!w || !h) return; renderer.setSize(w, h); labelR.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); }
-new ResizeObserver(fit).observe(wrap); fit();
-scene.add(new THREE.HemisphereLight(0x8fc4ff, 0x05070d, 1.0));
-const sun = new THREE.DirectionalLight(0xbfe0ff, 1.1); sun.position.set(-30, 50, 20); scene.add(sun);
-
-const L = (t, x, y, z, cls) => { const d = document.createElement('div'); d.className = cls; if (typeof t === 'string') d.textContent = t; else d.appendChild(t); const o = new CSS2DObject(d); o.position.set(x, y, z); scene.add(o); return o; };
-
-/* ============ MAP: real GHMC wards ============ */
-const proj = c => { const p = Z.toXZ(c[1], c[0]); return new THREE.Vector3(p.x, 0, p.z); };
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshStandardMaterial({ color: 0x060a12, roughness: 1 })); ground.rotation.x = -Math.PI / 2; ground.position.y = -.02; scene.add(ground);
-// whole city wards (context, faint)
-{ const pos = []; Z.GEO.ghmc.forEach(w => { const pts = w.c.map(proj); for (let i = 0; i < pts.length - 1; i++) pos.push(pts[i].x, .01, pts[i].z, pts[i + 1].x, .01, pts[i + 1].z); });
-  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); scene.add(new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: 0x1a3550, transparent: true, opacity: .7 }))); }
-// zone wards (filled + glowing outline + names)
+/* ============ 2D MAP (Leaflet · street tiles when online, real ward boundaries always) ============ */
+const _kx = Z.toXZ(Z.C0.lat, Z.C0.lon + 1).x, _kz = -Z.toXZ(Z.C0.lat + 1, Z.C0.lon).z;
+const ll = (x, z) => [Z.C0.lat - z / _kz, Z.C0.lon + x / _kx];
+const llN = n => [n.lat, n.lon];
+const map = Lf.map('three', { zoomControl: true, attributionControl: true, preferCanvas: false, zoomSnap: .25 }).setView([Z.C0.lat, Z.C0.lon], 14);
+Lf.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 19, attribution: '© OpenStreetMap contributors © CARTO' }).addTo(map);
+new ResizeObserver(() => map.invalidateSize()).observe($('#three'));
+// whole city wards (context) + disaster-zone wards
+Z.GEO.ghmc.forEach(w => Lf.polygon(w.c.map(c => [c[1], c[0]]), { color: '#2f6f9a', weight: .8, opacity: .55, fillOpacity: .02, interactive: false }).addTo(map));
 const zonePolys = Z.GEO.zone.map(w => w.c.map(c => { const p = Z.toXZ(c[1], c[0]); return [p.x, p.z]; }));
-Z.GEO.zone.forEach((w, i) => { const shp = new THREE.Shape(zonePolys[i].map(([x, z]) => new THREE.Vector2(x, -z)));
-  const m = new THREE.Mesh(new THREE.ShapeGeometry(shp), new THREE.MeshBasicMaterial({ color: 0x0b1b2e, transparent: true, opacity: .95 })); m.rotation.x = -Math.PI / 2; m.position.y = .005; scene.add(m);
-  const pts = zonePolys[i].map(([x, z]) => new THREE.Vector3(x, .06, z)); const ln = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0x2f8fc0, transparent: true, opacity: .9 })); scene.add(ln);
-  const cx = zonePolys[i].reduce((a, p) => a + p[0], 0) / zonePolys[i].length, cz = zonePolys[i].reduce((a, p) => a + p[1], 0) / zonePolys[i].length; L(Z.wardName(w.n).toUpperCase(), cx, .3, cz, 'lbl w'); });
-const pip = (x, z, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, zi] = poly[i], [xj, zj] = poly[j]; if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) c = !c; } return c; };
-const inZone = (x, z) => zonePolys.some(p => pip(x, z, p));
+const zoneLayer = Lf.featureGroup(Z.GEO.zone.map(w => Lf.polygon(w.c.map(c => [c[1], c[0]]), { color: '#39d0ff', weight: 2, opacity: .9, fillColor: '#0b2a44', fillOpacity: .25, dashArray: '' })
+  .bindTooltip(Z.wardName(w.n), { permanent: true, direction: 'center', className: 'wlbl' }))).addTo(map);
+const ZB = zoneLayer.getBounds();
 const bb = zonePolys.flat().reduce((a, [x, z]) => ({ x0: Math.min(a.x0, x), x1: Math.max(a.x1, x), z0: Math.min(a.z0, z), z1: Math.max(a.z1, z) }), { x0: 1e9, x1: -1e9, z0: 1e9, z1: -1e9 });
-// buildings inside the zone
-const B = { mesh: null, list: [] };
-{ const geo = new THREE.BoxGeometry(1, 1, 1); geo.translate(0, .5, 0);
-  const mat = new THREE.MeshStandardMaterial({ color: 0x223650, roughness: .75, metalness: .15 }); const N = 4200, inst = new THREE.InstancedMesh(geo, mat, N); const m4 = new THREE.Matrix4(); let k = 0, guard = 0;
-  while (k < N && guard++ < 60000) { const x = bb.x0 + Math.random() * (bb.x1 - bb.x0), z = bb.z0 + Math.random() * (bb.z1 - bb.z0); if (!inZone(x, z)) continue;
-    const w = .18 + Math.random() * .32, d = .18 + Math.random() * .32, h = (.08 + Math.random() ** 2 * .45), r = (Math.random() - .5) * .3;
-    B.list.push({ x, z, w, d, h, r }); m4.compose(new THREE.Vector3(x, 0, z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), r), new THREE.Vector3(w, h, d)); inst.setMatrixAt(k, m4); inst.setColorAt(k, new THREE.Color(0x223650).offsetHSL(0, 0, Math.random() * .06)); k++; }
-  inst.count = k; scene.add(inst); B.mesh = inst; }
-function collapseAround(x0, z0, rad) { const m4 = new THREE.Matrix4(); B.list.forEach((b, i) => { const d = Math.hypot(b.x - x0, b.z - z0); if (d > rad || Math.random() < .35) return;
-    m4.compose(new THREE.Vector3(b.x, 0, b.z), new THREE.Quaternion().setFromEuler(new THREE.Euler((Math.random() - .5) * .5, b.r, (Math.random() - .5) * .5)), new THREE.Vector3(b.w * 1.2, b.h * .25, b.d * 1.2)); B.mesh.setMatrixAt(i, m4); B.mesh.setColorAt(i, new THREE.Color(0x5a2a22)); });
-  B.mesh.instanceMatrix.needsUpdate = true; B.mesh.instanceColor.needsUpdate = true; }
+function collapseAround() { /* 3D-only effect */ }
 
-/* ============ HEAT (smooth survivor density texture) ============ */
-const HN = 512, hc = document.createElement('canvas'); hc.width = hc.height = HN; const hctx = hc.getContext('2d'); const htex = new THREE.CanvasTexture(hc); htex.colorSpace = THREE.SRGBColorSpace;
+/* ============ HEAT (smooth survivor density) ============ */
+const HN = 512, hc = document.createElement('canvas'); hc.width = hc.height = HN; const hctx = hc.getContext('2d');
 const PADX = 3, hx0 = bb.x0 - PADX, hx1 = bb.x1 + PADX, hz0 = bb.z0 - PADX, hz1 = bb.z1 + PADX;
-const heatPlane = new THREE.Mesh(new THREE.PlaneGeometry(hx1 - hx0, hz1 - hz0), new THREE.MeshBasicMaterial({ map: htex, transparent: true, depthWrite: false, opacity: .92 }));
-heatPlane.rotation.x = -Math.PI / 2; heatPlane.position.set((hx0 + hx1) / 2, .09, (hz0 + hz1) / 2); scene.add(heatPlane);
+const heatLayer = Lf.imageOverlay(hc.toDataURL(), [ll(hx0, hz1), ll(hx1, hz0)], { opacity: .85, interactive: false, className: 'heat' }).addTo(map);
 const RAMP = [[0, [20, 50, 90, 0]], [.12, [43, 212, 196, 90]], [.35, [245, 213, 71, 170]], [.6, [255, 138, 31, 210]], [.82, [255, 45, 85, 235]], [1, [255, 156, 240, 250]]];
 const rampRGBA = v => { v = Math.max(0, Math.min(1, v)); for (let i = 1; i < RAMP.length; i++) if (v <= RAMP[i][0]) { const [a, ca] = RAMP[i - 1], [b, cb] = RAMP[i], t = (v - a) / (b - a); return ca.map((c, j) => c + (cb[j] - c) * t); } return RAMP.at(-1)[1]; };
 const rampHex = v => { const [r, g, b] = rampRGBA(v); return '#' + [r, g, b].map(c => Math.round(c).toString(16).padStart(2, '0')).join(''); };
-const blobs = []; // {x,z,w,r}
+const blobs = [];
 function drawHeat() { const F = new Float32Array(HN * HN); let mx = 0;
   blobs.forEach(b => { const cx = (b.x - hx0) / (hx1 - hx0) * HN, cz = (b.z - hz0) / (hz1 - hz0) * HN, rr = b.r / (hx1 - hx0) * HN, R = Math.ceil(rr * 3);
     for (let y = Math.max(0, Math.floor(cz - R)); y < Math.min(HN, cz + R); y++) for (let x = Math.max(0, Math.floor(cx - R)); x < Math.min(HN, cx + R); x++) { const d2 = ((x - cx) ** 2 + (y - cz) ** 2) / (rr * rr); if (d2 < 9) F[y * HN + x] += b.w * Math.exp(-d2 / 2); } });
   for (const v of F) mx = Math.max(mx, v); const norm = Math.max(mx, 14); const img = hctx.createImageData(HN, HN);
   for (let i = 0; i < F.length; i++) { const [r, g, b, a] = rampRGBA(F[i] / norm); img.data.set([r, g, b, F[i] < .02 ? 0 : a], i * 4); }
-  hctx.putImageData(img, 0, 0); htex.needsUpdate = true; }
-drawHeat();
+  hctx.putImageData(img, 0, 0); heatLayer.setUrl(hc.toDataURL()); }
 
-/* ============ NETWORK (nodes, relays, gateway) ============ */
-const net3 = new Map(); const linkGrp = new THREE.Group(); scene.add(linkGrp);
-Z.NET.forEach(n => { const p = Z.toXZ(n.lat, n.lon), g = new THREE.Group(), col = n.kind === 'node' ? 0xa78bfa : 0x39d0ff;
-  const pole = new THREE.Mesh(new THREE.CylinderGeometry(.05, .08, n.kind === 'gw' ? 3 : 2), new THREE.MeshStandardMaterial({ color: 0x9cc3d8 })); pole.position.y = n.kind === 'gw' ? 1.5 : 1;
-  const top = new THREE.Mesh(n.kind === 'node' ? new THREE.OctahedronGeometry(.32) : new THREE.SphereGeometry(n.kind === 'gw' ? .4 : .26, 16, 16), new THREE.MeshBasicMaterial({ color: col })); top.position.y = n.kind === 'gw' ? 3.1 : 2.1;
-  g.add(pole, top); if (n.kind === 'gw') { const base = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.3, .3, 6), new THREE.MeshBasicMaterial({ color: 0x39d0ff })); g.add(base); }
-  g.position.set(p.x, 0, p.z); g.userData = { top, n }; scene.add(g); net3.set(n.id, g);
-  L(n.kind === 'gw' ? '◆ COMMAND POST · GATEWAY' : n.id, p.x, n.kind === 'gw' ? 3.9 : 2.8, p.z, n.kind === 'gw' ? 'lbl h' : 'lbl nd'); });
-const arc = (a, b, ha = 2.1, hb = 2.1, lift = 1.6) => { const pa = new THREE.Vector3(a.x, ha, a.z), pb = new THREE.Vector3(b.x, hb, b.z), m = pa.clone().add(pb).multiplyScalar(.5); m.y += lift; return new THREE.QuadraticBezierCurve3(pa, m, pb); };
+/* ============ NETWORK ============ */
+const netM = new Map(); const linkGrp = Lf.layerGroup().addTo(map);
+Z.NET.forEach(n => { const col = n.kind === 'node' ? '#a78bfa' : '#39d0ff';
+  const m = Lf.marker(llN(n), { icon: Lf.divIcon({ className: '', html: `<div class="nd2 ${n.kind}" style="--c:${col}"><b></b><span>${n.kind === 'gw' ? 'COMMAND POST · GATEWAY' : n.id}</span></div>`, iconSize: [0, 0] }), zIndexOffset: 200 }).addTo(map);
+  netM.set(n.id, m); });
 const neigh = id => { const a = nodeOf(id); return Z.NET.filter(b => b.id !== id && !S.down.has(b.id) && Z.distKm(a, b) <= Z.RANGE_KM); };
 function hopDist() { const d = { GW: 0 }, q = ['GW']; while (q.length) { const c = q.shift(); neigh(c).forEach(n => { if (d[n.id] === undefined) { d[n.id] = d[c] + 1; q.push(n.id); } }); } return d; }
 function route(from) { const d = hopDist(); if (d[from] === undefined) return null; const path = [from]; let cur = from; while (cur !== 'GW') { const nx = neigh(cur).filter(n => d[n.id] < d[cur]).sort((a, b) => d[a.id] - d[b.id])[0]; if (!nx) return null; cur = nx.id; path.push(cur); } return path; }
-function drawLinks() { linkGrp.clear(); const d = hopDist();
+function drawLinks() { linkGrp.clearLayers();
   for (let i = 0; i < Z.NET.length; i++) for (let j = i + 1; j < Z.NET.length; j++) { const a = Z.NET[i], b = Z.NET[j]; if (Z.distKm(a, b) > Z.RANGE_KM) continue; const down = S.down.has(a.id) || S.down.has(b.id);
-    const c = arc(Z.toXZ(a.lat, a.lon), Z.toXZ(b.lat, b.lon), a.kind === 'gw' ? 3.1 : 2.1, b.kind === 'gw' ? 3.1 : 2.1, .9);
-    linkGrp.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(c.getPoints(24)), new THREE.LineBasicMaterial({ color: down ? 0x5a2030 : 0x2a8fc8, transparent: true, opacity: down ? .35 : .45 }))); }
-  net3.forEach((g, id) => g.userData.top.material.color.set(S.down.has(id) ? 0x5a2030 : g.userData.n.kind === 'node' ? 0xa78bfa : 0x39d0ff)); }
+    Lf.polyline([llN(a), llN(b)], { color: down ? '#7a2a3a' : '#39d0ff', weight: 1.5, opacity: down ? .4 : .45, dashArray: '4 6', interactive: false }).addTo(linkGrp); }
+  netM.forEach((m, id) => m.getElement()?.firstChild?.classList.toggle('down', S.down.has(id))); }
 drawLinks();
 const packets = [];
-function packet3D(path, color) { const pts = path.map(id => { const n = nodeOf(id); return { ...Z.toXZ(n.lat, n.lon), h: n.kind === 'gw' ? 3.1 : 2.1 }; });
-  const curves = []; for (let i = 0; i < pts.length - 1; i++) curves.push(arc(pts[i], pts[i + 1], pts[i].h, pts[i + 1].h, 1.4));
-  const s = new THREE.Mesh(new THREE.SphereGeometry(.22, 12, 12), new THREE.MeshBasicMaterial({ color })); const trail = new THREE.Mesh(new THREE.SphereGeometry(.45, 12, 12), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: .25 }));
-  scene.add(s, trail); packets.push({ s, trail, curves, t: 0 }); }
-// hospitals in / near zone
-Z.HOSPITALS.forEach(h => { const p = Z.toXZ(h.lat, h.lon); if (Math.hypot(p.x, p.z) > 36) return; const g = new THREE.Group();
-  const a = new THREE.Mesh(new THREE.BoxGeometry(1, .26, .32), new THREE.MeshBasicMaterial({ color: 0x2fe08a })), b = a.clone(); b.rotation.y = Math.PI / 2; g.add(a, b); g.position.set(p.x, 1.6, p.z); scene.add(g);
-  const pole = new THREE.Mesh(new THREE.CylinderGeometry(.04, .04, 1.6), new THREE.MeshBasicMaterial({ color: 0x2fe08a, transparent: true, opacity: .5 })); pole.position.set(p.x, .8, p.z); scene.add(pole);
-  L('✚ ' + h.name, p.x, 2.4, p.z, 'lbl h'); });
+function packet3D(path, color) { const pts = path.map(id => llN(nodeOf(id))); const col = typeof color === 'number' ? '#' + color.toString(16).padStart(6, '0') : color;
+  const dot = Lf.circleMarker(pts[0], { radius: 6, color: '#fff', weight: 2, fillColor: col, fillOpacity: 1, interactive: false }).addTo(map);
+  const tr = Lf.polyline([pts[0]], { color: col, weight: 3, opacity: .9, interactive: false }).addTo(map); packets.push({ dot, tr, pts, t: 0 }); }
+// hospitals
+Z.HOSPITALS.forEach(h => { if (Z.distKm(Z.C0, h) > 4.5) return;
+  Lf.marker([h.lat, h.lon], { icon: Lf.divIcon({ className: '', html: `<div class="hs2"><b>✚</b><span>${h.name}</span></div>`, iconSize: [0, 0] }) }).addTo(map); });
 
 /* ============ PINS (survivors per SOS point) ============ */
 const pins = new Map();
-function upsertPin(c) { const n = nodeOf(c.node), p = Z.toXZ(n.lat, n.lon); const col = c.state === 'DISPATCHED' ? '#2fe08a' : PCOL[c.prio];
-  let P = pins.get(c.node); if (!P) { const g = new THREE.Group(); const beam = new THREE.Mesh(new THREE.CylinderGeometry(.06, .06, 5, 8), new THREE.MeshBasicMaterial({ transparent: true, opacity: .8 })); beam.position.y = 2.5;
-      const ring = new THREE.Mesh(new THREE.RingGeometry(.4, .5, 40), new THREE.MeshBasicMaterial({ transparent: true, side: THREE.DoubleSide })); ring.rotation.x = -Math.PI / 2; ring.position.y = .12;
-      g.add(beam, ring); g.position.set(p.x + .6, 0, p.z + .6); scene.add(g); const el = document.createElement('div'); el.className = 'pin'; el.onclick = () => focusCluster(c.node);
-      const lab = L(el, p.x + .6, 5.4, p.z + .6, ''); lab.element.style.pointerEvents = 'auto'; P = { g, beam, ring, el, born: performance.now() }; pins.set(c.node, P); }
-  P.beam.material.color.set(col); P.ring.material.color.set(col); P.el.style.setProperty('--c', col);
+function upsertPin(c) { const n = nodeOf(c.node); const col = c.state === 'DISPATCHED' ? '#2fe08a' : PCOL[c.prio];
+  let P = pins.get(c.node); if (!P) { const m = Lf.marker(llN(n), { icon: Lf.divIcon({ className: '', html: '<div class="pin2"><div class="pulse"></div><div class="pin"></div></div>', iconSize: [0, 0] }), zIndexOffset: 1000 }).addTo(map);
+      m.on('click', () => focusCluster(c.node)); P = { m, el: m.getElement().querySelector('.pin'), w: m.getElement().firstChild }; pins.set(c.node, P); }
+  P.w.style.setProperty('--c', col); P.el.style.setProperty('--c', col);
   const stuck = c.stuck, other = c.people - c.stuck;
-  P.el.innerHTML = `<i>${stuck || c.people}</i><span>${stuck ? 'survivors stuck' : (c.cat === 'SAFE' ? 'safe' : 'need help')}<small>${c.ward} · ${c.msgs.length} SOS${other > 0 && stuck ? ` · +${other} other` : ''}</small></span>`; }
+  P.el.innerHTML = `<i>${stuck || c.people}</i><span>${c.ward}<small>${stuck ? 'stuck' : (c.cat === 'SAFE' ? 'safe' : 'need help')} · ${c.msgs.length} SOS</small></span>`; }
 
-/* ============ CAMERA & LOOP ============ */
-let fly = null;
-function flyTo(pos, tgt, dur = 1.8) { fly = { f: camera.position.clone(), t: pos.clone(), ft: controls.target.clone(), tt: tgt.clone(), k: 0, dur }; }
-function focusCluster(id) { const n = nodeOf(id), p = Z.toXZ(n.lat, n.lon); flyTo(new THREE.Vector3(p.x + 6, 13, p.z + 15), new THREE.Vector3(p.x, 0, p.z)); }
-$('#vTop').onclick = () => flyTo(new THREE.Vector3(0, 70, .1), new THREE.Vector3(0, 0, 0));
-$('#vTilt').onclick = () => flyTo(new THREE.Vector3(0, 34, 40), new THREE.Vector3(0, 0, 0));
-$('#vSpin').onclick = () => controls.autoRotate = !controls.autoRotate;
-const waves = []; const clk = new THREE.Clock();
-function loop() { requestAnimationFrame(loop); const dt = clk.getDelta(), t = performance.now() / 1000;
-  if (fly) { fly.k = Math.min(1, fly.k + dt / fly.dur); const e = 1 - Math.pow(1 - fly.k, 3); camera.position.lerpVectors(fly.f, fly.t, e); controls.target.lerpVectors(fly.ft, fly.tt, e); if (fly.k >= 1) fly = null; }
-  controls.update();
-  pins.forEach(P => { const a = ((t * 1000 - P.born) % 1800) / 1800; P.ring.scale.setScalar(1 + a * 6); P.ring.material.opacity = (1 - a) * .9; });
-  net3.forEach((g, id) => { if (!S.down.has(id)) g.userData.top.scale.setScalar(1 + Math.sin(t * 3 + id.charCodeAt(1)) * .12); });
-  for (let j = packets.length - 1; j >= 0; j--) { const p = packets[j]; p.t += dt * 1.3; const s = Math.floor(p.t); if (s >= p.curves.length) { scene.remove(p.s, p.trail); packets.splice(j, 1); continue; } const pos = p.curves[s].getPoint(p.t - s); p.s.position.copy(pos); p.trail.position.lerp(pos, .35); }
-  for (let j = waves.length - 1; j >= 0; j--) { const w = waves[j]; w.t += dt * .45; if (w.t < 0) { w.m.visible = false; continue; } w.m.visible = true; w.m.scale.setScalar(1 + w.t * 30); w.m.material.opacity = Math.max(0, .9 - w.t); if (w.t > 1) { scene.remove(w.m); waves.splice(j, 1); } }
-  S.ambs.forEach(a => { if (a.status === 'AVAILABLE') return; const g = ambMesh(a), p = Z.toXZ(a.lat, a.lon); g.position.set(p.x, 0, p.z); g.userData.l.material.color.set(Math.sin(t * 12) > 0 ? 0xff2d55 : 0x39d0ff); });
-  renderer.render(scene, camera); labelR.render(scene, camera); }
+/* ============ VIEW & LOOP ============ */
+const FITP = { paddingTopLeft: [330, 80], paddingBottomRight: [400, 200] };
+const home = () => map.flyToBounds(ZB, { ...FITP, duration: 1.2 });
+function focusCluster(id) { map.flyTo(llN(nodeOf(id)), 16, { duration: 1.2 }); }
+$('#vTop').textContent = 'Disaster zone'; $('#vTilt').textContent = 'Hyderabad'; $('#vSpin').textContent = 'Zoom in';
+$('#vTop').onclick = home; $('#vTilt').onclick = () => map.flyTo([17.40, 78.47], 12, { duration: 1.2 }); $('#vSpin').onclick = () => map.zoomIn();
+const waves = []; let lastT = performance.now();
+function loop() { requestAnimationFrame(loop); const now = performance.now(), dt = (now - lastT) / 1000; lastT = now;
+  for (let j = packets.length - 1; j >= 0; j--) { const p = packets[j]; p.t += dt * 1.1; const s = Math.floor(p.t);
+    if (s >= p.pts.length - 1) { map.removeLayer(p.dot); map.removeLayer(p.tr); packets.splice(j, 1); continue; }
+    const a = p.pts[s], b = p.pts[s + 1], k = p.t - s, pos = [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]; p.dot.setLatLng(pos); p.tr.setLatLngs([...p.pts.slice(0, s + 1), pos]); }
+  for (let j = waves.length - 1; j >= 0; j--) { const w = waves[j]; w.t += dt * .45; if (w.t < 0) continue; w.c.setRadius(80 + w.t * 2600); w.c.setStyle({ opacity: Math.max(0, .9 - w.t) }); if (w.t > 1) { map.removeLayer(w.c); waves.splice(j, 1); } }
+  S.ambs.forEach(a => { if (a.status === 'AVAILABLE') return; ambMesh(a).setLatLng([a.lat, a.lon]); }); }
 loop();
-function shock(x, z) { for (let i = 0; i < 3; i++) { const m = new THREE.Mesh(new THREE.RingGeometry(.95, 1, 80), new THREE.MeshBasicMaterial({ color: 0xff2d55, transparent: true, side: THREE.DoubleSide })); m.rotation.x = -Math.PI / 2; m.position.set(x, .15, z); scene.add(m); waves.push({ m, t: -i * .45 }); } }
+function shock(x, z) { for (let i = 0; i < 3; i++) waves.push({ c: Lf.circle(ll(x, z), { radius: 50, color: '#ff2d55', weight: 3, fill: false, interactive: false }).addTo(map), t: -i * .45 }); }
 const ambM = new Map();
-function ambMesh(a) { if (ambM.has(a.id)) return ambM.get(a.id); const g = new THREE.Group(); const b = new THREE.Mesh(new THREE.BoxGeometry(.7, .35, .35), new THREE.MeshBasicMaterial({ color: 0xffffff })); b.position.y = .25;
-  const l = new THREE.Mesh(new THREE.SphereGeometry(.12, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff2d55 })); l.position.y = .52; g.add(b, l); g.userData.l = l; scene.add(g); ambM.set(a.id, g); return g; }
+function ambMesh(a) { if (ambM.has(a.id)) return ambM.get(a.id); const m = Lf.marker([a.lat, a.lon], { icon: Lf.divIcon({ className: '', html: `<div class="amb2">🚑<span>${a.id}</span></div>`, iconSize: [0, 0] }), zIndexOffset: 900 }).addTo(map); ambM.set(a.id, m); return m; }
 
 /* ============ SEMANTIC ENCODER (runs on the node) ============ */
 const NUMW = { 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6 };
@@ -183,7 +137,7 @@ function ingest(raw) { // raw: {node, ward, text, lang, gloss, panic, src, id?, 
   c.msgs.push(m); c.people += m.people; if (m.cat === 'TRAPPED' || m.cat === 'INJURED' || m.panic) c.stuck += m.people; c.prio = Math.min(c.prio, m.prio); c.cat = c.stuck ? 'TRAPPED' : m.cat; c.state = 'UNREAD'; S.clusters.set(m.node, c);
   const p = Z.toXZ(n.lat, n.lon); blobs.push({ x: p.x + (Math.random() - .5) * 1.5, z: p.z + (Math.random() - .5) * 1.5, w: m.people * [3, 1.6, 1, .25][m.prio], r: 1.2 + Math.sqrt(m.people) * .35, msg: m.id }); drawHeat();
   upsertPin(c);
-  const path = raw.src === 'live' ? [m.node, 'GW'] : route(m.node); if (path) { m.hops = path.length - 1; packet3D(path, new THREE.Color(PCOL[m.prio]).getHex()); meshPacket(path); S.mstat.del++; S.mstat.hops.push(path.length - 1); }
+  const path = raw.src === 'live' ? [m.node, 'GW'] : route(m.node); if (path) { m.hops = path.length - 1; packet3D(path, PCOL[m.prio]); meshPacket(path); S.mstat.del++; S.mstat.hops.push(path.length - 1); }
   showCompression(m);
   if (m.prio === 0) { toast(m); siren(); speak(m); flash(); }
   log(`SOS ${m.id} · ${Z.CAT_LABEL[m.cat]} · ${m.people} ppl · ${m.ward}${raw.src === 'live' ? ' · LIVE LoRa' : ''}`);
@@ -270,7 +224,7 @@ async function intro() { const ov = $('#intro'), svg = $('#introSvg'), cap = $('
   svg.innerHTML = Z.GEO.ghmc.map((w, i) => `<path d="${h.d(w.c)}" fill="${ZONE_NAMES.has(w.n) ? 'rgba(255,45,85,0)' : 'rgba(57,208,255,.04)'}" stroke="${ZONE_NAMES.has(w.n) ? '#ff2d55' : '#2f6f9a'}" stroke-width="${ZONE_NAMES.has(w.n) ? 2 : .8}" opacity="0">
     <animate attributeName="opacity" to="1" dur=".4s" begin="${(i % 30) * .03}s" fill="freeze"/>${ZONE_NAMES.has(w.n) ? `<animate attributeName="fill" to="rgba(255,45,85,.55)" dur=".8s" begin="1.1s" fill="freeze"/>` : ''}</path>`).join('');
   cap.innerHTML = 'HYDERABAD · 145 GHMC WARDS<small>DISASTER ZONE: MUSHEERABAD · 12 WARDS</small>'; await sleep(2900);
-  ov.classList.add('fade'); camera.position.set(0, 95, 2); controls.target.set(0, 0, 0); flyTo(new THREE.Vector3(4, 30, 38), new THREE.Vector3(0, 0, 0), 2.6); await sleep(900); ov.classList.add('hidden'); }
+  ov.classList.add('fade'); map.setView([17.40, 78.47], 12); setTimeout(home, 300); await sleep(900); ov.classList.add('hidden'); }
 
 /* ============ SIMULATION ============ */
 let timers = [];
@@ -289,7 +243,7 @@ setInterval(() => { $('#clock').textContent = new Date().toLocaleTimeString('en-
   if (S.msgs.length) { renderResources(); if ($('#inbox').classList.contains('on')) renderList(); } }, 1000);
 
 /* ============ TABS / CONTROLS ============ */
-function openTab(id) { $$('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === id)); $$('.tab').forEach(t => t.classList.toggle('on', t.id === id)); if (id === 'situation') fit(); if (id === 'mesh') drawMesh(); }
+function openTab(id) { $$('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === id)); $$('.tab').forEach(t => t.classList.toggle('on', t.id === id)); if (id === 'situation') setTimeout(() => map.invalidateSize(), 50); if (id === 'mesh') drawMesh(); }
 $$('#tabs button').forEach(b => b.onclick = () => openTab(b.dataset.tab));
 $$('.filters button').forEach(b => b.onclick = () => { $$('.filters button').forEach(x => x.classList.remove('on')); b.classList.add('on'); S.filter = b.dataset.f; renderList(); });
 $('#voiceLang').onchange = e => S.voiceLang = e.target.value;
@@ -350,13 +304,14 @@ $('#btnQAOA').onclick = async () => { if (qRun) return; qRun = true; $('#btnDepl
   const chosen = bits(bestS, NQ).map((v, i) => v ? i : -1).filter(i => i >= 0);
   $('#qResult').className = 'qres'; $('#qResult').innerHTML = `CVaR-QAOA (p = 1, ${SH} shots) places relays at sites <b>${chosen.join(', ')}</b>, covering <b>${(pb.value[bestS] / pb.total * 100).toFixed(0)}%</b> of reported survivors. Exact search over all ${pb.N} options: <b>${match ? 'same optimum ✓' : 'not reached (re-run)'}</b>. Optimum amplified <b>${amp.toFixed(1)}×</b> vs random; sampled <b>${hits}</b>× in ${SH} shots.<br><span class="muted" style="font-size:13px">8 qubits · statevector simulation in-browser (same maths as Qiskit Aer) · no speed-up claimed at this size.</span>`;
   S.plan = { chosen }; $('#btnDeploy').disabled = false; qRun = false; log(`QAOA relay plan · sites ${chosen.join(', ')}`); };
-const planG = new THREE.Group(); scene.add(planG);
-$('#btnDeploy').onclick = () => { planG.clear(); SITES.forEach((s, i) => { const on = S.plan.chosen.includes(i); const g = new THREE.Group(); const r = new THREE.Mesh(new THREE.RingGeometry(on ? 8.3 : .5, on ? 8.5 : .65, 80), new THREE.MeshBasicMaterial({ color: on ? 0xa78bfa : 0x4a5a70, transparent: true, opacity: on ? .55 : .8, side: THREE.DoubleSide })); r.rotation.x = -Math.PI / 2; r.position.y = .14; g.add(r);
-    if (on) { const o = new THREE.Mesh(new THREE.OctahedronGeometry(.55), new THREE.MeshBasicMaterial({ color: 0xa78bfa })); o.position.y = 3.4; g.add(o); planG.add(L('⚛ QAOA relay site ' + i, s.x, 4.3, s.z, 'lbl q')); } g.position.set(s.x, 0, s.z); planG.add(g); });
-  openTab('situation'); flyTo(new THREE.Vector3(0, 55, 30), new THREE.Vector3(0, 0, 0)); };
+const planG = Lf.layerGroup().addTo(map);
+$('#btnDeploy').onclick = () => { planG.clearLayers(); SITES.forEach((s, i) => { const on = S.plan.chosen.includes(i);
+    if (on) { Lf.circle(ll(s.x, s.z), { radius: 840, color: '#a78bfa', weight: 2, dashArray: '6 6', fillOpacity: .08, interactive: false }).addTo(planG); Lf.marker(ll(s.x, s.z), { icon: Lf.divIcon({ className: '', html: `<div class="q2"><b>⚛</b><span>QAOA relay site ${i}</span></div>`, iconSize: [0, 0] }) }).addTo(planG); }
+    else Lf.circleMarker(ll(s.x, s.z), { radius: 4, color: '#4a5a70', weight: 2, fillOpacity: .3, interactive: false }).addTo(planG); });
+  openTab('situation'); setTimeout(() => { map.invalidateSize(); home(); }, 100); };
 
 /* ============ BOOT ============ */
-camera.position.set(4, 30, 38); controls.target.set(0, 0, 0); renderResources(); log('VOID-NAV Command ready · Musheerabad zone loaded (12 GHMC wards)');
+map.fitBounds(ZB, FITP); renderResources(); log('VOID-NAV Command ready · Musheerabad zone loaded (12 GHMC wards)');
 { const q = new URLSearchParams(location.search); if (q.get('autosim')) { S.muted = true; startSim(true); const n = +(q.get('n') || 0); Z.SCRIPT.slice(0, n).forEach(s => ingest({ ...s, src: 'sim' })); }
   if (q.get('tab')) setTimeout(() => openTab(q.get('tab')), 300); if (q.get('qaoa')) setTimeout(() => $('#btnQAOA').click(), 600); if (q.get('open')) setTimeout(() => select(S.msgs.find(m => m.prio === 0)?.id), 500); if (q.get('intro')) startSim(false); }
 window.VOIDNAV = { ingest, S };
