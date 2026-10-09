@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VOID-NAV Command · Hyderabad</title>
+<link rel="stylesheet" href="fonts/fonts.css"><link rel="stylesheet" href="style.css">
+<script type="importmap">{"imports":{"three":"./lib/three.module.js","three/addons/":"./lib/jsm/"}}</script>
+</head><body>
+<div id="flash"></div>
+<header id="top">
+  <div class="brand"><div class="logo"><span></span></div><div><div class="bname">VOID-NAV <b>COMMAND</b></div><div class="bsub">Hyderabad · Disaster Response</div></div></div>
+  <nav id="tabs">
+    <button data-tab="situation" class="on"><i>◉</i>Situation</button>
+    <button data-tab="inbox"><i>✉</i>SOS Inbox <em id="badgeUnread">0</em></button>
+    <button data-tab="resources"><i>✚</i>Response</button>
+    <button data-tab="mesh"><i>⌬</i>Mesh · Quantum</button>
+  </nav>
+  <div class="ctrl">
+    <div id="modeBadge" class="mode sim">SIMULATION</div>
+    <div class="clock"><span id="clock">--:--:--</span><small id="elapsed">T+00:00</small></div>
+    <button id="btnSim" class="pri">▶ Simulate disaster</button>
+    <button id="btnHW" class="ghost">⚡ Connect hardware</button>
+    <div class="voice"><span>VOICE</span>
+      <select id="voiceLang"><option value="multi">EN·हिं·తె</option><option value="en">English</option><option value="hi">हिन्दी</option><option value="te">తెలుగు</option></select>
+      <button id="btnMute" class="ghost sm">🔊</button></div>
+  </div>
+</header>
+
+<main>
+<!-- SITUATION -->
+<section id="situation" class="tab on">
+  <div id="three"></div>
+  <div class="col left">
+    <div class="panel kpis">
+      <div class="k"><label>Open SOS</label><b id="kOpen">0</b></div>
+      <div class="k crit"><label>Critical · unread</label><b id="kCrit">0</b></div>
+      <div class="k"><label>People reported</label><b id="kPeople">0</b></div>
+      <div class="k ok"><label>Dispatched</label><b id="kDisp">0</b></div>
+      <div class="k"><label>Relays online</label><b id="kRelays">7/7</b></div>
+      <div class="k"><label>Phones detected</label><b id="kPhones">0</b><small>est., no IDs</small></div>
+    </div>
+    <div class="panel legend"><h4>Attention heat</h4><div class="ramp"></div><div class="rl"><span>monitor</span><span>act now</span></div>
+      <p>Column height and colour = <b>urgency × people × waiting time</b>, minus help already sent.</p>
+      <div class="lg"><span class="dot sos"></span>SOS beacon <span class="dot hosp"></span>Hospital <span class="dot relay"></span>Relay <span class="dot amb"></span>Ambulance</div></div>
+  </div>
+  <div class="col right">
+    <div class="panel attn"><h4>Attention now <small>ranked live</small></h4><div id="attnList"><p class="muted">Start the simulation or connect hardware.</p></div></div>
+  </div>
+  <div id="scenarioBanner" class="banner hidden"></div>
+  <div class="viewbtns"><button id="vTop" class="ghost sm">Top view</button><button id="vTilt" class="ghost sm">3D view</button><button id="vSpin" class="ghost sm">Auto-orbit</button></div>
+</section>
+
+<!-- INBOX -->
+<section id="inbox" class="tab">
+  <div class="inboxwrap">
+    <div class="list panel">
+      <div class="filters"><button data-f="all" class="on">All</button><button data-f="crit">Critical</button><button data-f="unread">Unread</button><button data-f="read">Read</button><button data-f="disp">Dispatched</button></div>
+      <div id="msgList"></div>
+    </div>
+    <div class="detail panel" id="detail"><div class="empty"><div class="big">✉</div><p>Select an SOS to open it.<br><span class="muted">Opening marks it <b>READ</b>. This can't be undone, and the survivor's node is notified.</span></p></div></div>
+  </div>
+</section>
+
+<!-- RESOURCES -->
+<section id="resources" class="tab">
+  <div class="resgrid">
+    <div class="panel"><h3>Hospitals <small>nearest to current hotspot</small></h3><div id="hospList"></div></div>
+    <div class="panel"><h3>Ambulances</h3><div id="ambList"></div></div>
+    <div class="panel"><h3>Agencies</h3><div id="agList"></div><h3 style="margin-top:22px">Coordination log</h3><div id="log"></div></div>
+  </div>
+  <p class="note">Links to hospitals, 108 and agencies are <b>simulated</b> in this demo: in the field they reach the command post's local network, or district systems when any backhaul exists. Hospital positions are approximate; bed counts are simulated.</p>
+</section>
+
+<!-- MESH & QUANTUM -->
+<section id="mesh" class="tab">
+  <div class="meshgrid">
+    <div class="panel meshp">
+      <h3>Self-healing LoRa mesh <small>click a relay to fail / restore it</small></h3>
+      <svg id="meshSvg" viewBox="0 0 640 520"></svg>
+      <div class="mstats"><div><label>Delivered</label><b id="mDel">0</b></div><div><label>Re-routes</label><b id="mRe">0</b></div><div><label>Duplicates dropped</label><b id="mDup">0</b></div><div><label>Avg hops</label><b id="mHops">–</b></div></div>
+      <p class="note">Closer-only forwarding: each node knows its hop distance to the gateway and only forwards toward it. A failed relay misses its beacons, so neighbours recompute and traffic flows around it.</p>
+    </div>
+    <div class="panel qp">
+      <h3>Quantum relay planner · QAOA <small>where should rescuers place the next relays?</small></h3>
+      <div class="qtop">
+        <div class="qinfo"><div><label>Candidate sites</label><b id="qN">8</b></div><div><label>Relays to place</label><b id="qK">3</b></div><div><label>Qubits</label><b id="qQ">8</b></div><div><label>Search space</label><b id="qS">256</b></div></div>
+        <button id="btnQAOA" class="pri">⚛ Run QAOA</button>
+      </div>
+      <div class="circuit" id="circuit"></div>
+      <div class="qrow">
+        <div><h4>Energy landscape ⟨C⟩(γ, β)</h4><canvas id="land" width="300" height="230"></canvas></div>
+        <div><h4>Measurement probabilities</h4><canvas id="hist" width="360" height="230"></canvas></div>
+      </div>
+      <div id="qResult" class="qres muted">Plans relays from the live survivor heat clusters. Statevector QAOA (p = 1) runs in the browser, the same maths as Qiskit Aer, and is checked against the exact answer.</div>
+      <button id="btnDeploy" class="ghost" disabled>⤓ Show plan on 3D map</button>
+    </div>
+  </div>
+</section>
+</main>
+<div id="toasts"></div>
+<div id="hwHelp" class="hidden"></div>
+<script type="module" src="js/app.js"></script>
+</body></html>
