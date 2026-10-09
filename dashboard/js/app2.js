@@ -23,7 +23,7 @@ new ResizeObserver(() => map.invalidateSize()).observe($('#three'));
 Z.GEO.ghmc.forEach(w => Lf.polygon(w.c.map(c => [c[1], c[0]]), { color: '#2f6f9a', weight: .8, opacity: .55, fillOpacity: .02, interactive: false }).addTo(map));
 const zonePolys = Z.GEO.zone.map(w => w.c.map(c => { const p = Z.toXZ(c[1], c[0]); return [p.x, p.z]; }));
 const zoneLayer = Lf.featureGroup(Z.GEO.zone.map(w => Lf.polygon(w.c.map(c => [c[1], c[0]]), { color: '#39d0ff', weight: 2, opacity: .9, fillColor: '#0b2a44', fillOpacity: .25, dashArray: '' })
-  .bindTooltip(Z.wardName(w.n), { permanent: true, direction: 'center', className: 'wlbl' }))).addTo(map);
+  .bindTooltip(Z.wardName(w.n), { direction: 'top', className: 'wlbl', sticky: true }))).addTo(map);
 const ZB = zoneLayer.getBounds();
 const bb = zonePolys.flat().reduce((a, [x, z]) => ({ x0: Math.min(a.x0, x), x1: Math.max(a.x1, x), z0: Math.min(a.z0, z), z1: Math.max(a.z1, z) }), { x0: 1e9, x1: -1e9, z0: 1e9, z1: -1e9 });
 function collapseAround() { /* 3D-only effect */ }
@@ -46,7 +46,7 @@ function drawHeat() { const F = new Float32Array(HN * HN); let mx = 0;
 /* ============ NETWORK ============ */
 const netM = new Map(); const linkGrp = Lf.layerGroup().addTo(map);
 Z.NET.forEach(n => { const col = n.kind === 'node' ? '#a78bfa' : '#39d0ff';
-  const m = Lf.marker(llN(n), { icon: Lf.divIcon({ className: '', html: `<div class="nd2 ${n.kind}" style="--c:${col}"><b></b><span>${n.kind === 'gw' ? 'COMMAND POST · GATEWAY' : n.id}</span></div>`, iconSize: [0, 0] }), zIndexOffset: 200 }).addTo(map);
+  const m = Lf.marker(llN(n), { icon: Lf.divIcon({ className: '', html: `<div class="nd2 ${n.kind}" style="--c:${col}"><b></b>${n.kind === 'gw' ? '<span>HQ</span>' : ''}</div>`, iconSize: [0, 0] }), zIndexOffset: 200 }).addTo(map);
   netM.set(n.id, m); });
 const neigh = id => { const a = nodeOf(id); return Z.NET.filter(b => b.id !== id && !S.down.has(b.id) && Z.distKm(a, b) <= Z.RANGE_KM); };
 function hopDist() { const d = { GW: 0 }, q = ['GW']; while (q.length) { const c = q.shift(); neigh(c).forEach(n => { if (d[n.id] === undefined) { d[n.id] = d[c] + 1; q.push(n.id); } }); } return d; }
@@ -62,7 +62,7 @@ function packet3D(path, color) { const pts = path.map(id => llN(nodeOf(id))); co
   const tr = Lf.polyline([pts[0]], { color: col, weight: 3, opacity: .9, interactive: false }).addTo(map); packets.push({ dot, tr, pts, t: 0 }); }
 // hospitals
 Z.HOSPITALS.forEach(h => { if (Z.distKm(Z.C0, h) > 4.5) return;
-  Lf.marker([h.lat, h.lon], { icon: Lf.divIcon({ className: '', html: `<div class="hs2"><b>✚</b><span>${h.name}</span></div>`, iconSize: [0, 0] }) }).addTo(map); });
+  Lf.marker([h.lat, h.lon], { icon: Lf.divIcon({ className: '', html: `<div class="hs2" title="${h.name}"><b>✚</b></div>`, iconSize: [0, 0] }) }).addTo(map); });
 
 /* ============ PINS (survivors per SOS point) ============ */
 const pins = new Map();
@@ -74,7 +74,7 @@ function upsertPin(c) { const n = nodeOf(c.node); const col = c.state === 'DISPA
   P.el.innerHTML = `<i>${stuck || c.people}</i><span>${c.ward}<small>${stuck ? 'stuck' : (c.cat === 'SAFE' ? 'safe' : 'need help')} · ${c.msgs.length} SOS</small></span>`; }
 
 /* ============ VIEW & LOOP ============ */
-const FITP = { paddingTopLeft: [330, 80], paddingBottomRight: [400, 200] };
+const FITP = { paddingTopLeft: [340, 90], paddingBottomRight: [430, 40] };
 const home = () => map.flyToBounds(ZB, { ...FITP, duration: 1.2 });
 function focusCluster(id) { map.flyTo(llN(nodeOf(id)), 16, { duration: 1.2 }); }
 $('#vTop').textContent = 'Disaster zone'; $('#vTilt').textContent = 'Hyderabad'; $('#vSpin').textContent = 'Zoom in';

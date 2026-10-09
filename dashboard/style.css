@@ -205,3 +205,14 @@ h4{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan
 .pin2 .pin i{min-width:26px;height:26px;font-size:13px}
 .pin2 .pin span{font-size:12px}.pin2 .pin span small{font-size:10px}
 .wlbl{font-size:10px;opacity:.75}
+/* compression card lives in the right column, not on the map */
+.col.right{display:flex;flex-direction:column;gap:14px}
+.col.right .attn{flex:1 1 auto;min-height:0;overflow:auto}
+.sc{position:static!important;transform:none!important;width:auto!important;min-width:0!important;flex:0 0 auto;padding:14px 16px}
+.sc .raw{font-size:14px;min-height:0}
+.sc .fd{font-size:11px;padding:4px 7px}
+.sc .bytes{grid-template-columns:repeat(8,1fr)!important}
+.sc .h b{font-size:11px}
+.wlbl{background:rgba(7,11,20,.9)!important;border:1px solid #1d2c44!important;padding:3px 8px!important;opacity:1}
+.col.right{bottom:18px}.col.right .attn{max-height:none}
+.sc .h{flex-direction:column;align-items:flex-start;gap:2px}
