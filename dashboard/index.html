@@ -5,6 +5,7 @@
 <script type="importmap">{"imports":{"three":"./lib/three.module.js","three/addons/":"./lib/jsm/"}}</script>
 </head><body>
 <div id="flash"></div>
+<div id="intro" class="hidden"><svg id="introSvg" viewBox="0 0 1000 700"></svg><div id="introCap"></div></div>
 <header id="top">
   <div class="brand"><div class="logo"><span></span></div><div><div class="bname">VOID-NAV <b>COMMAND</b></div><div class="bsub">Hyderabad · Disaster Response</div></div></div>
   <nav id="tabs">
@@ -30,21 +31,22 @@
   <div id="three"></div>
   <div class="col left">
     <div class="panel kpis">
-      <div class="k"><label>Open SOS</label><b id="kOpen">0</b></div>
-      <div class="k crit"><label>Critical · unread</label><b id="kCrit">0</b></div>
-      <div class="k"><label>People reported</label><b id="kPeople">0</b></div>
-      <div class="k ok"><label>Dispatched</label><b id="kDisp">0</b></div>
-      <div class="k"><label>Relays online</label><b id="kRelays">7/7</b></div>
-      <div class="k"><label>Phones detected</label><b id="kPhones">0</b><small>est., no IDs</small></div>
+      <div class="k crit"><label>Survivors stuck</label><b id="kStuck">0</b></div>
+      <div class="k"><label>Critical · unread</label><b id="kCrit">0</b></div>
+      <div class="k"><label>SOS received</label><b id="kOpen">0</b></div>
+      <div class="k ok"><label>Rescue dispatched</label><b id="kDisp">0</b></div>
     </div>
-    <div class="panel legend"><h4>Attention heat</h4><div class="ramp"></div><div class="rl"><span>monitor</span><span>act now</span></div>
-      <p>Column height and colour = <b>urgency × people × waiting time</b>, minus help already sent.</p>
-      <div class="lg"><span class="dot sos"></span>SOS beacon <span class="dot hosp"></span>Hospital <span class="dot relay"></span>Relay <span class="dot amb"></span>Ambulance</div></div>
+    <div class="panel ctx"><h4>Disaster zone</h4>
+      <div class="ctxmaps"><svg id="ctxTel" viewBox="0 0 200 200"></svg><svg id="ctxHyd" viewBox="0 0 200 200"></svg></div>
+      <div class="ctxcap"><b>Musheerabad, Hyderabad</b><span>12 GHMC wards · ~16 km² · real ward boundaries</span></div></div>
+    <div class="panel legend"><h4>Survivor heat</h4><div class="ramp"></div><div class="rl"><span>few</span><span>many stuck · act now</span></div>
+      <div class="lg"><span class="dot sos"></span>SOS point <span class="dot node"></span>Rescue node <span class="dot relay"></span>Relay <span class="dot hosp"></span>Hospital</div></div>
   </div>
   <div class="col right">
-    <div class="panel attn"><h4>Attention now <small>ranked live</small></h4><div id="attnList"><p class="muted">Start the simulation or connect hardware.</p></div></div>
+    <div class="panel attn"><h4>Priority queue <small>by survivors stuck × urgency</small></h4><div id="attnList"><p class="muted">Press <b>Simulate disaster</b>, or connect hardware.</p></div></div>
   </div>
   <div id="scenarioBanner" class="banner hidden"></div>
+  <div id="sc" class="panel sc hidden"></div>
   <div class="viewbtns"><button id="vTop" class="ghost sm">Top view</button><button id="vTilt" class="ghost sm">3D view</button><button id="vSpin" class="ghost sm">Auto-orbit</button></div>
 </section>
 
@@ -97,5 +99,5 @@
 </main>
 <div id="toasts"></div>
 <div id="hwHelp" class="hidden"></div>
-<script type="module" src="js/app.js"></script>
+<script type="module" src="js/app2.js"></script>
 </body></html>
