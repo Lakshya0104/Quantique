@@ -3,7 +3,7 @@ const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAl
 const PC = ['var(--red)', 'var(--org)', 'var(--yel)'], PL = ['CRITICAL', 'URGENT', 'INFO'];
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const post = (u, b = {}) => fetch(u, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) }).then(r => r.json());
-const S = { msgs: new Map(), seq: 0, sel: null, link: true, mode: 'EMULATED', muted: false, started: false, read: new Set() };
+const S = { presence: [], rpos: null, linktype: null, msgs: new Map(), seq: 0, sel: null, link: true, mode: 'EMULATED', muted: false, started: false, read: new Set() };
 
 /* ---------- tabs / clock ---------- */
 $$('#nav button').forEach(b => b.onclick = () => { $$('#nav button').forEach(x => x.classList.toggle('on', x === b)); $$('.tab').forEach(t => t.classList.toggle('on', t.id === b.dataset.t)); if (b.dataset.t === 'map') setTimeout(initMap, 30); });
@@ -25,7 +25,7 @@ function toast(html, cls = '') { const t = document.createElement('div'); t.clas
   while ($('#toasts').children.length > 3) $('#toasts').lastChild.remove(); setTimeout(() => t.remove(), 7000); }
 
 /* ---------- server feed ---------- */
-async function boot() { const j = await (await fetch('/api/state')).json(); S.seq = j.seq; setLink(j.link, j.mode);
+async function boot() { const j = await (await fetch('/api/state')).json(); S.seq = j.seq; S.linktype = j.linktype; S.presence = j.presence || []; S.rpos = j.rescuer_pos; setLink(j.link, j.mode); presenceBox();
   j.msgs.filter(m => m.state !== 'SENDING' && m.state !== 'FAILED').forEach(m => { S.msgs.set(m.id, m); if (m.state !== 'DELIVERED') S.read.add(m.id); });
   render(); poll(); }
 async function poll() { try { const j = await (await fetch('/api/feed?since=' + S.seq, { cache: 'no-store' })).json(); setLink(j.link, j.mode);
@@ -33,18 +33,21 @@ async function poll() { try { const j = await (await fetch('/api/feed?since=' + 
   setTimeout(poll, 700); }
 function onEvent(e) { if (e.msg && typeof e.msg === 'string') feed(e.msg);
   if (e.kind === 'sos') { const m = e.msg; S.msgs.set(m.id, m); feed(`<b>SOS ${m.id}</b> landed · P${m.prio} · ${m.decoded.cat}`);
-    if (m.prio === 0) { siren(); speak(m); toast(`<small>CRITICAL · BEACON N1 · ${m.live ? 'LIVE · SOS Node1' : 'EMULATED LoRa'}</small><b>${title(m)}</b>${esc(m.note || m.report)}`); }
+    if (m.prio === 0) { siren(); speak(m); toast(`<small>CRITICAL · BEACON N1 · ${m.live ? (m.link === 'lora' ? 'LIVE LoRa' : 'LIVE USB') : 'EMULATED LoRa'}</small><b>${title(m)}</b>${esc(m.note || m.report)}`); }
     else toast(`<small>${PL[m.prio]} · BEACON N1</small><b>${title(m)}</b>${esc(m.note || '')}`, 'info');
     render(); lab(m); drawMapData(); }
   if (e.kind === 'status' || e.kind === 'status_ack' || e.kind === 'status_fail') refresh(e.id);
   if (e.kind === 'clear') { S.msgs.clear(); S.sel = null; render(); }
+  if (e.kind === 'presence') { S.presence.push(e.sample); presenceBox(); drawMapData(); }
+  if (e.kind === 'link' || e.kind === 'presence') fetch('/api/feed?since=' + S.seq).then(r => r.json()).then(j => { S.linktype = j.linktype; setLink(j.link, j.mode); }).catch(() => {});
   if (e.kind === 'node' && e.id) nodeLeds(); }
 async function refresh(id) { const j = await (await fetch('/api/state')).json(); j.msgs.forEach(m => { if (S.msgs.has(m.id)) S.msgs.set(m.id, m); }); render(); }
 function setLink(up, mode) { const live = mode === 'LIVE'; S.link = up; S.mode = mode; $('#link').classList.toggle('down', !up);
-  $('#linkTxt').textContent = live ? (up ? 'SOS Node1 online' : 'SOS Node1 not connected') : (up ? 'LoRa link up' : 'Gateway unplugged');
-  $('#modeTag').textContent = live ? 'LIVE NODE' : 'EMULATED'; $('#modeTag').className = 'tag ' + (live ? 't-real' : 't-emu');
+  const lora = S.linktype === 'lora';
+  $('#linkTxt').textContent = live ? (up ? (lora ? 'LoRa gateway online' : 'Rescuer node on USB') : 'Kit not connected') : (up ? 'LoRa link up' : 'Gateway unplugged');
+  $('#modeTag').textContent = live ? (lora ? 'LIVE LoRa' : 'LIVE USB') : 'EMULATED'; $('#modeTag').className = 'tag ' + (live ? 't-real' : 't-emu');
   $('#plug').hidden = live; $('#btn').hidden = live; $('#boardTag').textContent = live ? 'LIVE' : 'EMULATED'; $('#boardTag').className = 'tag ' + (live ? 't-real' : 't-emu');
-  $('#boardName').textContent = live ? 'SOS Node1 (ESP32 on USB)' : 'Beacon node N1';
+  $('#boardName').textContent = live ? (lora ? 'Rescuer node N1 · via LoRa' : 'Rescuer node N1 · USB') : 'Rescuer node N1';
   $('#plug').textContent = up ? 'Unplug gateway' : 'Plug gateway back in'; }
 $('#plug').onclick = () => post('/api/link', { up: !S.link });
 $('#btn').onclick = () => { post('/api/button'); feed('<b>Push button pressed</b> on beacon N1'); };
@@ -77,17 +80,17 @@ function detail() { const m = S.msgs.get(S.sel); const D = $('#detail');
   if (!m) { D.innerHTML = `<div class="empty" style="font-size:16px"><b>Select an SOS.</b><br>Opening a card marks it <b style="color:var(--org)">READ</b> and the survivor's phone is told over LoRa. Dispatch is a separate step.</div>`; return; }
   const d = m.decoded, st = dstate(m), age = Math.round((Date.now() / 1000 - m.t));
   const conf = m.status_confirmed === true ? '<span class="ok">✓ confirmed at node</span>' : m.status_confirmed === false ? '<span style="color:var(--red)">status not confirmed at node</span>' : m.down?.length ? '<span style="color:var(--org)">sending to node…</span>' : '';
-  D.innerHTML = `<div class="dt"><div><span class="mono" style="color:${PC[m.prio]};font-size:13px">${PL[m.prio]} ${d.urgency}/15 · SOS ${m.id}</span> <span class="tag ${m.live ? 't-real' : 't-emu'}">${m.live ? 'LIVE · SOS Node1' : 'EMULATED LoRa'}</span>
-      <h2>${title(m)}</h2><div class="meta">${m.live ? 'SOS Node1' : 'Beacon N1'} · Musheerabad · ${age < 60 ? age + ' s' : Math.round(age / 60) + ' min'} ago · ${m.lang.toUpperCase()}</div></div><span class="pill s-${st}" style="font-size:13px;padding:6px 12px">${st}</span></div>
+  D.innerHTML = `<div class="dt"><div><span class="mono" style="color:${PC[m.prio]};font-size:13px">${PL[m.prio]} ${d.urgency}/15 · SOS ${m.id}</span> <span class="tag ${m.live ? 't-real' : 't-emu'}">${m.live ? (m.link === 'lora' ? 'LIVE LoRa' : 'LIVE USB') : 'EMULATED LoRa'}</span>
+      <h2>${title(m)}</h2><div class="meta">Rescuer node N1 · ${m.link === 'lora' ? 'LoRa' : m.live ? 'USB' : 'emulated'} · Musheerabad · ${age < 60 ? age + ' s' : Math.round(age / 60) + ' min'} ago · ${m.lang.toUpperCase()}</div></div><span class="pill s-${st}" style="font-size:13px;padding:6px 12px">${st}</span></div>
     ${m.note ? `<div class="words"><small>SURVIVOR'S OWN WORDS</small>“${esc(m.note)}”</div>` : ''}
     <div class="rep"><small>DECODED FROM 5-BYTE SEMCODE TOKEN</small>${esc(m.report)}</div>
-    <div class="kv"><div><label>People</label><b>${d.people}</b></div><div><label>Position</label><b style="font-size:14px">${d.pos.replace('_', ' ')}</b></div><div><label>${m.live ? 'Phone → node Wi-Fi RSSI' : 'RSSI / SNR (emulated)'}</label><b>${m.rssi ?? '—'} <small style="font-size:12px">dBm</small>${m.live ? '' : ' / ' + (m.snr ?? '—')}</b></div><div><label>Hops · try</label><b>${m.hops ?? '—'} · ${m.tries}</b></div></div>
+    <div class="kv"><div><label>People</label><b>${d.people}</b></div><div><label>Position</label><b style="font-size:14px">${d.pos.replace('_', ' ')}</b></div><div><label>${m.link === 'lora' ? 'LoRa RSSI / SNR' : m.live ? 'Phone → node Wi-Fi RSSI' : 'RSSI / SNR (emulated)'}</label><b>${m.rssi ?? '—'} <small style="font-size:12px">dBm</small>${m.snr != null ? ' / ' + m.snr : ''}</b>${m.phone_rssi ? `<small style="display:block;color:var(--mut)">phone Wi-Fi ${m.phone_rssi} dBm</small>` : ''}</div><div><label>Hops · try</label><b>${m.hops ?? '—'} · ${m.tries}</b></div></div>
     <div class="mono" style="font-size:12px;color:var(--mut)">TOKEN <span style="color:var(--vio);font-size:15px">${m.token.match(/../g).join(' ')}</span> · ${m.meter.token_bytes} B on air (${m.meter.token_ms} ms) vs ${m.meter.text_bytes} B as text (${m.meter.text_ms} ms)</div>
     <div class="bits">${bits(m.token)}</div>
     <div class="act">${m.state === 'DISPATCHED' ? `<b class="ok">✓ Dispatched: ${esc(m.team)}</b>` : `<select id="team"><option>NDRF Team 2</option><option>GHMC DRF Team 1</option><option>Fire & Emergency Unit 4</option><option>108 Ambulance TS-108-021</option></select><button class="pri" id="disp">Dispatch</button>`}</div>
     <div class="act"><input id="rtxt" maxlength="120" placeholder="Reply to survivor (sent over LoRa)"><button id="rsend">Send reply</button>
       <button class="qr">Team arriving in 10 min, stay where you are</button><button class="qr">Bang on a pipe or wall every 5 minutes</button></div>
-    <div class="leds">Survivor's beacon: <span><i class="led ${['READ', 'DISPATCHED'].includes(m.state) ? 'o' : ''}"></i>READ</span><span><i class="led ${m.state === 'DISPATCHED' ? 'g' : ''}"></i>DISPATCHED</span> ${conf}</div>
+    <div class="leds">Survivor's phone: <span><i class="led ${['READ', 'DISPATCHED'].includes(m.state) ? 'o' : ''}"></i>READ</span><span><i class="led ${m.state === 'DISPATCHED' ? 'g' : ''}"></i>DISPATCHED</span> ${conf}</div>
     ${m.replies?.length ? `<div style="margin-top:10px;color:var(--mut);font-size:13px">Replies delivered: ${m.replies.map(r => '“' + esc(r.text) + '”').join(' · ')}</div>` : ''}`;
   const dp = $('#disp'); if (dp) dp.onclick = () => post('/api/dispatch', { id: m.id, text: $('#team').value }).then(() => refresh());
   const rs = text => text && post('/api/reply', { id: m.id, text }).then(() => { toast(`<small>REPLY QUEUED FOR ${m.id}</small><b>${esc(text)}</b>`, 'info'); refresh(); });
@@ -95,7 +98,15 @@ function detail() { const m = S.msgs.get(S.sel); const D = $('#detail');
   $$('.qr').forEach(b => b.onclick = () => rs(b.textContent)); }
 
 /* ---------- map ---------- */
-let map, heatL, pinL;
+let map, heatL, pinL, presL, rescM;
+function presenceBox() { const p = S.presence.at(-1); const el = $('#pres'); if (!el) return;
+  if (!p) { el.innerHTML = '<span style="color:var(--mut)">Waiting for the rescuer node’s first scan (every 20 s)…</span>'; return; }
+  const ago = Math.round(Date.now() / 1000 - p.t), tag = p.link === 'sim' ? '<span class="tag t-sim">SIMULATED</span>' : `<span class="tag t-real">LIVE ${p.link === 'lora' ? 'LoRa' : 'USB'}</span>`;
+  const hist = S.presence.slice(-24), mx = Math.max(4, ...hist.map(x => x.phones));
+  el.innerHTML = `<div style="display:flex;align-items:baseline;gap:10px"><b style="font:800 40px var(--m)">${p.phones}</b><span>phones near rescuer ${tag}</span></div>
+    <div class="mono" style="color:var(--mut);font-size:12px">strongest ${p.best_rssi || '—'} dBm · ${p.clients} joined SOS Node1 · ${ago}s ago</div>
+    <svg viewBox="0 0 240 40" style="width:100%;margin-top:8px">${hist.map((x, i) => `<rect x="${i * 10}" y="${40 - x.phones / mx * 38}" width="8" height="${x.phones / mx * 38}" rx="2" fill="${x.phones >= 5 ? '#ff3b5c' : x.phones >= 2 ? '#ff9f1c' : '#43c6ff'}"/>`).join('')}</svg>
+    <div style="font-size:12px;color:var(--mut)">Counts Wi-Fi probe requests (distinct phones in 20 s). Identity never stored or sent; phones randomise addresses, so treat as approximate.</div>`; }
 const NODE_LL = [17.4127, 78.5083];
 async function initMap() { if (map) { map.invalidateSize(); drawMapData(); return; }
   const { GEO } = await import('./lib/geo.js'); const Z = await import('./lib/zone.js');
@@ -112,12 +123,20 @@ async function initMap() { if (map) { map.invalidateSize(); drawMapData(); retur
     .bindTooltip(w.n.replace(/^ward\s*\d+\s*/i, '').replace(/^\d+\s*/, ''), { permanent: true, direction: 'center', className: 'wl' }))).addTo(map);
   Z.HOSPITALS.forEach(h => L.marker([h.lat, h.lon], { icon: L.divIcon({ className: '', html: `<div class="hpin"><b>✚</b><span>${h.name}</span></div>`, iconSize: [0, 0] }) }).addTo(map));
   map.fitBounds(zl.getBounds(), { paddingTopLeft: [340, 30], paddingBottomRight: [30, 30] });
-  heatL = L.layerGroup().addTo(map); pinL = L.layerGroup().addTo(map);
+  heatL = L.layerGroup().addTo(map); pinL = L.layerGroup().addTo(map); presL = L.layerGroup().addTo(map);
+  map.on('click', e => { S.rpos = [e.latlng.lat, e.latlng.lng]; post('/api/rescuer_pos', { lat: S.rpos[0], lon: S.rpos[1] }); drawMapData(); });
   L.marker(NODE_LL, { icon: L.divIcon({ className: '', html: '<div class="npin"><b></b><span id="npinTxt">SOS Node1</span></div>', iconSize: [0, 0] }), zIndexOffset: 1000 }).addTo(map);
   drawMapData(); }
-function drawMapData() { mapCount(); if (!map) return; heatL.clearLayers(); const ms = [...S.msgs.values()];
+function drawMapData() { mapCount(); if (!map) return; heatL.clearLayers(); presL.clearLayers();
+  // phones-detected heatmap: one glow per scan at the rescuer's position; colour/size = phones found
+  S.presence.forEach(p => { if (!p.phones) return; const c = p.phones >= 5 ? '#ff3b5c' : p.phones >= 2 ? '#ff9f1c' : '#f6d04d';
+    L.circle([p.lat, p.lon], { radius: 60 + p.phones * 18, stroke: false, fillColor: c, fillOpacity: .22, interactive: false }).addTo(presL); });
+  const last = S.presence.at(-1);
+  if (S.rpos || last) { const ll = S.rpos || [last.lat, last.lon]; if (rescM) rescM.setLatLng(ll); else rescM = L.marker(ll, { icon: L.divIcon({ className: '', html: '<div class="rpin"><b>🧑‍🚒</b><span>Rescuer node</span></div>', iconSize: [0, 0] }), zIndexOffset: 1200 }).addTo(map);
+    if (last) rescM.getElement().querySelector('span').textContent = `Rescuer · ${last.phones} phones`; } const ms = [...S.msgs.values()];
   const ppl = ms.reduce((a, m) => a + (m.people_n || 1), 0), crit = ms.filter(m => m.prio === 0).length;
-  if (ms.length) [600, 380, 200].forEach((r, i) => L.circle(NODE_LL, { radius: r, stroke: false, fillColor: ['#f6d04d', '#ff9f1c', '#ff3b5c'][i], fillOpacity: Math.min(.45, .12 + ppl * .015 + crit * .03), interactive: false }).addTo(heatL));
+  ms.forEach(m => { const ll = m.pos_ll || NODE_LL; L.circle(ll, { radius: 45 + (m.people_n || 1) * 12, color: m.prio === 0 ? '#ff3b5c' : '#ff9f1c', weight: 3, fillOpacity: .15, interactive: false }).bindTooltip(`SOS ${m.id}`).addTo(heatL); });
+  if (false) [600, 380, 200].forEach((r, i) => L.circle(NODE_LL, { radius: r, stroke: false, fillColor: ['#f6d04d', '#ff9f1c', '#ff3b5c'][i], fillOpacity: Math.min(.45, .12 + ppl * .015 + crit * .03), interactive: false }).addTo(heatL));
   L.circle(NODE_LL, { radius: 120, color: '#43c6ff', weight: 1, dashArray: '4 6', fill: false, interactive: false }).bindTooltip('SOS Node1 Wi-Fi reach (~30–100 m)').addTo(heatL); }
 function mapCount() { const ms = [...S.msgs.values()], n = ms.length, ppl = ms.reduce((a, m) => a + (m.people_n || 1), 0), crit = ms.filter(m => m.prio === 0).length;
   $('#mapCount').innerHTML = `<b style="color:var(--fg);font-size:22px">${n}</b> SOS · <b style="color:var(--red)">${crit}</b> critical · ~${ppl} people`;

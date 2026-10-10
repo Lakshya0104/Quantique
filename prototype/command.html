@@ -125,6 +125,7 @@ table{width:100%;border-collapse:collapse;font-size:15px}td,th{text-align:left;p
 .hpin{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;white-space:nowrap}.hpin b{width:20px;height:20px;border-radius:5px;background:#2fe08a;color:#04120a;display:grid;place-items:center;font-size:13px}.hpin span{font:700 12px var(--f);color:#9ff0c5;text-shadow:0 0 4px #000,0 0 6px #000}
 .leaflet-control-layers{background:var(--p1)!important;color:var(--fg)!important;border:1px solid var(--line)!important}
 .leaflet-control-layers-toggle{background-image:none!important;width:auto!important;padding:0 10px;line-height:36px;color:var(--fg)!important;font:600 12px var(--f)}.leaflet-control-layers-toggle:after{content:'Map layers'}
+.rpin{position:absolute;transform:translate(-14px,-14px);display:flex;align-items:center;gap:6px;white-space:nowrap}.rpin b{font-size:24px;filter:drop-shadow(0 0 8px #ff9f1c)}.rpin span{font:700 12px var(--f);background:rgba(7,11,19,.9);border:1px solid #ff9f1c;border-radius:8px;padding:3px 8px;color:#ffd29a}
 </style></head><body>
 <div id="sound"><div><h2>VOID-NAV Command</h2><p>Click to start the console. This enables the alarm sound and voice alerts for critical SOS.</p><button class="pri" id="go">Start console</button></div></div>
 <header>
@@ -147,12 +148,13 @@ table{width:100%;border-collapse:collapse;font-size:15px}td,th{text-align:left;p
         <div class="leds2"><div class="l org" id="lO"><b></b>ORANGE</div><div class="l grn" id="lG"><b></b>GREEN</div></div>
         <div style="margin-top:10px;color:#7fb9a1" id="ledTxt">Idle</div></div>
       <button class="btnsos" id="btn">● Press beacon push-button (no-phone SOS)</button></div>
+    <div class="panel" style="padding:0 16px 14px"><div class="ph" style="padding:14px 0 8px">Phones near rescuer</div><div id="pres"></div></div>
     <div class="panel"><div class="ph">Link log</div><div class="feed" id="feed"></div></div>
   </div>
 </section>
 <!-- MAP -->
 <section class="tab" id="map"><div id="mapEl"></div>
-  <div class="panel mapcard"><h3>Musheerabad, Hyderabad</h3><span id="mapCount">0 SOS</span><br><br>12 GHMC wards, real boundaries. SOS Node1 position is <span class="tag t-mock">CONFIGURED</span> (no GPS module); heat = SOS × people at the node. Green ✚ = hospitals.<br><span id="mapNote" style="font-size:12px">Street map needs internet; wards work offline.</span></div></section>
+  <div class="panel mapcard"><h3>Musheerabad, Hyderabad</h3><span id="mapCount">0 SOS</span><br><br>12 GHMC wards, real boundaries. Glow = phones the rescuer node detected at each spot (red = many). Rings = SOS sent from there. Green ✚ = hospitals. No GPS yet, so the rescuer position is set by tapping.<br><b style="color:var(--fg)">Tap the map where the rescuer is standing</b>: each 20 s phone scan is painted there, so walking the site builds the heatmap.<br><span id="mapNote" style="font-size:12px">Street map needs internet; wards work offline.</span></div></section>
 <!-- LAB -->
 <section class="tab" id="lab">
   <div class="panel"><div class="lab-h"><h3>Pillar 1 · Semantic compression</h3><p>Send the meaning, not the words. SemCode 40-bit token, Semtech SX127x airtime at SF9 / 125 kHz / CR 4/5. Uses the latest SOS.</p></div>

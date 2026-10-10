@@ -149,9 +149,18 @@ def ser_write(line):
 
 # ---------------- link loop: emulated LoRa, or downlink retries to the real node ----------------
 def radio_loop():
+    last_p = 0
     while True:
         time.sleep(0.2)
         now = time.time()
+        if S["mode"] != "LIVE" and now - last_p > 20:      # emulated phone-count reports (labelled SIMULATED)
+            last_p = now
+            pos = S.get("rescuer_pos") or [NODE["lat"], NODE["lon"]]
+            sample = {"t": now, "phones": random.randint(0, 9), "best_rssi": random.randint(-88, -48), "clients": 0,
+                      "lat": pos[0], "lon": pos[1], "link": "sim"}
+            with LOCK:
+                S.setdefault("presence", []).append(sample); S["presence"] = S["presence"][-300:]
+            emit("presence", sample=sample, msg=f"[SIMULATED] {sample['phones']} phone(s) near rescuer")
         with LOCK:
             for mid in list(S["order"]):
                 m = S["msgs"][mid]
@@ -225,9 +234,20 @@ def on_line(line):
     S["node_seen"] = time.time()
     ev = j.get("ev")
     if ev == "hello":
+        S["linktype"] = j.get("link", "usb")
+        if j.get("node") == "GW":
+            S["gw_radio"] = j.get("radio"); S["node_heard_s"] = j.get("node_heard_s")
         if not S["link"]:
-            S["link"] = True; emit("link", up=True, msg=f"SOS Node1 online · {j.get('clients', 0)} phone(s) on its Wi-Fi")
-        S["clients"] = j.get("clients", 0)
+            S["link"] = True
+            emit("link", up=True, msg="Command gateway online (LoRa)" if j.get("node") == "GW" else f"Rescuer node online (USB) · {j.get('clients', 0)} phone(s) on its Wi-Fi")
+        S["clients"] = j.get("clients", S.get("clients", 0))
+    elif ev == "presence":
+        pos = S.get("rescuer_pos") or [NODE["lat"], NODE["lon"]]
+        sample = {"t": time.time(), "phones": int(j.get("phones", 0)), "best_rssi": j.get("best_rssi"), "clients": j.get("clients", 0),
+                  "lat": pos[0], "lon": pos[1], "lora_rssi": j.get("lora_rssi"), "link": "lora" if "lora_rssi" in j else "usb"}
+        with LOCK:
+            S.setdefault("presence", []).append(sample); S["presence"] = S["presence"][-300:]
+        emit("presence", sample=sample, msg=f"Rescuer node: {sample['phones']} phone(s) nearby, strongest {sample['best_rssi']} dBm")
     elif ev == "sos":
         mid = str(j.get("id", ""))[:20]
         with LOCK:
@@ -238,10 +258,15 @@ def on_line(line):
         form = j.get("data") if isinstance(j.get("data"), dict) else {}
         m = new_sos(form, mid=mid, live=True)
         with LOCK:
-            m.update(state="DELIVERED", tries=j.get("try", 1), rssi=j.get("rssi") or None, hops=1, delivered_t=time.time())
+            lora = j.get("link") == "lora"
+            m.update(state="DELIVERED", tries=j.get("try", 1), hops=1, delivered_t=time.time(), link="lora" if lora else "usb",
+                     phone_rssi=j.get("rssi") or None, rssi=j.get("lora_rssi") if lora else (j.get("rssi") or None),
+                     snr=j.get("lora_snr") if lora else None, air_bytes=j.get("bytes"))
+            pos = S.get("rescuer_pos")
+            if pos: m["pos_ll"] = pos
         save(m)
         emit("sos", id=mid, msg=public(m))
-        emit("node", id=mid, msg=f"SOS {mid} from SOS Node1 (try {j.get('try', 1)}) · phone Wi-Fi RSSI {j.get('rssi')} dBm · ACK sent")
+        emit("node", id=mid, msg=f"SOS {mid} from rescuer node (try {j.get('try', 1)}) · " + (f"LoRa RSSI {j.get('lora_rssi')} dBm SNR {j.get('lora_snr')} dB" if j.get("link") == "lora" else f"phone Wi-Fi {j.get('rssi')} dBm") + " · ACK sent")
     elif ev == "status_ack":
         mid, st = j.get("id"), j.get("state")
         kind = {"READ": "READ", "DISPATCHED": "DISPATCH", "REPLY": "REPLY"}.get(st)
@@ -333,12 +358,13 @@ class H(SimpleHTTPRequestHandler):
             self.path = "/command.html"
         elif u.path == "/api/state":
             with LOCK:
-                return self._json({"seq": S["seq"], "link": S["link"], "mode": S["mode"], "node": NODE,
+                return self._json({"seq": S["seq"], "link": S["link"], "mode": S["mode"], "node": NODE, "linktype": S.get("linktype"),
+                                   "presence": S.get("presence", [])[-120:], "rescuer_pos": S.get("rescuer_pos"),
                                    "msgs": [public(S["msgs"][i]) for i in S["order"]]})
         elif u.path == "/api/feed":
             since = int(q.get("since", ["0"])[0])
             with LOCK:
-                return self._json({"seq": S["seq"], "link": S["link"], "mode": S["mode"],
+                return self._json({"seq": S["seq"], "link": S["link"], "mode": S["mode"], "linktype": S.get("linktype"),
                                    "events": [e for e in S["events"] if e["seq"] > since]})
         elif u.path == "/api/phone":
             mid = q.get("id", [""])[0]
@@ -367,6 +393,11 @@ class H(SimpleHTTPRequestHandler):
             ids = [j.get("id")] if j.get("id") else [i for i in S["order"] if S["msgs"][i]["state"] in ("DELIVERED", "READ", "DISPATCHED")]
             ok = all(downlink(i, kind, str(j.get("text", ""))[:120]) for i in ids)
             return self._json({"ok": ok})
+        if u.path == "/api/rescuer_pos":
+            try: S["rescuer_pos"] = [float(j["lat"]), float(j["lon"])]
+            except (KeyError, TypeError, ValueError): return self._json({"ok": False}, 400)
+            emit("rescuer", pos=S["rescuer_pos"], msg=f"Rescuer position set {S['rescuer_pos'][0]:.5f}, {S['rescuer_pos'][1]:.5f}")
+            return self._json({"ok": True})
         if u.path == "/api/link":
             if S["mode"] == "LIVE":
                 return self._json({"ok": False, "msg": "live node: unplug the USB cable instead"})
