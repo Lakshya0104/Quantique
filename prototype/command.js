@@ -110,9 +110,8 @@ function scenario() { const g = L.layerGroup(), EP = [17.4141, 78.5052];
   let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
   for (let i = 0; i < 46; i++) { const r = Math.pow(rnd(), .7) * 1300, a = rnd() * 6.283, lat = EP[0] + r * Math.cos(a) / 111000, lon = EP[1] + r * Math.sin(a) / (111000 * .954), w = (1 - r / 1500) * (0.5 + rnd());
     L.circle([lat, lon], { radius: 70 + w * 90, stroke: false, fillColor: w > .9 ? '#ff3b5c' : w > .55 ? '#ff9f1c' : '#f6d04d', fillOpacity: .28, interactive: false }).addTo(g); }
-  L.marker(EP, { icon: L.divIcon({ className: '', html: '<div class="epi"><b>✸</b><span>SIMULATED M5.8 epicentre · estimated survivor density</span></div>', iconSize: [0, 0] }) }).addTo(g);
   return g; }
-function presenceBox() { const p = S.presence.at(-1); const el = $('#pres'); if (!el) return;
+function presenceBox() { const p = S.presence.at(-1); const el = $('#pres'); if (!el) return; $('#presPanel').hidden = !p;
   if (!p) { el.innerHTML = '<span style="color:var(--mut)">Waiting for the rescuer node’s first scan (every 20 s)…</span>'; return; }
   const ago = Math.round(Date.now() / 1000 - p.t), tag = p.link === 'sim' ? '<span class="tag t-sim">SIMULATED</span>' : `<span class="tag t-real">LIVE ${p.link === 'lora' ? 'LoRa' : 'USB'}</span>`;
   const hist = S.presence.slice(-24), mx = Math.max(4, ...hist.map(x => x.phones));
@@ -128,13 +127,14 @@ async function initMap() { if (map) { map.invalidateSize(); drawMapData(); retur
   const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, className: 'darktiles', attribution: '© OpenStreetMap contributors' });
   const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16, attribution: 'Tiles © Esri' });
   const esriLbl = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16, pane: 'overlayPane' });
-  let errs = 0, ok = 0; osm.on('tileload', () => ok++); osm.on('tileerror', () => { if (++errs > 6 && !ok && map.hasLayer(osm)) { map.removeLayer(osm); esri.addTo(map); esriLbl.addTo(map); $('#mapNote').textContent = 'Street map: Esri (OpenStreetMap unreachable).'; } });
+  let errs = 0, ok = 0; osm.on('tileload', () => ok++); osm.on('tileerror', () => { if (++errs > 6 && !ok && map.hasLayer(osm)) { map.removeLayer(osm); esri.addTo(map); esriLbl.addTo(map); } });
   osm.addTo(map);
   L.control.layers({ 'Street map (OpenStreetMap)': osm, 'Dark street map (Esri)': esri, 'Offline: wards only': L.layerGroup() }, null, { position: 'topright' }).addTo(map);
   GEO.ghmc.forEach(w => L.polygon(w.c.map(c => [c[1], c[0]]), { color: '#43c6ff', weight: .8, opacity: .5, fillOpacity: 0, interactive: false }).addTo(map));
   const zl = L.featureGroup(GEO.zone.map(w => L.polygon(w.c.map(c => [c[1], c[0]]), { color: '#43c6ff', weight: 2.5, fillColor: '#43c6ff', fillOpacity: .07 })
     .bindTooltip(w.n.replace(/^ward\s*\d+\s*/i, '').replace(/^\d+\s*/, ''), { permanent: true, direction: 'center', className: 'wl' }))).addTo(map);
-  Z.HOSPITALS.forEach(h => L.marker([h.lat, h.lon], { icon: L.divIcon({ className: '', html: `<div class="hpin"><b>✚</b><span>${h.name}</span></div>`, iconSize: [0, 0] }) }).addTo(map));
+  Z.HOSPITALS.forEach(h => L.marker([h.lat, h.lon], { icon: L.divIcon({ className: '', html: `<div class="hpin"><b>✚</b><span>${h.name}</span></div>`, iconSize: [0, 0] }) })
+    .bindPopup(`<div class="hpop"><b>${h.name}</b><div>${h.type}</div><div>${h.area}</div>${h.phone.length ? `<div class="ph2">☎ ${h.phone.map(p => `<a href="tel:${p.replace(/[^0-9]/g, '')}">${p}</a>`).join(' · ')}</div>` : ''}<div><span class="km">${Z.distKm({ lat: NODE_LL[0], lon: NODE_LL[1] }, h).toFixed(1)} km from SOS Node1</span> · 108 for ambulance</div></div>`, { className: 'dpop', maxWidth: 300 }).addTo(map));
   map.fitBounds(zl.getBounds(), { paddingTopLeft: [340, 30], paddingBottomRight: [30, 30] });
   heatL = L.layerGroup().addTo(map); pinL = L.layerGroup().addTo(map); presL = L.layerGroup().addTo(map);
   scenario().addTo(map);
@@ -146,8 +146,7 @@ function drawMapData() { mapCount(); if (!map) return; heatL.clearLayers(); pres
   S.presence.forEach(p => { if (!p.phones) return; const c = p.phones >= 5 ? '#ff3b5c' : p.phones >= 2 ? '#ff9f1c' : '#f6d04d';
     L.circle([p.lat, p.lon], { radius: 60 + p.phones * 18, stroke: false, fillColor: c, fillOpacity: .22, interactive: false }).addTo(presL); });
   const last = S.presence.at(-1);
-  if (S.rpos || last) { const ll = S.rpos || [last.lat, last.lon]; if (rescM) rescM.setLatLng(ll); else rescM = L.marker(ll, { icon: L.divIcon({ className: '', html: '<div class="rpin"><b>🧑‍🚒</b><span>Rescuer node</span></div>', iconSize: [0, 0] }), zIndexOffset: 1200 }).addTo(map);
-    if (last) rescM.getElement().querySelector('span').textContent = `Rescuer · ${last.phones} phones`; } const ms = [...S.msgs.values()];
+  const ms = [...S.msgs.values()];
   const ppl = ms.reduce((a, m) => a + (m.people_n || 1), 0), crit = ms.filter(m => m.prio === 0).length;
   ms.forEach(m => { const ll = m.pos_ll || NODE_LL; L.circle(ll, { radius: 45 + (m.people_n || 1) * 12, color: m.prio === 0 ? '#ff3b5c' : '#ff9f1c', weight: 3, fillOpacity: .15, interactive: false }).bindTooltip(`SOS ${m.id}`).addTo(heatL); });
   if (false) [600, 380, 200].forEach((r, i) => L.circle(NODE_LL, { radius: r, stroke: false, fillColor: ['#f6d04d', '#ff9f1c', '#ff3b5c'][i], fillOpacity: Math.min(.45, .12 + ppl * .015 + crit * .03), interactive: false }).addTo(heatL));

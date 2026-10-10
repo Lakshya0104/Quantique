@@ -154,11 +154,15 @@ table{width:100%;border-collapse:collapse;font-size:15px}td,th{text-align:left;p
 .epi{position:absolute;transform:translate(-12px,-14px);display:flex;align-items:center;gap:6px;white-space:nowrap}.epi b{font-size:24px;color:#ff3b5c;text-shadow:0 0 10px #ff3b5c}.epi span{font:700 11px var(--f);color:#ffb3c1;background:rgba(7,11,19,.85);border:1px solid #ff3b5c;border-radius:6px;padding:3px 7px}
 .vbanner{background:#2a1f05;color:#f6d04d;text-align:center;font:700 12px var(--m);padding:6px}
 @media (max-width:760px){.g2,.kpis{grid-template-columns:1fr 1fr}.pr{grid-template-columns:100px 1fr 40px}}
+.mapcard p{margin:10px 0 0;font-size:13px;line-height:1.5}.mlg{display:grid;gap:5px;margin-top:12px;font-size:12.5px}.mlg i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;vertical-align:-1px}
+.dpop .leaflet-popup-content-wrapper,.dpop .leaflet-popup-tip{background:#0d1420;color:var(--fg);border:1px solid var(--line)}
+.hpop{display:grid;gap:4px;font:13px var(--f)}.hpop b{font-size:15px}.hpop div{color:var(--mut)}.hpop .ph2 a{color:#2fe08a;font-weight:700}.hpop .km{color:var(--cyan)}
+.hpin{cursor:pointer}
 </style></head><body>
 <div id="sound"><div><h2>VOID-NAV Command</h2><p>Click to start the console. This enables the alarm sound and voice alerts for critical SOS.</p><button class="pri" id="go">Start console</button></div></div>
 <header>
   <div class="brand"><b>VOID-NAV</b><span>RESCUE COMMAND · MUSHEERABAD</span></div>
-  <nav id="nav"><button data-t="inbox" class="on">SOS Inbox<span class="n" id="nUnread" hidden>0</span></button><button data-t="map">Map</button><button data-t="lab">Network lab</button><button data-t="honest">Real vs simulated</button></nav>
+  <nav id="nav"><button data-t="inbox" class="on">SOS Inbox<span class="n" id="nUnread" hidden>0</span></button><button data-t="map">Map</button><button data-t="lab">Network lab</button></nav>
   <div class="sp"></div>
   <div class="link" id="link"><i></i><span id="linkTxt">LoRa link</span> <span class="tag t-emu" id="modeTag">EMULATED</span></div>
   <button id="plug" class="warn">Unplug gateway</button>
@@ -176,13 +180,15 @@ table{width:100%;border-collapse:collapse;font-size:15px}td,th{text-align:left;p
         <div class="leds2"><div class="l org" id="lO"><b></b>ORANGE</div><div class="l grn" id="lG"><b></b>GREEN</div></div>
         <div style="margin-top:10px;color:#7fb9a1" id="ledTxt">Idle</div></div>
       <button class="btnsos" id="btn">● Press beacon push-button (no-phone SOS)</button></div>
-    <div class="panel" style="padding:0 16px 14px"><div class="ph" style="padding:14px 0 8px">Phones near rescuer</div><div id="pres"></div></div>
+    <div class="panel" id="presPanel" hidden style="padding:0 16px 14px"><div class="ph" style="padding:14px 0 8px">Phones near rescuer</div><div id="pres"></div></div>
     <div class="panel"><div class="ph">Link log</div><div class="feed" id="feed"></div></div>
   </div>
 </section>
 <!-- MAP -->
 <section class="tab" id="map"><div id="mapEl"></div>
-  <div class="panel mapcard"><h3>Musheerabad, Hyderabad</h3><span id="mapCount">0 SOS</span><br><br>12 GHMC wards, real boundaries. Glow = phones the rescuer node detected at each spot (red = many). Rings = SOS sent from there. Green ✚ = hospitals. No GPS yet, so the rescuer position is set by tapping.<br><b style="color:var(--fg)">Tap the map where the rescuer is standing</b>: each 20 s phone scan is painted there, so walking the site builds the heatmap.<br><span id="mapNote" style="font-size:12px">Street map needs internet; wards work offline.</span></div></section>
+  <div class="panel mapcard"><h3>Musheerabad, Hyderabad</h3><span id="mapCount">0 SOS</span>
+    <div class="mlg"><span><i style="background:#ff3b5c"></i>High survivor density</span><span><i style="background:#ff9f1c"></i>Moderate</span><span><i style="background:#f6d04d"></i>Low</span><span><i style="border:2px solid #ff3b5c;background:none"></i>SOS received</span><span><i style="background:#2fe08a;border-radius:3px"></i>Hospital · tap for contact</span></div>
+    <p>Operational area: 12 GHMC wards around Musheerabad. The heatmap ranks where rescuers should search first; each SOS is pinned at the rescuer node that relayed it.</p></div></section>
 <!-- LAB -->
 <section class="tab" id="lab">
   <div class="panel"><div class="lab-h"><h3>Pillar 1 · Semantic compression</h3><p>Send the meaning, not the words. SemCode 40-bit token, Semtech SX127x airtime at SF9 / 125 kHz / CR 4/5. Uses the latest SOS.</p></div>
@@ -201,18 +207,7 @@ table{width:100%;border-collapse:collapse;font-size:15px}td,th{text-align:left;p
       <div class="proof" id="proof"><div style="color:var(--mut)">Press Plan relays.</div></div></div></div>
 </section>
 <!-- HONESTY -->
-<section class="tab" id="honest"><h2 style="margin-top:0">Real vs simulated in this demo</h2>
-  <p style="color:var(--mut)">Hardware is offline today, so the LoRa link is emulated in software with the firmware's own retry and ACK rules. Everything else below is stated as it is.</p>
-  <table><tr><th>Shown</th><th>Status</th></tr>
-  <tr><td>Survivor phone → Wi-Fi SOS page, no app, no internet</td><td><span class="tag t-real">REAL</span> the phone talks to this laptop over local Wi-Fi</td></tr>
-  <tr><td>SemCode 5-byte token, keyword triage (en / hi / te), airtime maths</td><td><span class="tag t-real">REAL</span> team code (semcode.py) runs on every SOS</td></tr>
-  <tr><td>Delivered / Read / Dispatched / Reply back to the phone, alarm tone</td><td><span class="tag t-real">REAL</span> loop · over <span class="tag t-emu">EMULATED</span> LoRa today</td></tr>
-  <tr><td>Phone → SOS Node1 (ESP32 Wi-Fi + SOS page), node retries until ACK, phone Wi-Fi RSSI</td><td><span class="tag t-real">REAL</span> with the ESP32 connected</td></tr><tr><td>Node → command link</td><td><span class="tag t-emu">USB cable</span> stands in for the LoRa radio until the RA-02 is fitted; same messages and ACK rules</td></tr>
-  <tr><td>Beacon LEDs and push button</td><td><span class="tag t-emu">EMULATED</span> on screen</td></tr>
-  <tr><td>Multi-hop relays and self-healing</td><td><span class="tag t-sim">SIMULATED</span></td></tr>
-  <tr><td>QAOA relay plan</td><td><span class="tag t-real">REAL</span> quantum circuit, exact statevector · demo map</td></tr>
-  <tr><td>Node position, ward map</td><td><span class="tag t-mock">CONFIGURED</span> position · real ward boundaries</td></tr>
-  <tr><td>Encryption, hospital links, phone scanning</td><td><span class="tag t-mock">ROADMAP</span></td></tr></table></section>
+
 </main>
 <div id="toasts"></div>
 <div id="scm" hidden><div class="scw panel"><div class="sch"><b>⚡ Semantic compression · this SOS, real numbers</b><button id="scClose">Close</button></div><div id="scBody"></div></div></div>

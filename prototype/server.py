@@ -28,7 +28,7 @@ LOCK = threading.RLock()
 T0 = time.time()                          # "event" time for minutes-since-event
 NODE = {"id": "N1", "name": "Beacon node N1", "lat": 17.4127, "lon": 78.5083, "where": "Musheerabad (configured, no GPS)"}
 S = {"link": True, "mode": "EMULATED", "seq": 0, "msgs": {}, "order": [], "events": [], "serial": None}
-CAT_URG = {"TRAPPED": 6, "COLLAPSE": 6, "FIRE": 6, "MEDICAL": 5, "FLOOD": 5, "FOOD_WATER": 2, "SHELTER": 1, "SAFE": 0, "OTHER": 2}
+CAT_URG = {"TRAPPED": 6, "COLLAPSE": 6, "FIRE": 6, "MEDICAL": 10, "FLOOD": 5, "FOOD_WATER": 2, "SHELTER": 1, "SAFE": 0, "OTHER": 2}
 
 db = sqlite3.connect(os.path.join(ROOT, "voidnav.db"), check_same_thread=False)
 db.execute("create table if not exists sos(id text primary key, t real, json text)")
@@ -159,6 +159,7 @@ def new_sos(form, mid=None, live=False):
     prio = 0 if (d["urgency"] >= 10 or form.get("button")) else 1 if d["urgency"] >= 5 else 2
     try: ppl = max(1, int(form.get("people", 1)))
     except (TypeError, ValueError): ppl = 1
+    if ai and ai.get("people"): ppl = max(ppl, int(ai["people"]))
     with LOCK:
         n = len(S["order"]) + 1
         mid = mid or f"{random.randint(0x1000, 0xFFFF):04X}-{n:03d}"
@@ -231,7 +232,7 @@ def radio_loop():
     while True:
         time.sleep(0.2)
         now = time.time()
-        if S["mode"] != "LIVE" and now - last_p > 20:      # emulated phone-count reports (labelled SIMULATED)
+        if False:      # emulated phone-count reports (labelled SIMULATED)
             last_p = now
             pos = S.get("rescuer_pos") or [NODE["lat"], NODE["lon"]]
             sample = {"t": now, "phones": random.randint(0, 9), "best_rssi": random.randint(-88, -48), "clients": 0,

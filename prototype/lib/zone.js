@@ -8,12 +8,14 @@ export const fromKm = (dxKm, dyKm) => ({ lat: C0.lat + dyKm / 110.54, lon: C0.lo
 export const distKm = (a, b) => Math.hypot((a.lon - b.lon) * 111.32 * Math.cos(C0.lat * Math.PI / 180), (a.lat - b.lat) * 110.54);
 export const wardName = n => n.replace(/^Ward \d+ /, '');
 
+// Contact details from public sources (hospital citizen charter / company filings / hospital listings), checked Oct 2026.
+// No bed availability is shown: there is no live public source for it.
 export const HOSPITALS = [
-  { id: 'H1', name: 'Gandhi Hospital', area: 'Musheerabad', lat: 17.4245, lon: 78.5005, beds: 42, trauma: true },
-  { id: 'H2', name: 'KIMS Hospitals', area: 'Secunderabad', lat: 17.4291, lon: 78.4882, beds: 16, trauma: true },
-  { id: 'H3', name: 'Yashoda Hospitals', area: 'Secunderabad', lat: 17.4410, lon: 78.4960, beds: 14, trauma: false },
-  { id: 'H4', name: 'Osmania General Hospital', area: 'Afzal Gunj', lat: 17.3725, lon: 78.4747, beds: 35, trauma: true },
-  { id: 'H5', name: 'NIMS', area: 'Punjagutta', lat: 17.4239, lon: 78.4519, beds: 28, trauma: true },
+  { id: 'H1', name: 'Gandhi Hospital', type: 'Government · teaching hospital · 24×7 casualty', area: 'Padmarao Nagar, Musheerabad, Secunderabad 500003', lat: 17.4245, lon: 78.5005, phone: ['040-2750 2742', '040-2750 8388'] },
+  { id: 'H2', name: 'KIMS Hospitals', type: 'Private · multispecialty', area: '1-8-31/1, Minister Road, Krishna Nagar Colony, Secunderabad 500003', lat: 17.4291, lon: 78.4882, phone: ['040-4488 5000', '040-4488 5184'] },
+  { id: 'H3', name: 'Yashoda Hospitals', type: 'Private · multispecialty', area: 'Alexander Road, Kummari Guda, Secunderabad 500003', lat: 17.4410, lon: 78.4960, phone: ['040-4567 4567'] },
+  { id: 'H4', name: 'Osmania General Hospital', type: 'Government · teaching hospital', area: 'Afzal Gunj, Hyderabad', lat: 17.3725, lon: 78.4747, phone: [] },
+  { id: 'H5', name: 'NIMS', type: 'Government · Nizam\'s Institute of Medical Sciences', area: 'Punjagutta Road, Punjagutta, Hyderabad 500082', lat: 17.4239, lon: 78.4519, phone: ['040-2348 9000'] },
 ];
 export const AGENCIES = [
   { name: 'GHMC Disaster Response Force', role: 'Search & rescue teams', icon: '⛑' },
