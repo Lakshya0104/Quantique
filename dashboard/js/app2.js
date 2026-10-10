@@ -130,7 +130,7 @@ function ingest(raw) { // raw: {node, ward, text, lang, gloss, panic, src, id?, 
   if (S.msgs.find(m => m.id === id)) { S.mstat.dup++; return; }
   const u = raw.parsed || understand(raw.text, raw.panic);
   const n = nodeOf(raw.node) || nodeOf('N1');
-  const m = { id, ...raw, ...u, node: n.id, loc: { lat: n.lat, lon: n.lon, src: raw.src === 'live' ? 'Rescue-node location (configured, no GPS module)' : 'Rescue-node location (simulated)' }, state: 'UNREAD', t: Date.now() };
+  const m = { id, ...raw, ...u, node: n.id, loc: { lat: n.lat, lon: n.lon, src: raw.src === 'live' || raw.src === 'phone' ? 'Rescue-node location (configured, no GPS module)' : 'Rescue-node location (simulated)' }, state: 'UNREAD', t: Date.now() };
   m.bytes = encode(m); S.msgs.unshift(m);
   // cluster
   const c = S.clusters.get(m.node) || { node: m.node, ward: m.ward, msgs: [], people: 0, stuck: 0, prio: 3, cat: m.cat, state: 'UNREAD' };
@@ -139,7 +139,8 @@ function ingest(raw) { // raw: {node, ward, text, lang, gloss, panic, src, id?, 
   upsertPin(c);
   const path = raw.src === 'live' ? [m.node, 'GW'] : route(m.node); if (path) { m.hops = path.length - 1; packet3D(path, PCOL[m.prio]); meshPacket(path); S.mstat.del++; S.mstat.hops.push(path.length - 1); }
   showCompression(m);
-  if (m.prio === 0) { toast(m); siren(); speak(m); flash(); }
+  if (m.prio === 0) { toast(m); siren(); speak(m); flash(); } else if (raw.src === 'phone') toast(m);
+  if (raw.src === 'phone') focusCluster(m.node);
   log(`SOS ${m.id} · ${Z.CAT_LABEL[m.cat]} · ${m.people} ppl · ${m.ward}${raw.src === 'live' ? ' · LIVE LoRa' : ''}`);
   refresh(true); }
 
@@ -147,6 +148,7 @@ function ingest(raw) { // raw: {node, ward, text, lang, gloss, panic, src, id?, 
 function setState(m, st, extra = {}) { if (m.state === 'DISPATCHED' || (m.state === 'READ' && st === 'UNREAD')) return; m.state = st; Object.assign(m, extra);
   const c = S.clusters.get(m.node); if (c) { c.state = c.msgs.every(x => x.state === 'DISPATCHED') ? 'DISPATCHED' : c.msgs.some(x => x.state === 'UNREAD') ? 'UNREAD' : 'READ'; upsertPin(c); }
   blobs.forEach(b => { if (b.msg === m.id && st === 'DISPATCHED') b.w *= .2; }); drawHeat();
+  if (m.src === 'phone') fetch('/api/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: m.id, state: st }) }).catch(() => {});
   if (m.src === 'live') serialSend({ type: 'status', id: m.id, state: st }); log(`${m.id} → ${st}${extra.unit ? ' · ' + extra.unit : ''}`); refresh(true); }
 
 /* ============ UI ============ */
@@ -167,12 +169,12 @@ function renderQueue() { const arr = [...S.clusters.values()].map(c => ({ c, s: 
       <div class="tags">${flags.map(f => `<span class="tg ${['BLEEDING', 'GAS', 'PANIC'].includes(f) ? 'r' : ''}">${f}</span>`).join('')}</div></div>`; }).join('');
   $$('#attnList .qz').forEach(e => e.onclick = () => focusCluster(e.dataset.n)); }
 function renderList() { const f = S.filter; const arr = S.msgs.filter(m => f === 'all' || (f === 'crit' && m.prio === 0) || (f === 'unread' && m.state === 'UNREAD') || (f === 'read' && m.state === 'READ') || (f === 'disp' && m.state === 'DISPATCHED')).sort((a, b) => (a.state === 'DISPATCHED') - (b.state === 'DISPATCHED') || a.prio - b.prio || b.t - a.t);
-  $('#msgList').innerHTML = arr.map(m => `<div class="mi ${m.state === 'UNREAD' ? 'unread' : ''} ${S.selected === m.id ? 'sel' : ''}" style="--c:${PCOL[m.prio]}" data-id="${m.id}"><div class="mr"><span style="color:${PCOL[m.prio]}">${Z.PRIO_LABEL[m.prio]}${m.src === 'live' ? '<span class="src live">LIVE LoRa</span>' : '<span class="src sim">SIM</span>'}</span><span class="pill st-${m.state}">${m.state}</span></div>
+  $('#msgList').innerHTML = arr.map(m => `<div class="mi ${m.state === 'UNREAD' ? 'unread' : ''} ${S.selected === m.id ? 'sel' : ''}" style="--c:${PCOL[m.prio]}" data-id="${m.id}"><div class="mr"><span style="color:${PCOL[m.prio]}">${Z.PRIO_LABEL[m.prio]}${m.src === 'phone' ? '<span class="src live">📱 PHONE · LIVE</span>' : m.src === 'live' ? '<span class="src live">LIVE LoRa</span>' : '<span class="src sim">SIM</span>'}</span><span class="pill st-${m.state}">${m.state}</span></div>
    <div class="mt">${m.panic ? 'Panic button · ' : ''}${Z.CAT_LABEL[m.cat]} · ${m.people} ${m.people > 1 ? 'people' : 'person'}</div><div class="ms">${m.ward} · ${ago(m.t)}${m.text ? ' · “' + m.text + '”' : ''}</div></div>`).join('') || '<p class="muted" style="padding:20px">No messages yet.</p>';
   $$('#msgList .mi').forEach(e => e.onclick = () => select(e.dataset.id)); }
 function select(id) { S.selected = id; const m = S.msgs.find(x => x.id === id); if (m && m.state === 'UNREAD') setState(m, 'READ'); renderList(); renderDetail(); }
 function renderDetail() { const m = S.msgs.find(x => x.id === S.selected); if (!m) return; const hs = nearestHosp(m.loc), ams = nearestAmb(m.loc).slice(0, 3);
-  $('#detail').innerHTML = `<div class="dh"><div><div class="mono" style="font-size:13px;color:${PCOL[m.prio]}">${Z.PRIO_LABEL[m.prio]} · SOS #${m.id}${m.src === 'live' ? '<span class="src live">LIVE LoRa HARDWARE</span>' : '<span class="src sim">SIMULATED</span>'}</div>
+  $('#detail').innerHTML = `<div class="dh"><div><div class="mono" style="font-size:13px;color:${PCOL[m.prio]}">${Z.PRIO_LABEL[m.prio]} · SOS #${m.id}${m.src === 'phone' ? '<span class="src live">📱 PHONE · LIVE via node N1</span>' : m.src === 'live' ? '<span class="src live">LIVE LoRa HARDWARE</span>' : '<span class="src sim">SIMULATED</span>'}</div>
    <div class="dcat">${m.panic ? 'Panic button · ' : ''}${Z.CAT_LABEL[m.cat]}</div><div class="muted" style="font-size:15px">${m.ward} · node ${m.node} · ${ago(m.t)} · ${m.hops || 1} hop${(m.hops || 1) > 1 ? 's' : ''}${m.rssi ? ` · RSSI ${m.rssi} dBm` : ''}</div></div><span class="pill st-${m.state}" style="font-size:14px;padding:7px 14px">${m.state}</span></div>
    ${m.text ? `<div class="quote">“${m.text}”</div>${m.gloss ? `<div class="gloss">Meaning: ${m.gloss}</div>` : ''}` : '<div class="quote muted">Panic button: no text</div>'}
    <div class="facts"><div><label>People</label><b>${m.people}</b></div><div><label>Injured</label><b style="color:${m.injured === 'YES' ? '#ff2d55' : 'inherit'}">${m.injured}</b></div><div><label>Flags</label><b style="font-size:15px">${m.flags.join(', ') || '—'}</b></div><div><label>Location</label><b style="font-size:14px">${m.loc.lat.toFixed(4)}, ${m.loc.lon.toFixed(4)}</b><small class="muted" style="font-size:11px">${m.loc.src}</small></div></div>
@@ -193,7 +195,7 @@ function log(s) { S.log.unshift(`<div><span>${new Date().toLocaleTimeString('en-
 
 /* ============ ALERTS ============ */
 function toast(m) { const d = document.createElement('div'); d.className = 'toast crit'; d.style.setProperty('--c', PCOL[0]);
-  d.innerHTML = `<div class="t1"><span>CRITICAL · ${m.ward}</span><span>${m.src === 'live' ? 'LIVE LoRa' : 'SIM'}</span></div><div class="t2">${m.panic ? 'Panic button · ' : ''}${m.people} ${m.people > 1 ? 'people' : 'person'} ${Z.CAT_LABEL[m.cat].toLowerCase()}${m.injured === 'YES' ? ' · injured' : ''}</div><div class="t3">${m.gloss || m.text || 'structured SOS'}</div>`;
+  d.innerHTML = `<div class="t1"><span>CRITICAL · ${m.ward}</span><span>${m.src === 'phone' ? '📱 PHONE' : m.src === 'live' ? 'LIVE LoRa' : 'SIM'}</span></div><div class="t2">${m.panic ? 'Panic button · ' : ''}${m.people} ${m.people > 1 ? 'people' : 'person'} ${Z.CAT_LABEL[m.cat].toLowerCase()}${m.injured === 'YES' ? ' · injured' : ''}</div><div class="t3">${m.gloss || m.text || 'structured SOS'}</div>`;
   d.onclick = () => { openTab('inbox'); select(m.id); }; $('#toasts').prepend(d); $$('#toasts .toast').slice(2).forEach(x => x.remove()); setTimeout(() => { d.classList.add('out'); setTimeout(() => d.remove(), 400); }, 8000); }
 let actx; function siren() { if (S.muted) return; try { actx = actx || new AudioContext(); const o = actx.createOscillator(), g = actx.createGain(); o.type = 'triangle'; o.connect(g); g.connect(actx.destination); const t = actx.currentTime; [0, .3, .6].forEach((d, i) => o.frequency.setValueAtTime(i % 2 ? 620 : 880, t + d)); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.12, t + .05); g.gain.exponentialRampToValueAtTime(.0001, t + .95); o.start(t); o.stop(t + 1); } catch (e) { } }
 const hospName = m => nearestHosp(m.loc, 1)[0].h.name;
@@ -315,3 +317,14 @@ map.fitBounds(ZB, FITP); renderResources(); log('VOID-NAV Command ready · Mushe
 { const q = new URLSearchParams(location.search); if (q.get('autosim')) { S.muted = true; startSim(true); const n = +(q.get('n') || 0); Z.SCRIPT.slice(0, n).forEach(s => ingest({ ...s, src: 'sim' })); }
   if (q.get('tab')) setTimeout(() => openTab(q.get('tab')), 300); if (q.get('qaoa')) setTimeout(() => $('#btnQAOA').click(), 600); if (q.get('open')) setTimeout(() => select(S.msgs.find(m => m.prio === 0)?.id), 500); if (q.get('intro')) startSim(false); }
 window.VOIDNAV = { ingest, S };
+
+/* ============ PHONE SOS (via server.py relay) ============ */
+let phoneNext = 0, phoneOn = false;
+async function pollPhone() { try { const r = await fetch('/api/poll?since=' + phoneNext, { cache: 'no-store' }); if (!r.ok) return; const j = await r.json();
+    if (!phoneOn) { phoneOn = true; log('Phone SOS link ready · phones on VOID-NAV-SOS can send'); }
+    if (!S.t0) S.t0 = Date.now();
+    j.msgs.forEach(p => { const u = understand(p.text, p.panic); if (p.people) u.people = p.people; if (p.injured === 'YES') u.injured = 'YES';
+      ingest({ id: p.id, node: p.node || 'N1', ward: 'Musheerabad', text: p.text, lang: p.lang, panic: p.panic, src: 'phone', parsed: u });
+      log(`📱 Phone SOS ${p.id} via node ${p.node || 'N1'} · ${p.people} people`); });
+    phoneNext = j.next; setTimeout(pollPhone, 1000); } catch (e) { /* no server.py: plain static hosting */ } }
+pollPhone();

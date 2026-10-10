@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b14">
+<title>VOID-NAV SOS</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root{--bg:#070b14;--card:#0e1522;--line:#1d2a3e;--fg:#eef4ff;--mut:#8696ad;--red:#ff2d55;--org:#ff8a1f;--grn:#2fe08a;--cyan:#39d0ff;--f:'Sora','Noto Sans Telugu','Noto Sans Devanagari',system-ui,sans-serif;--m:'JetBrains Mono',ui-monospace,monospace;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:var(--f)}
+.scr{position:fixed;inset:0;padding:calc(env(safe-area-inset-top,0px) + 18px) 18px calc(env(safe-area-inset-bottom,0px) + 18px);display:flex;flex-direction:column;gap:14px;overflow:auto;transition:opacity .35s,transform .35s}
+.scr.off{opacity:0;transform:translateX(30px);pointer-events:none}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mut)}
+h1{font-size:26px;margin:4px 0 0;line-height:1.15}h1 small{display:block;font-size:14px;color:var(--mut);font-weight:400;margin-top:6px}
+.lbl{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-top:6px}
+/* wifi list */
+.net{display:flex;align-items:center;gap:14px;padding:16px;border-radius:16px;background:var(--card);border:1px solid var(--line);font-size:16px}
+.net .ic{width:34px;height:34px;display:grid;place-items:center}
+.net .nm{flex:1;min-width:0}.net .nm small{display:block;color:var(--mut);font-size:12px;margin-top:3px}
+.net.void{border-color:var(--red);box-shadow:0 0 0 1px var(--red),0 0 30px rgba(255,45,85,.25);cursor:pointer;animation:glow 1.6s infinite}
+@keyframes glow{50%{box-shadow:0 0 0 1px var(--red),0 0 45px rgba(255,45,85,.45)}}
+.net.dim{opacity:.55}
+.tag{font:600 10px var(--m);padding:3px 7px;border-radius:6px;background:rgba(255,45,85,.15);color:#ff8fa6}
+/* connecting */
+.ctr{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center}
+.ring{width:130px;height:130px;position:relative}
+.ring svg{width:100%;height:100%}
+.ring .spin{transform-origin:50% 50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ring .tick{stroke-dasharray:60;stroke-dashoffset:60}
+.ring.ok .spin{display:none}.ring.ok .bg{stroke:var(--grn);transition:stroke .3s}.ring.ok .tick{animation:dr .5s .1s forwards}
+@keyframes dr{to{stroke-dashoffset:0}}
+.steps{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;font-size:15px;text-align:left}
+.steps li{opacity:.3;transition:.3s;display:flex;gap:10px;align-items:center}.steps li.on{opacity:1}.steps li.done b{color:var(--grn)}
+.steps b{font-family:var(--m);width:18px}
+/* form */
+.langs{display:flex;gap:8px}.langs button{flex:1}
+button{font-family:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;font-size:15px;cursor:pointer}
+button.on{border-color:var(--cyan);background:rgba(57,208,255,.12)}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quick button{padding:16px 10px;font-size:16px;font-weight:600;text-align:left;display:flex;gap:10px;align-items:center}
+.quick button i{font-style:normal;font-size:22px}
+.quick button.on{border-color:var(--red);background:rgba(255,45,85,.14)}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:16px}
+.step{display:flex;align-items:center;gap:14px}.step button{width:44px;height:44px;padding:0;font-size:22px;border-radius:12px}.step b{font-size:22px;min-width:28px;text-align:center}
+.sw{width:54px;height:32px;border-radius:20px;background:#26344a;position:relative;border:0;padding:0}.sw:after{content:'';position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}.sw.on{background:var(--red)}.sw.on:after{left:26px}
+textarea{width:100%;min-height:84px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--fg);font:16px var(--f);padding:12px;resize:none}
+.send{background:var(--red);border:0;font-size:20px;font-weight:800;padding:18px;border-radius:18px;box-shadow:0 10px 30px rgba(255,45,85,.4);letter-spacing:.04em}
+.send:disabled{opacity:.5}
+.priv{font-size:12px;color:var(--mut);text-align:center}
+/* sent */
+.leds{display:flex;gap:26px;justify-content:center}
+.led{display:flex;flex-direction:column;align-items:center;gap:8px;font:600 12px var(--m);color:var(--mut)}
+.led b{width:34px;height:34px;border-radius:50%;background:#1c2433;border:2px solid #2a364a;transition:.4s}
+.led.org.on b{background:var(--org);box-shadow:0 0 30px var(--org)}.led.grn.on b{background:var(--grn);box-shadow:0 0 30px var(--grn)}
+.led.on{color:var(--fg)}
+.flow{display:flex;align-items:center;gap:6px;font:600 12px var(--m);color:var(--mut);justify-content:center;flex-wrap:wrap}
+.flow span{padding:6px 9px;border-radius:8px;background:var(--card);border:1px solid var(--line);opacity:.35;transition:.3s}.flow span.on{opacity:1;border-color:var(--cyan);color:var(--cyan)}
+.bytes{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;font:600 12px var(--m)}
+.bytes i{font-style:normal;text-align:center;padding:7px 0;border-radius:6px;background:rgba(167,139,250,.18);color:#d6c8ff;opacity:0;transform:scale(.6);transition:.25s}.bytes i.on{opacity:1;transform:none}
+.big{font-size:22px;font-weight:800;text-align:center}.big small{display:block;font-size:14px;font-weight:400;color:var(--mut);margin-top:6px}
+.err{color:#ff8fa6;font-size:13px;text-align:center;min-height:16px}
+</style></head><body>
+
+<!-- 1. Wi-Fi list -->
+<section class="scr" id="s1">
+  <div class="top"><span>Wi-Fi</span><span id="clk"></span></div>
+  <h1>Choose a network<small>No mobile signal. A rescue node is nearby.</small></h1>
+  <div class="lbl">Available networks</div>
+  <div class="net void" id="netVoid"><div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2.2" stroke-linecap="round"><path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1.4" fill="#ff2d55"/></svg></div>
+    <div class="nm"><b>VOID-NAV-SOS</b><small>Rescue node · open · no password</small></div><span class="tag">SOS</span></div>
+  <div class="net dim"><div class="ic">🔒</div><div class="nm">Airtel_Xstream_5G<small>Out of range</small></div></div>
+  <div class="net dim"><div class="ic">🔒</div><div class="nm">JioFiber-4B21<small>Out of range</small></div></div>
+  <div class="net dim"><div class="ic">🔒</div><div class="nm">ACT_Musheerabad<small>Out of range</small></div></div>
+</section>
+
+<!-- 2. Connecting -->
+<section class="scr off" id="s2">
+  <div class="top"><span>VOID-NAV-SOS</span><span></span></div>
+  <div class="ctr">
+    <div class="ring" id="ring"><svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="44" fill="none" stroke="#1d2a3e" stroke-width="6"/>
+      <circle class="spin" cx="50" cy="50" r="44" fill="none" stroke="#39d0ff" stroke-width="6" stroke-linecap="round" stroke-dasharray="70 210"/>
+      <path class="tick" d="M30 52 l13 13 l27 -29" fill="none" stroke="#2fe08a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="big" id="cTitle">Connecting…<small>VOID-NAV-SOS</small></div>
+    <ul class="steps" id="steps">
+      <li><b>○</b>Joining ESP32 hotspot</li>
+      <li><b>○</b>Getting address (192.168.4.x)</li>
+      <li><b>○</b>Opening SOS page</li>
+      <li><b>○</b>Rescue node N1 · mesh link OK</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 3. SOS form -->
+<section class="scr off" id="s3">
+  <div class="top"><span style="color:var(--grn)">● Connected · Node N1</span><span>LoRa mesh</span></div>
+  <h1 data-t="title">Send SOS<small data-t="sub">Rescue teams nearby will see this.</small></h1>
+  <div class="langs"><button data-l="en" class="on">English</button><button data-l="hi">हिंदी</button><button data-l="te">తెలుగు</button></div>
+  <div class="lbl" data-t="what">What is happening?</div>
+  <div class="quick" id="quick"></div>
+  <div class="row"><span data-t="ppl">People with you</span><div class="step"><button id="pm">−</button><b id="pv">1</b><button id="pp">+</button></div></div>
+  <div class="row"><span data-t="inj">Someone injured?</span><button class="sw" id="inj" aria-label="injured"></button></div>
+  <textarea id="txt" data-tp="ph" placeholder="Anything else? (floor, landmark, condition)"></textarea>
+  <div class="err" id="err"></div>
+  <button class="send" id="send" data-t="send">SEND SOS</button>
+  <div class="priv" data-t="priv">No name or phone number is sent. Only the message.</div>
+</section>
+
+<!-- 4. Sent / status -->
+<section class="scr off" id="s4">
+  <div class="top"><span style="color:var(--grn)">● Node N1</span><span id="mid" style="font-family:var(--m)"></span></div>
+  <div class="big" id="sTitle">Sending…<small>Compressing your message</small></div>
+  <div class="bytes" id="bytes"></div>
+  <div class="flow" id="flow"><span>Phone</span>→<span>Node N1</span>→<span>16 B LoRa</span>→<span>Relays</span>→<span>Rescue HQ</span></div>
+  <div class="leds"><div class="led org" id="ledR"><b></b>READ</div><div class="led grn" id="ledD"><b></b>HELP SENT</div></div>
+  <div class="big" id="state" style="font-size:18px"></div>
+  <button id="again" style="margin-top:auto">Send another message</button>
+</section>
+
+<script>
+const $ = s => document.querySelector(s), sleep = ms => new Promise(r => setTimeout(r, ms));
+const show = id => document.querySelectorAll('.scr').forEach(s => s.classList.toggle('off', s.id !== id));
+setInterval(() => $('#clk').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), 1000);
+
+const T = {
+  en: { title: 'Send SOS', sub: 'Rescue teams nearby will see this.', what: 'What is happening?', ppl: 'People with you', inj: 'Someone injured?', ph: 'Anything else? (floor, landmark, condition)', send: 'SEND SOS', priv: 'No name or phone number is sent. Only the message.',
+    q: [['🧱', 'Trapped', 'trapped under debris'], ['🩸', 'Injured', 'injured, bleeding'], ['💊', 'Need medicine', 'need medical help'], ['🔥', 'Fire / gas', 'fire and gas smell'], ['💧', 'Need water/food', 'need water and food'], ['✅', 'I am safe', 'we are safe']] },
+  hi: { title: 'SOS भेजें', sub: 'पास की बचाव टीम इसे देखेगी।', what: 'क्या हो रहा है?', ppl: 'आपके साथ लोग', inj: 'कोई घायल है?', ph: 'और कुछ? (मंज़िल, पहचान)', send: 'SOS भेजें', priv: 'नाम या फ़ोन नंबर नहीं भेजा जाता।',
+    q: [['🧱', 'फँसे हैं', 'मलबे में फँसे हैं'], ['🩸', 'घायल', 'घायल, खून बह रहा है'], ['💊', 'दवा चाहिए', 'डॉक्टर चाहिए'], ['🔥', 'आग / गैस', 'आग और गैस की गंध'], ['💧', 'पानी/खाना', 'पानी और खाना चाहिए'], ['✅', 'सुरक्षित हूँ', 'हम सुरक्षित हैं']] },
+  te: { title: 'SOS పంపండి', sub: 'దగ్గరలోని రెస్క్యూ బృందం చూస్తుంది.', what: 'ఏం జరుగుతోంది?', ppl: 'మీతో ఉన్నవారు', inj: 'ఎవరైనా గాయపడ్డారా?', ph: 'ఇంకా ఏమైనా? (అంతస్తు, గుర్తు)', send: 'SOS పంపండి', priv: 'పేరు లేదా ఫోన్ నంబర్ పంపబడదు.',
+    q: [['🧱', 'చిక్కుకున్నాం', 'శిథిలాల కింద చిక్కుకున్నాం'], ['🩸', 'గాయపడ్డాం', 'గాయపడ్డాం, రక్తం కారుతోంది'], ['💊', 'మందులు కావాలి', 'వైద్య సహాయం కావాలి'], ['🔥', 'మంటలు / గ్యాస్', 'మంటలు, గ్యాస్ వాసన'], ['💧', 'నీరు/ఆహారం', 'నీరు, ఆహారం కావాలి'], ['✅', 'సురక్షితం', 'మేము సురక్షితంగా ఉన్నాం']] },
+};
+const F = { lang: 'en', pick: new Set(), people: 1, inj: false, id: null };
+function lang(l) { F.lang = l; F.pick.clear(); const t = T[l];
+  document.querySelectorAll('[data-t]').forEach(e => { const k = e.dataset.t; if (e.tagName === 'H1') { e.firstChild.textContent = t.title; return; } else e.textContent = t[k]; });
+  $('#s3 h1 small').textContent = t.sub; $('#txt').placeholder = t.ph;
+  document.querySelectorAll('.langs button').forEach(b => b.classList.toggle('on', b.dataset.l === l));
+  $('#quick').innerHTML = t.q.map((q, i) => `<button data-i="${i}"><i>${q[0]}</i>${q[1]}</button>`).join('');
+  $('#quick').querySelectorAll('button').forEach(b => b.onclick = () => { const i = +b.dataset.i; F.pick.has(i) ? F.pick.delete(i) : F.pick.add(i); b.classList.toggle('on'); if (i === 1 && F.pick.has(1)) setInj(true); }); }
+document.querySelectorAll('.langs button').forEach(b => b.onclick = () => lang(b.dataset.l));
+const setInj = v => { F.inj = v; $('#inj').classList.toggle('on', v); };
+$('#inj').onclick = () => setInj(!F.inj);
+$('#pm').onclick = () => { F.people = Math.max(1, F.people - 1); $('#pv').textContent = F.people; };
+$('#pp').onclick = () => { F.people = Math.min(50, F.people + 1); $('#pv').textContent = F.people; };
+lang('en');
+
+// 1 → 2 → 3 : connect animation
+$('#netVoid').onclick = async () => { show('s2'); const li = [...document.querySelectorAll('#steps li')];
+  for (const [i, l] of li.entries()) { l.classList.add('on'); await sleep(i === 0 ? 1200 : 750); l.classList.add('done'); l.querySelector('b').textContent = '✓'; }
+  $('#ring').classList.add('ok'); $('#cTitle').innerHTML = 'Connected<small>VOID-NAV-SOS · Node N1</small>'; if (navigator.vibrate) navigator.vibrate(80);
+  await sleep(1400); show('s3'); };
+
+// 3 → 4 : send
+$('#send').onclick = async () => { const t = T[F.lang]; const parts = [...F.pick].map(i => t.q[i][2]); const extra = $('#txt').value.trim(); if (extra) parts.push(extra);
+  if (!parts.length) { $('#err').textContent = 'Tap what is happening, or type a message.'; return; } $('#err').textContent = '';
+  const text = parts.join(', ') + (F.people > 1 ? ` (${F.people} people)` : '');
+  $('#send').disabled = true;
+  try { const r = await fetch('/api/sos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, people: F.people, injured: F.inj, panic: F.pick.has(0) && F.inj, lang: F.lang }) });
+    const j = await r.json(); F.id = j.id; } catch (e) { $('#err').textContent = 'Node not reachable. Stay connected to VOID-NAV-SOS and try again.'; $('#send').disabled = false; return; }
+  $('#send').disabled = false; sentAnim(text); };
+
+async function sentAnim(text) { show('s4'); $('#mid').textContent = '#' + F.id; $('#ledR').classList.remove('on'); $('#ledD').classList.remove('on'); $('#state').textContent = '';
+  $('#sTitle').innerHTML = 'Sending…<small>Compressing to 16 bytes</small>';
+  const hex = F.id.match(/../g).concat(['0A', '01', (F.inj ? 'C4' : '44'), F.pick.has(0) ? '01' : '05', ('0' + F.people.toString(16)).slice(-2).toUpperCase(), F.inj ? '80' : '00', '08', 'A1', 'F3', '5C']).slice(0, 16);
+  $('#bytes').innerHTML = hex.map(h => `<i>${h}</i>`).join(''); const bs = [...document.querySelectorAll('#bytes i')];
+  for (const b of bs) { b.classList.add('on'); await sleep(60); }
+  const fl = [...document.querySelectorAll('#flow span')]; for (const s of fl) { s.classList.add('on'); await sleep(450); }
+  $('#sTitle').innerHTML = 'SOS delivered<small>Rescue HQ has your message. Stay where you are.</small>'; if (navigator.vibrate) navigator.vibrate([60, 60, 60]);
+  $('#state').textContent = 'Waiting for a rescuer to read it…'; poll(); }
+
+let pt = null;
+async function poll() { clearTimeout(pt); if (!F.id) return;
+  try { const j = await (await fetch('/api/status?id=' + F.id)).json();
+    if (j.state === 'READ' || j.state === 'DISPATCHED') { if (!$('#ledR').classList.contains('on') && navigator.vibrate) navigator.vibrate(120); $('#ledR').classList.add('on'); $('#state').textContent = 'A rescuer has read your SOS.'; }
+    if (j.state === 'DISPATCHED') { $('#ledD').classList.add('on'); $('#state').textContent = 'Help is on the way. Stay where you are.'; return; } } catch (e) {}
+  pt = setTimeout(poll, 1500); }
+$('#again').onclick = () => { clearTimeout(pt); F.id = null; F.pick.clear(); setInj(false); F.people = 1; $('#pv').textContent = 1; $('#txt').value = ''; lang(F.lang); show('s3'); };
+</script>
+</body></html>

@@ -1,4 +1,6 @@
 @echo off
-echo Starting VOID-NAV Command on http://localhost:8000
+echo Starting VOID-NAV Command (dashboard + phone SOS)
 start "" "http://localhost:8000/index.html"
-python -m http.server 8000
+python server.py
+if errorlevel 1 py server.py
+pause

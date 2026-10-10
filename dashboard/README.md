@@ -39,3 +39,13 @@ Live messages are tagged **LIVE LoRa**; simulated ones are tagged **SIM**.
 
 ## Honesty notes
 Map positions and bed counts are approximate/simulated; agency links are simulated; phone counts are estimates without identities; QAOA is a statevector simulation (same maths as Qiskit Aer) with no speed-up claimed at this size.
+
+## Phone SOS demo (live)
+
+1. Run `start.bat` (Windows) or `./start.sh`. This starts `server.py` on port 8000; it prints the phone link, e.g. `http://192.168.1.5:8000/sos`.
+2. Put the phone and laptop on the same Wi-Fi or phone hotspot. If Windows asks, allow Python through the firewall (Private network).
+3. On the phone, open the printed link: tap **VOID-NAV-SOS** → connecting animation → tick → SOS form (English / हिंदी / తెలుగు).
+4. Send. The message appears on the dashboard within a second, tagged **📱 PHONE · LIVE**.
+5. Open it in the dashboard → phone shows the orange **READ** light. Confirm dispatch → phone shows the green **HELP SENT** light.
+
+The Wi-Fi list and connecting screen are a demo of the ESP32 captive portal; in this demo the laptop's server stands in for the ESP32.
