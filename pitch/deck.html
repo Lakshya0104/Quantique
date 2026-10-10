@@ -1,0 +1,135 @@
+<!doctype html><html><head><meta charset="utf-8"><title>VOID-NAV · Pitch</title><link rel="stylesheet" href="base.css"><style>
+@page{size:1280px 720px;margin:0}
+.s{width:1280px;height:720px;position:relative;overflow:hidden;page-break-after:always;padding:54px 64px;background:#fff}
+.dark{background:#0b1220;color:#eef3fc}.dark .mut{color:#9fb0c8}
+.k{font:700 13px var(--m);letter-spacing:.18em;text-transform:uppercase;color:var(--red)}
+h1{font-size:64px;line-height:1.02;margin:12px 0 18px;letter-spacing:-.02em}h2{font-size:40px;margin:8px 0 18px;line-height:1.08;letter-spacing:-.01em}
+.mut{color:var(--mut)}.lead{font-size:21px;line-height:1.45;max-width:760px}
+.foot{position:absolute;left:64px;right:64px;bottom:26px;display:flex;justify-content:space-between;font:600 12px var(--m);color:#94a3b8}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:28px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{border:1px solid var(--line);border-radius:16px;padding:16px 18px;background:var(--soft)}.dark .card{background:#121c30;border-color:#22304a}
+.card b{display:block;font-size:17px;margin-bottom:4px}.card p{margin:0;font-size:14px;line-height:1.45;color:var(--mut)}.dark .card p{color:#9fb0c8}
+.big{font:800 46px var(--m);letter-spacing:-.02em}.bigl{font-size:13px;color:var(--mut)}
+img.sh{border-radius:12px;border:1px solid #d7dfeb;box-shadow:0 14px 40px rgba(12,20,36,.18);display:block}
+.flow{display:flex;align-items:center;gap:10px}.flow .n{flex:1;border-radius:14px;padding:14px;text-align:center;font-size:14px;font-weight:700;background:#121c30;border:1px solid #2a3a58}
+.flow .n small{display:block;font-weight:400;color:#9fb0c8;font-size:12px;margin-top:4px}.flow .ar{font-size:22px;color:#43c6ff}
+.pill{display:inline-block;padding:6px 12px;border-radius:30px;font-size:13px;font-weight:700;margin:3px 6px 3px 0}
+.step{display:grid;grid-template-columns:36px 1fr;gap:12px;align-items:start;margin:10px 0}.step i{font-style:normal;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:800 14px var(--m);color:#fff}
+.step b{font-size:16px}.step p{margin:2px 0 0;font-size:13.5px;color:var(--mut);line-height:1.4}
+.bar{height:26px;border-radius:7px;display:flex;align-items:center;padding:0 10px;font:700 12px var(--m);color:#fff}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}th{font-size:11px;color:var(--mut);letter-spacing:.08em;text-transform:uppercase}
+</style></head><body>
+
+<!-- 1 PROBLEM -->
+<section class="s dark">
+  <div class="k">VOID-NAV · Team VOID · Tech Horizon 2.0 · Next-Generation Communication</div>
+  <h1>When the towers fall,<br>the phone in their pocket<br>becomes the beacon.</h1>
+  <p class="lead mut">An instant private network that rescuers carry into a disaster zone. Any phone can send an SOS with no app, no SIM and no internet, and the survivor gets an answer back: <b style="color:#fff">Delivered → Read by rescuer → Help dispatched.</b></p>
+  <div class="g4" style="margin-top:34px">
+    <div class="card"><b>Cell towers down</b><p>Earthquakes, floods and cyclones take out power and cellular first. Survivors' phones still work; there is just no network.</p></div>
+    <div class="card"><b>One-way alerts</b><p>Cell Broadcast / SACHET can warn people but cannot hear back from someone trapped.</p></div>
+    <div class="card"><b>Device-per-person</b><p>Meshtastic, goTenna and rescue watches need hardware bought and set up before the disaster.</p></div>
+    <div class="card"><b>No closed loop</b><p>Even when an SOS gets out, the survivor never learns it was read or that help is coming.</p></div>
+  </div>
+  <div class="foot"><span>01 · Problem</span><span>VOID-NAV</span></div>
+</section>
+
+<!-- 2 SOLUTION + ARCHITECTURE -->
+<section class="s dark">
+  <div class="k">The solution</div>
+  <h2>A rescue kit that turns any phone into a two-way SOS beacon</h2>
+  <div class="flow" style="margin:26px 0 22px">
+    <div class="n">📱 Survivor's phone<small>joins open Wi-Fi “SOS Node1”, SOS page opens by itself</small></div><div class="ar">→</div>
+    <div class="n" style="border-color:#ff9f1c">Rescuer node<small>ESP32 + LoRa · finds phones, reads the SOS with AI, packs it into 5 bytes</small></div><div class="ar">~LoRa~</div>
+    <div class="n" style="border-color:#a991ff">Relays<small>placed by quantum planner (QAOA) · self-healing routes</small></div><div class="ar">→</div>
+    <div class="n" style="border-color:#2fe08a">Command post<small>gateway + laptop dashboard · offline</small></div>
+  </div>
+  <div class="g3">
+    <div class="card"><b style="color:#ffb347">① Find & connect</b><p>The rescuer node opens a Wi-Fi hotspot and counts nearby phones from their Wi-Fi “probe” signals. The count becomes a heatmap of where to search. Survivors join and send an SOS.</p></div>
+    <div class="card"><b style="color:#43c6ff">② Send the meaning</b><p>An on-device AI model reads what the survivor typed in English, Hindi, Telugu or Hinglish. It sends 5 bytes of meaning over long-range radio instead of 100+ bytes of text.</p></div>
+    <div class="card"><b style="color:#2fe08a">③ Close the loop</b><p>Command sees the alert, opens it (READ) and dispatches a team or a 108 ambulance. Each status travels back to the survivor's phone with a tone and vibration.</p></div>
+  </div>
+  <p class="mut" style="font-size:14px;margin-top:20px">No towers · no internet · no app · no SIM · no cloud. The radio is LoRa at 433 MHz: kilometres of range on milliwatts.</p>
+  <div class="foot"><span>02 · Solution & architecture</span><span>VOID-NAV</span></div>
+</section>
+
+<!-- 3 LOOP + DASHBOARD -->
+<section class="s">
+  <div class="k">The survivor ↔ rescuer loop · working prototype</div>
+  <h2>The survivor sends; the rescuer answers</h2>
+  <div style="display:grid;grid-template-columns:230px 230px 1fr;gap:22px;align-items:start">
+    <div><img class="sh" src="img/phone_wifi.png" style="width:230px;height:400px;object-fit:cover;object-position:top"><p class="mut" style="font-size:12px;margin:6px 0">Joins “SOS Node1”</p></div>
+    <div><img class="sh" src="img/phone_done.png" style="width:230px;height:400px;object-fit:cover;object-position:top"><p class="mut" style="font-size:12px;margin:6px 0">Sees Read → Help on the way</p></div>
+    <div><img class="sh" src="img/inbox.png" style="width:100%"><p class="mut" style="font-size:12px;margin:6px 0">Command dashboard: critical-first inbox, survivor's own words, decoded report, 108 dispatch</p>
+      <div class="g2" style="gap:12px;margin-top:10px">
+        <div class="step"><i style="background:var(--org)">1</i><div><b>Delivered</b><p>Node retries up to 8 times until command ACKs.</p></div></div>
+        <div class="step"><i style="background:var(--cyan)">2</i><div><b>Read</b><p>Opening the card marks it read. It cannot be undone.</p></div></div>
+        <div class="step"><i style="background:var(--grn)">3</i><div><b>Dispatched</b><p>Team or 108 ambulance plus hospital pre-alert.</p></div></div>
+        <div class="step"><i style="background:var(--vio)">4</i><div><b>Reply</b><p>“Team arriving in 10 min” pops up on the phone.</p></div></div>
+      </div></div>
+  </div>
+  <div class="foot"><span>03 · Product</span><span>VOID-NAV</span></div>
+</section>
+
+<!-- 4 AI SEMANTIC COMPRESSION -->
+<section class="s">
+  <div class="k">Pillar 1 · AI semantic compression</div>
+  <h2>Send the meaning, not the words</h2>
+  <div style="display:grid;grid-template-columns:1fr 560px;gap:30px">
+    <div>
+      <div class="card" style="font-size:17px;line-height:1.5;background:#fff">“wall fell on us in the cellar, my old mother is bleeding from her head, we are 4 people, need water and a cutter”<div class="mono mut" style="font-size:12px;margin-top:6px">132 bytes typed by the survivor</div></div>
+      <div style="text-align:center;font-size:22px;color:var(--mut);margin:6px 0">↓ on-device AI reads it</div>
+      <div><span class="pill" style="background:#ffe3e8;color:#b0153a">Trapped</span><span class="pill" style="background:#ffe3e8;color:#b0153a">Bleeding</span><span class="pill" style="background:#fff1d6;color:#9a5a00">Basement</span><span class="pill" style="background:#fff1d6;color:#9a5a00">3–5 people</span><span class="pill" style="background:#ece6ff;color:#5133c4">Elderly</span><span class="pill" style="background:#dff1fb;color:#0f6e9e">Water · Medical · Rescue tools</span><span class="pill" style="background:#ffe3e8;color:#b0153a">Urgency 14/15</span></div>
+      <div style="text-align:center;font-size:22px;color:var(--mut);margin:6px 0">↓ SemCode codebook</div>
+      <div class="mono" style="font-size:30px;font-weight:800;color:var(--vio);text-align:center;letter-spacing:.08em">05 4C 88 F8 00</div>
+      <div style="margin-top:16px">
+        <div style="display:flex;gap:10px;align-items:center;margin:6px 0"><span style="width:90px;font-size:13px">Free text</span><div class="bar" style="width:100%;background:var(--org)">142 bytes · 738 ms on air</div></div>
+        <div style="display:flex;gap:10px;align-items:center;margin:6px 0"><span style="width:90px;font-size:13px">SemCode</span><div class="bar" style="width:22%;background:var(--grn)">15 B · 165 ms</div></div>
+      </div>
+      <div class="g4" style="margin-top:14px"><div><div class="big" style="color:var(--grn)">−89%</div><div class="bigl">bytes</div></div><div><div class="big" style="color:var(--grn)">−78%</div><div class="bigl">airtime</div></div><div><div class="big" style="color:var(--grn)">4.5×</div><div class="bigl">more SOS per channel</div></div><div><div class="big" style="color:var(--cyan)">83%</div><div class="bigl">category accuracy, unseen wording</div></div></div>
+    </div>
+    <div><img class="sh" src="img/compress.png" style="width:560px"><p class="mut" style="font-size:12.5px;line-height:1.45">Every SOS has a “Semantic compression demo” button showing its own real numbers. The model is a multilingual Naive Bayes ensemble we trained (17 heads, English/Hindi/Telugu/Hinglish). It is deterministic and never invents details; the survivor's taps always win.</p></div>
+  </div>
+  <div class="foot"><span>04 · AI semantic compression</span><span>Airtime: Semtech SX127x formula, SF9, 125 kHz</span></div>
+</section>
+
+<!-- 5 QUANTUM + SELF HEALING -->
+<section class="s">
+  <div class="k">Pillars 2 & 3 · Quantum relay planning + self-healing relays</div>
+  <h2>Where to put the relays, and what happens when one breaks</h2>
+  <div class="g2">
+    <div>
+      <img class="sh" src="img/qiskit.png" style="width:100%;height:205px;object-fit:cover;object-position:left top">
+      <div class="step"><i style="background:var(--vio)">Q</i><div><b>QAOA answers “how many relays, and where?”</b><p>One qubit per candidate rooftop. The circuit only explores plans with exactly K relays and favours plans that cover more people. A classical optimiser tunes it. Run in <b>Qiskit Aer</b> (8,192 shots) and checked against brute force.</p></div></div>
+      <table><tr><th>K relays</th><th>People covered</th><th>Brute force</th><th>QAOA finds best</th><th>Random</th></tr>
+        <tr><td>2</td><td>35 / 64</td><td>35 ✓</td><td>36%</td><td>11%</td></tr><tr><td>3</td><td>50 / 64</td><td>50 ✓</td><td>16%</td><td>4%</td></tr><tr><td><b>4</b></td><td><b>59 / 64 (92%)</b></td><td>59 ✓</td><td>12%</td><td>1.4%</td></tr></table>
+    </div>
+    <div>
+      <img class="sh" src="img/heal.png" style="width:100%;height:205px;object-fit:cover;object-position:right center">
+      <div class="step"><i style="background:var(--cyan)">H</i><div><b>Self-healing: no central control</b><p>Every node beacons “I'm N hops from the gateway”. Each hands an SOS only to a closer neighbour, which must acknowledge it. With no ACK it tries the next-best neighbour; with no route at all it stores the SOS and carries it. Nothing is dropped.</p></div></div>
+      <div class="g3" style="margin-top:8px"><div class="card" style="text-align:center"><div class="big" style="color:var(--grn);font-size:36px">40/40</div><div class="bigl">delivered, self-healing</div></div><div class="card" style="text-align:center"><div class="big" style="color:var(--org);font-size:36px">6/40</div><div class="bigl">fixed route, same relays</div></div><div class="card" style="text-align:center"><div class="big" style="font-size:36px">0</div><div class="bigl">SOS lost while cut off</div></div></div>
+      <p class="mut" style="font-size:12px">Simulated with the firmware's own rules. Team simulator: 119/119 vs 29/119.</p>
+    </div>
+  </div>
+  <div class="foot"><span>05 · Quantum + self-healing</span><span>No quantum speed-up claimed at 8 sites</span></div>
+</section>
+
+<!-- 6 IMPACT, STATUS, ASK -->
+<section class="s dark">
+  <div class="k">Impact · what is built · what is next</div>
+  <h2>₹1,200 nodes. Minutes after rescuers arrive.<br>Every phone becomes a beacon that gets an answer.</h2>
+  <div class="g3" style="margin-top:18px">
+    <div class="card"><b>Built and working</b><p>Survivor SOS page · rescuer-node firmware (Wi-Fi + LoRa + phone scan) · gateway firmware · offline command dashboard · trained AI compressor · QAOA planner in Qiskit · self-healing simulator.</p></div>
+    <div class="card"><b>Shown in simulation (labelled)</b><p>Multi-hop relay chain (we own one relay) · survivor-density heatmap of the scenario · the LoRa link when the boards are not on the table.</p></div>
+    <div class="card"><b>Proposed</b><p>CAP export to SACHET / state control rooms / 108 when any backhaul exists · encryption · GPS per node · 865 MHz modules for production.</p></div>
+  </div>
+  <div class="g4" style="margin-top:20px">
+    <div><div class="big" style="color:#ff9f1c">₹1,200</div><div class="bigl" style="color:#9fb0c8">per node, about 100 per satellite handset</div></div>
+    <div><div class="big" style="color:#43c6ff">0</div><div class="bigl" style="color:#9fb0c8">internet, SIM, app or cloud needed</div></div>
+    <div><div class="big" style="color:#2fe08a">−78%</div><div class="bigl" style="color:#9fb0c8">airtime per SOS with AI compression</div></div>
+    <div><div class="big" style="color:#a991ff">40/40</div><div class="bigl" style="color:#9fb0c8">SOS delivered through relay failures</div></div>
+  </div>
+  <p style="font-size:22px;margin-top:26px">Customers: NDRF · SDRF · district disaster authorities · fire services · large events · defence.</p>
+  <div class="foot"><span>06 · Impact & next steps</span><span>Team VOID</span></div>
+</section>
+</body></html>

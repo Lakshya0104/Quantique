@@ -1,0 +1,130 @@
+<!doctype html><html><head><meta charset="utf-8"><title>VOID-NAV · Judges' Script & Explainer</title><link rel="stylesheet" href="base.css"><style>
+@page{size:A4;margin:16mm 15mm}
+body{font-size:12.5px;line-height:1.55}
+h1{font-size:30px;margin:0 0 4px;letter-spacing:-.01em}h2{font-size:19px;margin:22px 0 8px;padding-top:10px;border-top:2px solid var(--ink);page-break-after:avoid}
+h3{font-size:14px;margin:14px 0 4px;color:var(--cyan);page-break-after:avoid}
+p{margin:6px 0}.mut{color:var(--mut)}
+.say{border-left:4px solid var(--red);background:#fff5f7;padding:8px 12px;margin:8px 0;border-radius:0 8px 8px 0;font-size:13px;page-break-inside:avoid}
+.say b.who{display:block;font:700 10px var(--m);letter-spacing:.1em;color:var(--red);text-transform:uppercase;margin-bottom:2px}
+.do{border-left:4px solid var(--cyan);background:#f1f8fd;padding:6px 12px;margin:6px 0;border-radius:0 8px 8px 0;font-size:12px;page-break-inside:avoid}
+.do b.who{display:block;font:700 10px var(--m);letter-spacing:.1em;color:var(--cyan);text-transform:uppercase}
+table{border-collapse:collapse;width:100%;margin:6px 0;page-break-inside:avoid}td,th{padding:6px 8px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:var(--soft);font-size:11px}
+.box{border:1px solid var(--line);background:var(--soft);border-radius:10px;padding:10px 14px;margin:8px 0;page-break-inside:avoid}
+.t{font:700 11px var(--m);color:var(--mut)}
+.cover{background:#0b1220;color:#eef3fc;border-radius:14px;padding:24px 28px;margin-bottom:10px}.cover .mut{color:#9fb0c8}
+.k{font:700 11px var(--m);letter-spacing:.16em;color:#ff5a75;text-transform:uppercase}
+.qa b{display:block;margin-top:8px}.qa p{margin:2px 0 0 0}
+ol,ul{margin:4px 0 6px 20px;padding:0}li{margin:2px 0}
+</style></head><body>
+<div class="cover"><div class="k">VOID-NAV · Team VOID · Judges' script & explainer</div><h1>The 5-minute demo, what to say, and how every part works</h1>
+<p class="mut">Read this out loud three times before judging. One person speaks, the other drives the screen. Every number below was measured by running our code.</p></div>
+
+<h2>0 · The one rule for this demo: proud and precise</h2>
+<p>Judges at this level ask “is this real?”. The strongest answer is a precise one. We have <b>working software, firmware and a trained model</b>. Some links are simulated because we own only one relay. Saying that clearly, before they ask, earns more trust than any claim. Use these exact labels:</p>
+<table><tr><th>Part</th><th>Say it like this</th></tr>
+<tr><td>Phone → SOS page → dashboard → Read/Dispatch back to phone</td><td><span class="tag t-real">WORKING</span> “This is live. Send one yourself.”</td></tr>
+<tr><td>AI semantic compression, byte and airtime numbers</td><td><span class="tag t-real">WORKING</span> “Trained model, real numbers for the SOS you just sent.”</td></tr>
+<tr><td>QAOA relay planner in Qiskit</td><td><span class="tag t-real">WORKING</span> “Real Qiskit circuit, run on the Aer simulator, checked against brute force.”</td></tr>
+<tr><td>Rescuer node + gateway LoRa link</td><td>If the boards are on the table: <span class="tag t-real">LIVE</span>. If not: “Our teammate is field-testing the radios. Today the link runs over USB with the same messages and the same retry/ACK rules.”</td></tr>
+<tr><td>Multi-hop relays, self-healing</td><td><span class="tag t-sim">SIMULATED</span> “We have one relay, so the multi-hop rules run in a simulator. It is the same code the firmware runs.”</td></tr>
+<tr><td>Survivor-density heatmap</td><td><span class="tag t-sim">SCENARIO</span> “Estimated density for this disaster scenario. With the rescuer node live, it comes from real phone counts.”</td></tr>
+<tr><td>Sending records to SACHET / 108 / hospitals</td><td><span class="tag t-prop">PROPOSED</span> “Designed and the export works; not connected to government systems yet.”</td></tr></table>
+
+<h2>1 · Demo script (5 minutes)</h2>
+<div class="say"><b class="who">0:00 · Hook (Speaker)</b>“Earthquake in Musheerabad, Hyderabad. The towers are down. You're trapped on the second floor, your phone says <i>No service</i>, and nobody knows you're there. Today you're the survivor.” <i>(Hand the judge the phone.)</i></div>
+<div class="say"><b class="who">0:20 · Problem</b>“Phones survive disasters; networks don't. Government alerts are one-way. Satellite SOS needs new phones and open sky. Mesh radios need everyone to own a device beforehand. And even when an SOS gets out, the person never learns if anyone read it.”</div>
+<div class="say"><b class="who">0:40 · What we built</b>“VOID-NAV is a private network that rescuers carry in. A rescuer node opens a Wi-Fi called SOS Node1. Any phone can join it, with no app and no SIM. It sends the SOS over long-range LoRa radio to the command post, and the answer comes back.”</div>
+<div class="do"><b class="who">Driver</b>Phone on <b>SOS Node1</b>, or the laptop page if on emulated mode. Dashboard on <b>SOS Inbox</b>, alarm on.</div>
+<div class="say"><b class="who">1:00 · Judge sends an SOS</b>“Tap what happened, set the people, and type anything, in any language.” <i>(Judge sends.)</i> “It shows Sending, then Delivered. The node retries until the command post confirms.”</div>
+<div class="say"><b class="who">1:20 · It lands</b><i>(Siren + voice.)</i> “Critical first. Your own words, decoded into a triage card: trapped, bleeding, three to five people, needs water.”</div>
+<div class="say"><b class="who">1:40 · Semantic compression</b><i>(Click ⚡ Semantic compression demo.)</i> “Long-range radio is slow: about 1.8 kilobits per second. So we don't send your words; we send their meaning. Our AI reads your message and packs it into five bytes. Your message was 142 bytes on air; this is 15. That's 78% less airtime, so four to five times more SOS fit through the same channel.”</div>
+<div class="say"><b class="who">2:20 · Read & dispatch</b><i>(Open the card → phone beeps “Read”. Press Dispatch / 108 ambulance → phone shows “Help is on the way”. Send reply.)</i> “Opening it tells you a human saw it. Dispatch tells you help is coming. That's the loop nobody else closes.”</div>
+<div class="say"><b class="who">2:50 · Map</b>“The map shows where survivors are concentrated, which tells rescuers where to search first. Tap a hospital to see its real phone numbers and distance.”</div>
+<div class="say"><b class="who">3:10 · Quantum</b><i>(Relays · QAOA → Load rooftops → Import SOS + heatmap → Run in Qiskit Aer.)</i> “A rescue team has only a few relays. Which rooftops cover the most survivors, and how many relays do we need? That's a combinatorial problem, and QAOA is the quantum algorithm built for it. One qubit per rooftop. Qiskit says four relays are needed, and brute force confirms it's the best possible plan.”</div>
+<div class="say"><b class="who">3:50 · Self-healing</b><i>(Continue → Self-healing → Run disaster scenario.)</i> “Now an aftershock destroys a relay. Nobody tells the network what to do. Each node notices a missing acknowledgement and reroutes on its own. When the survivor is completely cut off, messages are stored, not lost. When a relay comes back, they flush through. Forty out of forty delivered; a fixed route delivers six.”</div>
+<div class="say"><b class="who">4:30 · Close</b>“Built on ₹1,200 nodes, with no internet anywhere. An instant private network rescuers carry in. Any phone becomes a beacon, and it gets an answer back.”</div>
+
+<h2>2 · How the rescuer node finds phones and sends the SOS</h2>
+<h3>Finding phones (the heatmap)</h3>
+<p>Every smartphone with Wi-Fi switched on shouts “is my home network here?” every few seconds, even when it isn't connected. These are called <b>probe requests</b>. The ESP32 can listen for them (<b>promiscuous mode</b>) while it runs its hotspot.</p>
+<ul><li>Every 20 s it <b>counts distinct phones</b> and the strongest signal (RSSI, in dBm: −40 is very close, −85 is far).</li>
+<li>It sends only <b>“6 phones, strongest −52 dBm”</b> over LoRa. Phone addresses are scrambled (hashed) in memory for 20 s and never stored or sent.</li>
+<li>The dashboard paints each count where the rescuer is standing. Walking the site builds the heatmap: red means many phones, so search there first.</li>
+<li><b>Limits to state honestly:</b> phones randomise their Wi-Fi address, so counts are approximate. A phone with Wi-Fi off or a dead battery can't be found. A dog, radar or thermal camera finds those people.</li></ul>
+<h3>Connecting and sending</h3>
+<ol><li>The rescuer shouts “join Wi-Fi SOS Node1”. It's an open network at the top of the list. The phone joins and a <b>captive portal</b> opens the SOS page automatically, the same way hotel Wi-Fi does. The page is at 192.168.4.1.</li>
+<li>The survivor taps answers and types a note. The page sends it to the ESP32.</li>
+<li>The node turns it into a compact packet (SemCode) and transmits it over <b>LoRa 433 MHz, SF9</b>. It <b>retries every ~3 s, up to 8 times</b>, until the command post sends an ACK.</li>
+<li>The gateway ESP32 at the command post receives it and passes it to the laptop over USB. The dashboard shows it, and every status (READ / DISPATCH / REPLY) goes back the same way. The phone page checks every second and beeps on each change.</li></ol>
+
+<h2>3 · AI semantic compression, explained simply</h2>
+<p><b>The problem:</b> LoRa reaches kilometres, but it is slow and the channel is shared. Long text messages take long to send, collide with each other and drain batteries.</p>
+<p><b>The idea (semantic communication, a 6G research direction):</b> for an SOS, rescuers need a handful of facts, not the exact wording. Send the <i>meaning</i>.</p>
+<table><tr><th>Step</th><th>What happens</th><th>Words to use</th></tr>
+<tr><td>1</td><td>The survivor types anything in English, Hindi, Telugu or Hinglish.</td><td>“free text, multilingual”</td></tr>
+<tr><td>2</td><td>Our model reads it and predicts the triage fields: category, injured, bleeding, unconscious, people, position, vulnerable people, needs.</td><td>“text classification”, “17 prediction heads”</td></tr>
+<tr><td>3</td><td>A shared <b>codebook</b> packs the fields into <b>40 bits = 5 bytes</b>, e.g. category = 4 bits, people = 3 bits, needs = 8 bits.</td><td>“SemCode token”, “bit-packing”</td></tr>
+<tr><td>4</td><td>5 bytes + a 10-byte header go over the radio. Airtime is computed with the official LoRa formula.</td><td>“time-on-air, Semtech AN1200.13”</td></tr>
+<tr><td>5</td><td>The dashboard expands the 5 bytes back into a full sentence using the same codebook.</td><td>“decoder”</td></tr></table>
+<div class="box"><b>The model:</b> a <b>Naive Bayes ensemble</b> (one model per field), trained on <b>4,200</b> SOS messages generated in 5 language styles. Its features are words, word pairs and a multilingual root-word list (<i>phas</i>, <i>chikk</i>, <i>stuck</i> → trapped; <i>khoon</i>, <i>rakt</i>, <i>bleed</i> → bleeding).<br>
+<b>Accuracy</b> on wording it never saw: category 83%, bleeding 97%, injured 93%. On 30 hand-written messages, category is right 90% of the time.<br>
+<b>Why not ChatGPT-style AI?</b> It's too big for a node, needs internet, and can make details up. Ours is tiny, offline and deterministic. <b>Taps always win</b>: the AI can only add information or raise urgency, never lower it.<br>
+<b>Honest note:</b> training data is synthetic, because real SOS logs aren't public. The next step is to retrain on real drill data.</div>
+
+<h2>4 · QAOA and Qiskit, explained so anyone gets it</h2>
+<h3>The question</h3>
+<p>“We have 8 possible rooftops and only a few relays. Where do we put them to reach the most survivors, and what's the fewest relays that reaches 90%?” Choosing K rooftops out of N is a <b>combinatorial optimisation</b> problem. The number of options explodes: 8 rooftops is 56 choices, but 100 rooftops with 10 relays is 17 trillion.</p>
+<h3>The analogy</h3>
+<p>Think of a quantum computer as trying <b>all plans at once</b> as a blurred “maybe” (<b>superposition</b>). QAOA is a recipe to <b>tilt the odds</b> so that, when you finally look (<b>measure</b>), good plans come up much more often than bad ones.</p>
+<table><tr><th>Technical term</th><th>Plain meaning</th></tr>
+<tr><td><b>Qubit</b></td><td>One per rooftop: 1 = relay here, 0 = no relay.</td></tr>
+<tr><td><b>Cost Hamiltonian</b></td><td>A score for each plan: + people covered, − people counted twice. Built into the circuit as RZ and RZZ gates.</td></tr>
+<tr><td><b>Dicke state</b></td><td>Start with an equal mix of every plan that uses exactly K relays.</td></tr>
+<tr><td><b>XY mixer</b> (RXX + RYY gates)</td><td>Moves a relay from one rooftop to a neighbour, but never adds or removes one, so every answer is valid. Textbook QAOA wastes shots on invalid plans.</td></tr>
+<tr><td><b>Layers (p)</b></td><td>Repeat “score, then shuffle” p times (we use 2). More layers give better odds.</td></tr>
+<tr><td><b>γ, β (angles)</b></td><td>Two dials per layer: how hard to push toward good plans, and how much to shuffle.</td></tr>
+<tr><td><b>Hybrid loop / COBYLA</b></td><td>A normal computer turns the dials; the quantum circuit says how good the result is. Repeat until it stops improving.</td></tr>
+<tr><td><b>Shots</b></td><td>Run the final circuit 8,192 times and count which plans come out. Keep the best.</td></tr>
+<tr><td><b>Brute force check</b></td><td>We also try every plan the slow way to prove QAOA's answer is the true best.</td></tr></table>
+<h3>How we ran it in Qiskit (say this when asked)</h3>
+<p>“We wrote the circuit in <b>Qiskit 2.5</b>. <code>initialize</code> creates the Dicke state, <code>rz</code>/<code>rzz</code> form the cost layer, and <code>rxx</code>+<code>ryy</code> form the mixer ring. We optimised the angles with <b>SciPy COBYLA</b> on Qiskit's <code>Statevector</code>, then transpiled the circuit and ran <b>8,192 shots on the AerSimulator</b>. The dashboard sends the rescuer's map inputs to that script.”</p>
+<div class="box">Result on the 8-site map: <b>4 relays needed</b>, covering 59 of 64 people. Brute force agrees at every K. Every shot placed exactly K relays. For K = 3, QAOA found the best plan 16% of the time versus 4% for a random guess.<br>
+<b>Say before they ask:</b> “At 8 rooftops brute force is faster, and we don't claim a speed-up. We claim a correct quantum formulation, verified against the exact answer, that grows to sizes brute force can't handle, and can run on IBM quantum hardware with the same code.”</div>
+
+<h2>5 · Self-healing with only one relay</h2>
+<p>We own one relay, so we show multi-hop healing in a simulator that uses the same rules as the firmware. The dashboard draws it on the real map with the relays QAOA chose.</p>
+<ol><li><b>Beacon</b>: every 30 s, each node says “I am N hops from the gateway”.</li>
+<li><b>Neighbour table</b>: a neighbour silent for 90 s is dropped.</li>
+<li><b>Gradient</b>: my hops = best neighbour + 1. The network redraws its own map after any loss.</li>
+<li><b>Closer-only forwarding</b>: pass the SOS only to a neighbour closer to the gateway, which must ACK.</li>
+<li><b>No ACK in 2 s</b>: try the next-best neighbour. This is the healing.</li>
+<li><b>Store and carry</b>: no route at all → keep the SOS until a route returns. Nothing is dropped.</li></ol>
+<p>Scenario result: <b>40/40 delivered with healing vs 6/40 on a fixed route</b>; zero SOS lost while cut off. Team simulator: 119/119 vs 29/119.</p>
+<p><b>With our real relay:</b> one hop is real (node → relay → gateway); the chain of many relays is the simulated part.</p>
+
+<h2>6 · Is the dashboard offline? Which parts need internet?</h2>
+<table><tr><th>Part</th><th>Internet?</th></tr>
+<tr><td>Survivor SOS page, rescuer node, LoRa, gateway</td><td><b>Never.</b> All local radio.</td></tr>
+<tr><td>Command server, inbox, alerts, voice, AI model, compression demo, QAOA (browser), self-healing</td><td><b>No.</b> Runs on the laptop; fonts, map library and ward boundaries are bundled.</td></tr>
+<tr><td>Street-map background tiles</td><td><b>Yes</b>, when online. Offline the map still shows real ward boundaries, heatmap, SOS and hospitals. Production: pre-download (cache) tiles for the district.</td></tr>
+<tr><td>Qiskit button</td><td><b>No</b> at run time. It needs <code>pip install qiskit qiskit-aer</code> once beforehand.</td></tr>
+<tr><td>Sending records to SACHET / state control room / 108</td><td><b>Only if any backhaul exists</b>: a satellite terminal, surviving fibre, or restored cellular. <span class="tag t-prop">PROPOSED</span></td></tr></table>
+
+<h2>7 · Do we need hospitals? How does data reach them?</h2>
+<p><b>No. The core loop works without any hospital connection.</b> Hospitals and ambulances benefit in three ways:</p>
+<ol><li><b>Phone contacts on the map</b>: tap a hospital to get its published numbers and distance, for the commander to call (satellite or restored phone).</li>
+<li><b>Viewer role on the laptop's Wi-Fi</b>: an ambulance crew or field hospital nearby opens <code>/command?viewer=1</code> on any phone and sees the live, read-only inbox.</li>
+<li><b>CAP export</b> <span class="tag t-prop">PROPOSED</span>: each SOS can be downloaded as a <b>CAP 1.2</b> record (Common Alerting Protocol, the format India's SACHET uses). When backhaul exists, the laptop forwards these to state control rooms and the 108 service.</li></ol>
+
+<h2>8 · Judge Q&A, short answers</h2>
+<div class="qa">
+<b>No phone, or phone dead?</b><p>Nothing can transmit, and no network can hear it. The node's push button sends a one-press SOS for anyone a rescuer finds. Dogs, radar and thermal cameras find the rest, and their findings travel over our network.</p>
+<b>How do survivors know to join?</b><p>Rescuers shout it, it's the open network at the top of the list, and it can go in pre-disaster drills and the official alert SMS.</p>
+<b>Range?</b><p>Phone to node: tens of metres of Wi-Fi, which is why rescuers carry the node in. Node to node: typically 1–5 km on LoRa in cities (published typical values, not yet measured by us).</p>
+<b>Is 433 MHz legal?</b><p>The demo runs at low power. Production moves to India's 865–867 MHz licence-free band; it's a one-line firmware change.</p>
+<b>Security / fake SOS?</b><p>The prototype is unencrypted. Roadmap: a per-deployment AES key plus an authentication tag on every packet. No names or numbers are collected.</p>
+<b>How is this different from Meshtastic / Project OWL?</b><p>Any phone with no app; a closed Read/Dispatch loop to the survivor; AI compression; relay planning; and a working command dashboard.</p>
+<b>Why quantum at all?</b><p>The radios are classical and must be. Quantum belongs where the hard maths is: planning relays at city scale. We show a correct, verified formulation today.</p>
+<b>Is the AI really trained?</b><p>Yes. The training script and data generator are in the repo, it retrains in 3 seconds, and the accuracy is measured on wording it never saw.</p>
+</div>
+</body></html>

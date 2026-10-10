@@ -1,0 +1,7 @@
+@import url('fonts/fonts.css');
+:root{--ink:#0c1424;--ink2:#18233a;--paper:#ffffff;--soft:#f3f6fb;--line:#dfe6f1;--mut:#5b6a82;--red:#e8304f;--org:#f08a00;--grn:#12a865;--cyan:#1593d6;--vio:#6b4fe0;--f:'Sora',system-ui,sans-serif;--m:'JetBrains Mono',ui-monospace,monospace}
+*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{margin:0;font-family:var(--f);color:var(--ink);background:#fff}
+.mono{font-family:var(--m)}
+.tag{display:inline-block;font:700 10px var(--m);letter-spacing:.08em;padding:3px 8px;border-radius:5px}
+.t-real{background:#dff6ea;color:#0b7a48}.t-sim{background:#ece6ff;color:#5133c4}.t-prop{background:#fff1d6;color:#9a5a00}.t-emu{background:#ffe3e8;color:#b0153a}
