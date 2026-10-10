@@ -46,6 +46,17 @@ def lan_ip():
         s.close()
 
 
+def all_ips():
+    ips = set()
+    try:
+        for info in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET):
+            ips.add(info[4][0])
+    except OSError:
+        pass
+    ips.add(lan_ip())
+    return sorted(i for i in ips if not i.startswith("127."))
+
+
 def emit(kind, **data):
     with LOCK:
         S["seq"] += 1
@@ -285,7 +296,10 @@ if __name__ == "__main__":
     print("=" * 62)
     print("  VOID-NAV command server ·", "LIVE gateway on " + a.serial if a.serial else "LoRa link EMULATED (no hardware)")
     print(f"  Command dashboard : http://localhost:{a.port}/command")
-    print(f"  Survivor SOS page : http://{ip}:{a.port}/        (phone on the same hotspot)")
+    print("  Survivor SOS page - try these on the phone (same hotspot/Wi-Fi):")
+    for x in all_ips():
+        print(f"      http://{x}:{a.port}/")
+    print("  Phone hotspot? The laptop's address usually starts 192.168.43. / 172.20.10. / 10.")
     print(f"  Rescuer field view: http://{ip}:{a.port}/command  (on a phone)")
     print("=" * 62)
     try:
