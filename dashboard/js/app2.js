@@ -17,7 +17,8 @@ const _kx = Z.toXZ(Z.C0.lat, Z.C0.lon + 1).x, _kz = -Z.toXZ(Z.C0.lat + 1, Z.C0.l
 const ll = (x, z) => [Z.C0.lat - z / _kz, Z.C0.lon + x / _kx];
 const llN = n => [n.lat, n.lon];
 const map = Lf.map('three', { zoomControl: true, attributionControl: true, preferCanvas: false, zoomSnap: .25 }).setView([Z.C0.lat, Z.C0.lon], 14);
-Lf.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 19, attribution: '© OpenStreetMap contributors © CARTO' }).addTo(map);
+const esri = (n, o = {}) => Lf.tileLayer(`https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/${n}/MapServer/tile/{z}/{y}/{x}`, { maxZoom: 16, attribution: 'Tiles © Esri, HERE, Garmin, © OpenStreetMap contributors', ...o });
+esri('World_Dark_Gray_Base').addTo(map); esri('World_Dark_Gray_Reference', { pane: 'shadowPane', opacity: .9 }).addTo(map);
 new ResizeObserver(() => map.invalidateSize()).observe($('#three'));
 // whole city wards (context) + disaster-zone wards
 Z.GEO.ghmc.forEach(w => Lf.polygon(w.c.map(c => [c[1], c[0]]), { color: '#2f6f9a', weight: .8, opacity: .55, fillOpacity: .02, interactive: false }).addTo(map));
