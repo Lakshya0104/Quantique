@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import semcode as sc  # noqa: E402  (team's SemCode codebook + airtime maths)
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-PORT, RETRY_S, MAX_TRIES, HEADER = 8000, 2.5, 8, 10
+PORT, RETRY_S, MAX_TRIES, HEADER = 8800, 2.5, 8, 10
 LOCK = threading.RLock()
 T0 = time.time()                          # "event" time for minutes-since-event
 NODE = {"id": "N1", "name": "Beacon node N1", "lat": 17.4127, "lon": 78.5083, "where": "Musheerabad (configured, no GPS)"}
@@ -288,4 +288,9 @@ if __name__ == "__main__":
     print(f"  Survivor SOS page : http://{ip}:{a.port}/        (phone on the same hotspot)")
     print(f"  Rescuer field view: http://{ip}:{a.port}/command  (on a phone)")
     print("=" * 62)
-    ThreadingHTTPServer(("0.0.0.0", a.port), H).serve_forever()
+    try:
+        srv = ThreadingHTTPServer(("0.0.0.0", a.port), H)
+    except OSError:
+        print(f"\n  Port {a.port} is busy. Close the other server window (or run: python server.py --port 8801)\n")
+        input("Press Enter to exit"); sys.exit(1)
+    srv.serve_forever()

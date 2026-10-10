@@ -121,9 +121,9 @@ textarea{width:100%;min-height:76px;border-radius:14px;border:1px solid var(--li
     <div class="st" data-s="READ" style="--c:var(--org)"><span class="dot">✓✓</span><span><b>Read by rescuer</b><small>A person has seen your SOS</small></span></div>
     <div class="st" data-s="DISPATCHED" style="--c:var(--grn)"><span class="dot">➜</span><span><b>Help dispatched</b><small id="teaml">A rescue team is on the way</small></span></div>
   </div>
-  <div class="leds"><div class="led org" id="lo"><b></b>BEACON · ORANGE</div><div class="led grn" id="lg"><b></b>BEACON · GREEN</div></div>
   <div id="replies" style="display:grid;gap:10px"></div>
-  <div class="card">Sent as a 5-byte meaning code: <code id="tok"></code><br><span id="rep"></span></div>
+  <div class="card" id="summary"></div>
+  <div class="card" style="color:var(--fg)"><b>While you wait</b><br>Stay where you are · save phone battery · tap metal or a pipe if you hear rescuers · keep this page open</div>
   <button id="retry" hidden>Try sending again</button>
   <button id="again">Send another SOS</button>
 </section>
@@ -187,11 +187,12 @@ $('#send').onclick = async () => { if (!F.cat) { $('#err').textContent = L[F.lan
   const body = { cat: F.cat, people: F.people, injured: F.injured, bleeding: F.bleeding, pos: F.pos || 'UNKNOWN', vuln: [...F.vuln], needs: [...F.needs], note: $('#note').value.trim(), lang: F.lang };
   try { const r = await fetch('/api/sos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); const j = await r.json();
     F.id = j.id; try { sessionStorage.setItem('voidnav_id', j.id); } catch (e) {}
-    $('#tok').textContent = j.token.match(/../g).join(' '); $('#rep').textContent = j.report; last = null; seenReplies = 0; $('#replies').innerHTML = '';
+    $('#summary').textContent = 'You reported: ' + summary(); last = null; seenReplies = 0; $('#replies').innerHTML = '';
     show('s4'); poll(); }
   catch (e) { $('#err').textContent = 'Beacon not reachable. Stay connected to VOID-NAV SOS and try again.'; }
   $('#send').disabled = false; };
 
+const summary = () => { const t = L[F.lang]; return [t.cats[F.cat], F.people + ' ' + t.ppl.toLowerCase(), F.injured === 'yes' ? t.inj.replace('?', '') : '', F.pos ? t.pos[F.pos] : '', [...F.needs].map(n => t.needs[n]).join(', ')].filter(Boolean).join(' · '); };
 const ORDER = ['SENDING', 'DELIVERED', 'READ', 'DISPATCHED'];
 let last = null, seenReplies = 0, pt = null;
 async function poll() { clearTimeout(pt); if (!F.id) return;
@@ -199,14 +200,12 @@ async function poll() { clearTimeout(pt); if (!F.id) return;
     const j = await r.json(); paint(j); } catch (e) {}
   pt = setTimeout(poll, 1000); }
 function paint(j) { const st = j.state, idx = st === 'FAILED' ? 0 : ORDER.indexOf(st);
-  $('#sid').textContent = 'SOS ' + j.id; if (!$('#tok').textContent) { $('#tok').textContent = j.token.match(/../g).join(' '); $('#rep').textContent = j.report; }
+  $('#sid').textContent = 'SOS ' + j.id; 
   document.querySelectorAll('.st').forEach((e, i) => { e.classList.toggle('on', i <= idx); e.classList.toggle('cur', i === idx && st !== 'DISPATCHED'); });
   $('#tryl').textContent = st === 'SENDING' ? `Try ${Math.max(1, j.tries)} of ${j.max} · waiting for command post` : st === 'FAILED' ? `Not delivered yet after ${j.max} tries` : `Delivered on try ${j.tries}`;
   const H = { SENDING: ['Sending…', 'Keep this page open. The beacon retries until command answers.'], DELIVERED: ['Delivered', 'The command post has your SOS. Stay where you are.'], READ: ['Read by rescuer', 'A person has seen your SOS.'], DISPATCHED: ['Help is on the way', 'Stay where you are. Make noise when you hear the team.'], FAILED: ['Not delivered yet', 'The beacon could not reach command. Tap "Try sending again".'] }[st];
   $('#headline').firstChild.textContent = H[0]; $('#subline').textContent = H[1];
   if (j.team) $('#teaml').textContent = j.team + ' is on the way';
-  $('#lo').className = 'led org ' + (st === 'SENDING' ? 'fast' : st === 'DELIVERED' ? 'slow' : st === 'READ' || st === 'DISPATCHED' ? 'solid' : '');
-  $('#lg').className = 'led grn ' + (st === 'DISPATCHED' ? 'solid' : '');
   $('#retry').hidden = st !== 'FAILED';
   if (last && last !== st) { if (st === 'DELIVERED') { tone([[660, .12], [880, .15]]); buzz(120); flash('#43c6ff'); }
     if (st === 'READ') { tone([[880, .15], [880, .15], [1175, .3]]); buzz([150, 80, 150]); flash('#ff9f1c'); }
@@ -215,6 +214,6 @@ function paint(j) { const st = j.state, idx = st === 'FAILED' ? 0 : ORDER.indexO
   if (j.replies.length > seenReplies) { j.replies.slice(seenReplies).forEach(r => $('#replies').insertAdjacentHTML('beforeend', `<div class="reply"><small>MESSAGE FROM RESCUE COMMAND</small>${r.text.replace(/[<>&]/g, '')}</div>`));
     if (seenReplies || last) { tone([[1046, .15], [1318, .3]]); buzz([200, 100, 200]); flash('#2fe08a'); } seenReplies = j.replies.length; } }
 $('#retry').onclick = async () => { await fetch('/api/retry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: F.id }) }); poll(); };
-$('#again').onclick = () => { clearTimeout(pt); F.id = null; try { sessionStorage.removeItem('voidnav_id'); } catch (e) {} F.cat = null; F.pos = null; F.vuln.clear(); F.needs.clear(); F.people = 1; $('#pv').textContent = 1; $('#note').value = ''; $('#tok').textContent = ''; render(); show('s3'); };
+$('#again').onclick = () => { clearTimeout(pt); F.id = null; try { sessionStorage.removeItem('voidnav_id'); } catch (e) {} F.cat = null; F.pos = null; F.vuln.clear(); F.needs.clear(); F.people = 1; $('#pv').textContent = 1; $('#note').value = ''; render(); show('s3'); };
 </script>
 </body></html>

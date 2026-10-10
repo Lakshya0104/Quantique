@@ -7,9 +7,9 @@ Python 3 only, no internet, no installs.
 
 1. Turn on your **phone hotspot** and connect the **laptop** to it, or put both on the same Wi-Fi.
 2. Double-click `start.bat` (Windows) or run `./start.sh`.
-   The dashboard opens at `http://localhost:8000/command`.
+   The dashboard opens at `http://localhost:8800/command`.
    Click **Start console** to enable the alarm sound and voice.
-3. The black server window prints the phone link, e.g. `http://192.168.43.12:8000/`.
+3. The black server window prints the phone link, e.g. `http://192.168.43.12:8800/`.
    Open it on the phone.
    If Windows asks, click **Allow access** for Python on Private networks.
 
@@ -31,7 +31,7 @@ Python 3 only, no internet, no installs.
   - Semantic meter, using your real SOS.
   - Self-healing simulator: click relays to kill or revive them.
   - **Plan relays (QAOA)**.
-- **Field view:** open `http://<laptop-IP>:8000/command` on a rescuer's phone. It shows the inbox with Read / Dispatch only.
+- **Field view:** open `http://<laptop-IP>:8800/command` on a rescuer's phone. It shows the inbox with Read / Dispatch only.
 
 ## What is real here
 
