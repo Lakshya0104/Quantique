@@ -251,7 +251,7 @@ boot();
 document.addEventListener('click', e => { const o = e.target.closest('[data-open]'), s = e.target.closest('[data-sc]');
   if (o) { $$('#nav button')[0].click(); open(o.dataset.open); }
   if (s) { e.preventDefault(); semDemo(s.dataset.sc); } });
-if (VIEWER) { $('#plug').remove(); $('#clear').remove(); document.body.classList.add('viewer'); const b = document.createElement('div'); b.className = 'vbanner'; b.innerHTML = 'VIEWER ROLE · ambulance crew / field hospital · read-only <span class="tag t-mock">PROPOSED</span>'; document.body.prepend(b); }
+if (VIEWER) { $('#plug').style.display = 'none'; $('#clear').style.display = 'none'; document.body.classList.add('viewer'); const b = document.createElement('div'); b.className = 'vbanner'; b.innerHTML = 'VIEWER ROLE · ambulance crew / field hospital · read-only <span class="tag t-mock">PROPOSED</span>'; document.body.prepend(b); }
 
 /* ---------- semantic compression demo (real numbers from this SOS) ---------- */
 const FCOL = { category: '#ff3b5c', injured: '#ff9f1c', bleeding: '#ff9f1c', people: '#f6d04d', position: '#f6d04d', vulnerable: '#a991ff', needs: '#43c6ff', urgency: '#ff3b5c', minutes: '#8b9ab2' };
