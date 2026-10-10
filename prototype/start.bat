@@ -1,7 +1,7 @@
 @echo off
 cd /d "%~dp0"
-echo Starting VOID-NAV command server...
+echo Checking pyserial...
+python -c "import serial" 2>nul || python -m pip install pyserial
 start "" "http://localhost:8800/command"
-python server.py %*
-if errorlevel 1 py server.py %*
+python server.py --node %*
 pause

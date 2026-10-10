@@ -33,15 +33,19 @@ async function poll() { try { const j = await (await fetch('/api/feed?since=' + 
   setTimeout(poll, 700); }
 function onEvent(e) { if (e.msg && typeof e.msg === 'string') feed(e.msg);
   if (e.kind === 'sos') { const m = e.msg; S.msgs.set(m.id, m); feed(`<b>SOS ${m.id}</b> landed · P${m.prio} · ${m.decoded.cat}`);
-    if (m.prio === 0) { siren(); speak(m); toast(`<small>CRITICAL · BEACON N1 · ${m.live ? 'LIVE LoRa' : 'EMULATED LoRa'}</small><b>${title(m)}</b>${esc(m.note || m.report)}`); }
+    if (m.prio === 0) { siren(); speak(m); toast(`<small>CRITICAL · BEACON N1 · ${m.live ? 'LIVE · SOS Node1' : 'EMULATED LoRa'}</small><b>${title(m)}</b>${esc(m.note || m.report)}`); }
     else toast(`<small>${PL[m.prio]} · BEACON N1</small><b>${title(m)}</b>${esc(m.note || '')}`, 'info');
-    render(); lab(m); mapCount(); }
+    render(); lab(m); drawMapData(); }
   if (e.kind === 'status' || e.kind === 'status_ack' || e.kind === 'status_fail') refresh(e.id);
   if (e.kind === 'clear') { S.msgs.clear(); S.sel = null; render(); }
   if (e.kind === 'node' && e.id) nodeLeds(); }
 async function refresh(id) { const j = await (await fetch('/api/state')).json(); j.msgs.forEach(m => { if (S.msgs.has(m.id)) S.msgs.set(m.id, m); }); render(); }
-function setLink(up, mode) { S.link = up; S.mode = mode; $('#link').classList.toggle('down', !up); $('#linkTxt').textContent = up ? 'LoRa link up' : 'Gateway unplugged';
-  $('#plug').textContent = up ? 'Unplug gateway' : 'Plug gateway back in'; $('#modeTag').textContent = mode; $('#modeTag').className = 'tag ' + (mode === 'LIVE' ? 't-real' : 't-emu'); }
+function setLink(up, mode) { const live = mode === 'LIVE'; S.link = up; S.mode = mode; $('#link').classList.toggle('down', !up);
+  $('#linkTxt').textContent = live ? (up ? 'SOS Node1 online' : 'SOS Node1 not connected') : (up ? 'LoRa link up' : 'Gateway unplugged');
+  $('#modeTag').textContent = live ? 'LIVE NODE' : 'EMULATED'; $('#modeTag').className = 'tag ' + (live ? 't-real' : 't-emu');
+  $('#plug').hidden = live; $('#btn').hidden = live; $('#boardTag').textContent = live ? 'LIVE' : 'EMULATED'; $('#boardTag').className = 'tag ' + (live ? 't-real' : 't-emu');
+  $('#boardName').textContent = live ? 'SOS Node1 (ESP32 on USB)' : 'Beacon node N1';
+  $('#plug').textContent = up ? 'Unplug gateway' : 'Plug gateway back in'; }
 $('#plug').onclick = () => post('/api/link', { up: !S.link });
 $('#btn').onclick = () => { post('/api/button'); feed('<b>Push button pressed</b> on beacon N1'); };
 $('#clear').onclick = () => post('/api/clear');
@@ -73,11 +77,11 @@ function detail() { const m = S.msgs.get(S.sel); const D = $('#detail');
   if (!m) { D.innerHTML = `<div class="empty" style="font-size:16px"><b>Select an SOS.</b><br>Opening a card marks it <b style="color:var(--org)">READ</b> and the survivor's phone is told over LoRa. Dispatch is a separate step.</div>`; return; }
   const d = m.decoded, st = dstate(m), age = Math.round((Date.now() / 1000 - m.t));
   const conf = m.status_confirmed === true ? '<span class="ok">✓ confirmed at node</span>' : m.status_confirmed === false ? '<span style="color:var(--red)">status not confirmed at node</span>' : m.down?.length ? '<span style="color:var(--org)">sending to node…</span>' : '';
-  D.innerHTML = `<div class="dt"><div><span class="mono" style="color:${PC[m.prio]};font-size:13px">${PL[m.prio]} ${d.urgency}/15 · SOS ${m.id}</span> <span class="tag ${m.live ? 't-real' : 't-emu'}">${m.live ? 'LIVE LoRa' : 'EMULATED LoRa'}</span>
-      <h2>${title(m)}</h2><div class="meta">Beacon N1 · Musheerabad · ${age < 60 ? age + ' s' : Math.round(age / 60) + ' min'} ago · ${m.lang.toUpperCase()}</div></div><span class="pill s-${st}" style="font-size:13px;padding:6px 12px">${st}</span></div>
+  D.innerHTML = `<div class="dt"><div><span class="mono" style="color:${PC[m.prio]};font-size:13px">${PL[m.prio]} ${d.urgency}/15 · SOS ${m.id}</span> <span class="tag ${m.live ? 't-real' : 't-emu'}">${m.live ? 'LIVE · SOS Node1' : 'EMULATED LoRa'}</span>
+      <h2>${title(m)}</h2><div class="meta">${m.live ? 'SOS Node1' : 'Beacon N1'} · Musheerabad · ${age < 60 ? age + ' s' : Math.round(age / 60) + ' min'} ago · ${m.lang.toUpperCase()}</div></div><span class="pill s-${st}" style="font-size:13px;padding:6px 12px">${st}</span></div>
     ${m.note ? `<div class="words"><small>SURVIVOR'S OWN WORDS</small>“${esc(m.note)}”</div>` : ''}
     <div class="rep"><small>DECODED FROM 5-BYTE SEMCODE TOKEN</small>${esc(m.report)}</div>
-    <div class="kv"><div><label>People</label><b>${d.people}</b></div><div><label>Position</label><b style="font-size:14px">${d.pos.replace('_', ' ')}</b></div><div><label>RSSI / SNR</label><b>${m.rssi ?? '—'} <small style="font-size:12px">dBm</small> / ${m.snr ?? '—'}</b></div><div><label>Hops · try</label><b>${m.hops ?? '—'} · ${m.tries}</b></div></div>
+    <div class="kv"><div><label>People</label><b>${d.people}</b></div><div><label>Position</label><b style="font-size:14px">${d.pos.replace('_', ' ')}</b></div><div><label>${m.live ? 'Phone → node Wi-Fi RSSI' : 'RSSI / SNR (emulated)'}</label><b>${m.rssi ?? '—'} <small style="font-size:12px">dBm</small>${m.live ? '' : ' / ' + (m.snr ?? '—')}</b></div><div><label>Hops · try</label><b>${m.hops ?? '—'} · ${m.tries}</b></div></div>
     <div class="mono" style="font-size:12px;color:var(--mut)">TOKEN <span style="color:var(--vio);font-size:15px">${m.token.match(/../g).join(' ')}</span> · ${m.meter.token_bytes} B on air (${m.meter.token_ms} ms) vs ${m.meter.text_bytes} B as text (${m.meter.text_ms} ms)</div>
     <div class="bits">${bits(m.token)}</div>
     <div class="act">${m.state === 'DISPATCHED' ? `<b class="ok">✓ Dispatched: ${esc(m.team)}</b>` : `<select id="team"><option>NDRF Team 2</option><option>GHMC DRF Team 1</option><option>Fire & Emergency Unit 4</option><option>108 Ambulance TS-108-021</option></select><button class="pri" id="disp">Dispatch</button>`}</div>
@@ -91,16 +95,33 @@ function detail() { const m = S.msgs.get(S.sel); const D = $('#detail');
   $$('.qr').forEach(b => b.onclick = () => rs(b.textContent)); }
 
 /* ---------- map ---------- */
-let map;
-async function initMap() { if (map) { map.invalidateSize(); return; } const { GEO } = await import('./lib/geo.js');
-  map = L.map('mapEl', { zoomSnap: .25, attributionControl: true, zoomControl: false }); L.control.zoom({ position: 'topright' }).addTo(map); map.setView([17.4127, 78.5083], 14);
-  // street layer needs internet; ward boundaries below work offline
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16, attribution: 'Tiles © Esri · wards: GHMC / datameet' }).addTo(map);
-  GEO.ghmc.forEach(w => L.polygon(w.c.map(c => [c[1], c[0]]), { color: '#2a5b80', weight: .7, fillOpacity: .03, interactive: false }).addTo(map));
-  const zl = L.featureGroup(GEO.zone.map(w => L.polygon(w.c.map(c => [c[1], c[0]]), { color: '#43c6ff', weight: 2, fillColor: '#0f2a44', fillOpacity: .3 }).bindTooltip(w.n.replace(/^ward\s*\d+\s*/i, '').replace(/^\d+\s*/, ''), { permanent: true, direction: 'center', className: 'wl' }))).addTo(map);
-  map.fitBounds(zl.getBounds(), { paddingTopLeft: [330, 20] });
-  L.marker([17.4127, 78.5083], { icon: L.divIcon({ className: '', html: '<div class="npin"><b></b><span id="npinTxt">Beacon N1</span></div>', iconSize: [0, 0] }) }).addTo(map); mapCount(); }
-function mapCount() { const n = S.msgs.size, ppl = [...S.msgs.values()].reduce((a, m) => a + (m.people_n || 1), 0); $('#mapCount').textContent = `${n} SOS at N1 · ~${ppl} people reported`; const t = $('#npinTxt'); if (t) t.textContent = `Beacon N1 · ${n} SOS · ~${ppl} people`; }
+let map, heatL, pinL;
+const NODE_LL = [17.4127, 78.5083];
+async function initMap() { if (map) { map.invalidateSize(); drawMapData(); return; }
+  const { GEO } = await import('./lib/geo.js'); const Z = await import('./lib/zone.js');
+  map = L.map('mapEl', { zoomSnap: .25, zoomControl: false, attributionControl: true }); L.control.zoom({ position: 'topright' }).addTo(map);
+  // street layers need internet (no API key). Ward boundaries below are bundled and always work offline.
+  const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, className: 'darktiles', attribution: '© OpenStreetMap contributors' });
+  const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16, attribution: 'Tiles © Esri' });
+  const esriLbl = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16, pane: 'overlayPane' });
+  let errs = 0, ok = 0; osm.on('tileload', () => ok++); osm.on('tileerror', () => { if (++errs > 6 && !ok && map.hasLayer(osm)) { map.removeLayer(osm); esri.addTo(map); esriLbl.addTo(map); $('#mapNote').textContent = 'Street map: Esri (OpenStreetMap unreachable).'; } });
+  osm.addTo(map);
+  L.control.layers({ 'Street map (OpenStreetMap)': osm, 'Dark street map (Esri)': esri, 'Offline: wards only': L.layerGroup() }, null, { position: 'topright' }).addTo(map);
+  GEO.ghmc.forEach(w => L.polygon(w.c.map(c => [c[1], c[0]]), { color: '#43c6ff', weight: .8, opacity: .5, fillOpacity: 0, interactive: false }).addTo(map));
+  const zl = L.featureGroup(GEO.zone.map(w => L.polygon(w.c.map(c => [c[1], c[0]]), { color: '#43c6ff', weight: 2.5, fillColor: '#43c6ff', fillOpacity: .07 })
+    .bindTooltip(w.n.replace(/^ward\s*\d+\s*/i, '').replace(/^\d+\s*/, ''), { permanent: true, direction: 'center', className: 'wl' }))).addTo(map);
+  Z.HOSPITALS.forEach(h => L.marker([h.lat, h.lon], { icon: L.divIcon({ className: '', html: `<div class="hpin"><b>✚</b><span>${h.name}</span></div>`, iconSize: [0, 0] }) }).addTo(map));
+  map.fitBounds(zl.getBounds(), { paddingTopLeft: [340, 30], paddingBottomRight: [30, 30] });
+  heatL = L.layerGroup().addTo(map); pinL = L.layerGroup().addTo(map);
+  L.marker(NODE_LL, { icon: L.divIcon({ className: '', html: '<div class="npin"><b></b><span id="npinTxt">SOS Node1</span></div>', iconSize: [0, 0] }), zIndexOffset: 1000 }).addTo(map);
+  drawMapData(); }
+function drawMapData() { mapCount(); if (!map) return; heatL.clearLayers(); const ms = [...S.msgs.values()];
+  const ppl = ms.reduce((a, m) => a + (m.people_n || 1), 0), crit = ms.filter(m => m.prio === 0).length;
+  if (ms.length) [600, 380, 200].forEach((r, i) => L.circle(NODE_LL, { radius: r, stroke: false, fillColor: ['#f6d04d', '#ff9f1c', '#ff3b5c'][i], fillOpacity: Math.min(.45, .12 + ppl * .015 + crit * .03), interactive: false }).addTo(heatL));
+  L.circle(NODE_LL, { radius: 120, color: '#43c6ff', weight: 1, dashArray: '4 6', fill: false, interactive: false }).bindTooltip('SOS Node1 Wi-Fi reach (~30–100 m)').addTo(heatL); }
+function mapCount() { const ms = [...S.msgs.values()], n = ms.length, ppl = ms.reduce((a, m) => a + (m.people_n || 1), 0), crit = ms.filter(m => m.prio === 0).length;
+  $('#mapCount').innerHTML = `<b style="color:var(--fg);font-size:22px">${n}</b> SOS · <b style="color:var(--red)">${crit}</b> critical · ~${ppl} people`;
+  const t = $('#npinTxt'); if (t) t.textContent = `SOS Node1 · ${n} SOS · ~${ppl} people`; }
 
 /* ---------- lab · semantic meter ---------- */
 function lab(m) { const r = m ? m.meter : { text_bytes: 102, token_bytes: 15, text_ms: 554, token_ms: 164.9 };

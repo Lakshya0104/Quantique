@@ -101,7 +101,7 @@ svg text{font-family:var(--m)}
 .mapcard{position:absolute;left:16px;top:16px;z-index:500;width:300px;padding:14px 16px;font-size:13px;color:var(--mut);line-height:1.5}
 .mapcard h3{margin:0 0 6px;color:var(--fg);font-size:17px}
 .wl{background:none!important;border:0!important;box-shadow:none!important;color:#8fc6ee;font:700 10px var(--f);letter-spacing:.12em;text-transform:uppercase;text-shadow:0 0 4px #000}.wl:before{display:none}
-.npin{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;display:flex;align-items:center;gap:8px}
+.npin{position:absolute;transform:translate(-9px,-9px);white-space:nowrap;display:flex;align-items:center;gap:8px}
 .npin b{width:18px;height:18px;border-radius:4px;background:var(--cyan);box-shadow:0 0 16px var(--cyan);animation:pin 1.6s infinite}
 @keyframes pin{50%{box-shadow:0 0 0 10px rgba(67,198,255,0),0 0 22px var(--cyan)}}
 .npin span{font:700 12px var(--f);background:rgba(7,11,19,.9);border:1px solid var(--line);border-radius:8px;padding:4px 8px}
@@ -121,6 +121,10 @@ table{width:100%;border-collapse:collapse;font-size:15px}td,th{text-align:left;p
 @media (max-width:760px){header{gap:8px;padding:0 10px}nav button:not([data-t=inbox]),.clock,.brand span{display:none}.link span{display:none}
  #inbox.on{display:block;padding:10px}#inbox .side{display:none}#list{max-height:none}#detail{max-height:none;margin-top:12px;padding:16px}.kv{grid-template-columns:1fr 1fr}.toast{width:calc(100vw - 36px)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.darktiles{filter:invert(1) hue-rotate(190deg) brightness(.85) contrast(.9) saturate(.5)}
+.hpin{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;white-space:nowrap}.hpin b{width:20px;height:20px;border-radius:5px;background:#2fe08a;color:#04120a;display:grid;place-items:center;font-size:13px}.hpin span{font:700 12px var(--f);color:#9ff0c5;text-shadow:0 0 4px #000,0 0 6px #000}
+.leaflet-control-layers{background:var(--p1)!important;color:var(--fg)!important;border:1px solid var(--line)!important}
+.leaflet-control-layers-toggle{background-image:none!important;width:auto!important;padding:0 10px;line-height:36px;color:var(--fg)!important;font:600 12px var(--f)}.leaflet-control-layers-toggle:after{content:'Map layers'}
 </style></head><body>
 <div id="sound"><div><h2>VOID-NAV Command</h2><p>Click to start the console. This enables the alarm sound and voice alerts for critical SOS.</p><button class="pri" id="go">Start console</button></div></div>
 <header>
@@ -138,7 +142,7 @@ table{width:100%;border-collapse:collapse;font-size:15px}td,th{text-align:left;p
   <div class="panel"><div class="ph"><span>SOS inbox · critical first</span><button id="clear" style="padding:5px 10px;font-size:12px">Clear demo</button></div><div id="list"></div></div>
   <div class="panel" id="detail"></div>
   <div class="side">
-    <div class="panel board"><div class="ph" style="padding:0 0 10px">Beacon node N1 <span class="tag t-emu">EMULATED</span></div>
+    <div class="panel board"><div class="ph" style="padding:0 0 10px"><span id="boardName">Beacon node N1</span> <span class="tag t-emu" id="boardTag">EMULATED</span></div>
       <div class="pcb"><span class="chip">ESP32</span><span class="chip">RA-02 433 MHz</span>
         <div class="leds2"><div class="l org" id="lO"><b></b>ORANGE</div><div class="l grn" id="lG"><b></b>GREEN</div></div>
         <div style="margin-top:10px;color:#7fb9a1" id="ledTxt">Idle</div></div>
@@ -148,7 +152,7 @@ table{width:100%;border-collapse:collapse;font-size:15px}td,th{text-align:left;p
 </section>
 <!-- MAP -->
 <section class="tab" id="map"><div id="mapEl"></div>
-  <div class="panel mapcard"><h3>Musheerabad, Hyderabad</h3>12 GHMC wards (real boundaries). Beacon N1 position is <span class="tag t-mock">CONFIGURED</span> (no GPS module). Survivor SOS arrive through N1.<br><br><span id="mapCount">0 SOS at N1</span></div></section>
+  <div class="panel mapcard"><h3>Musheerabad, Hyderabad</h3><span id="mapCount">0 SOS</span><br><br>12 GHMC wards, real boundaries. SOS Node1 position is <span class="tag t-mock">CONFIGURED</span> (no GPS module); heat = SOS × people at the node. Green ✚ = hospitals.<br><span id="mapNote" style="font-size:12px">Street map needs internet; wards work offline.</span></div></section>
 <!-- LAB -->
 <section class="tab" id="lab">
   <div class="panel"><div class="lab-h"><h3>Pillar 1 · Semantic compression</h3><p>Send the meaning, not the words. SemCode 40-bit token, Semtech SX127x airtime at SF9 / 125 kHz / CR 4/5. Uses the latest SOS.</p></div>
@@ -173,7 +177,7 @@ table{width:100%;border-collapse:collapse;font-size:15px}td,th{text-align:left;p
   <tr><td>Survivor phone → Wi-Fi SOS page, no app, no internet</td><td><span class="tag t-real">REAL</span> the phone talks to this laptop over local Wi-Fi</td></tr>
   <tr><td>SemCode 5-byte token, keyword triage (en / hi / te), airtime maths</td><td><span class="tag t-real">REAL</span> team code (semcode.py) runs on every SOS</td></tr>
   <tr><td>Delivered / Read / Dispatched / Reply back to the phone, alarm tone</td><td><span class="tag t-real">REAL</span> loop · over <span class="tag t-emu">EMULATED</span> LoRa today</td></tr>
-  <tr><td>LoRa transmission, retries, gateway ACK, RSSI / SNR</td><td><span class="tag t-emu">EMULATED</span> firmware rules in software; RSSI/SNR generated. LIVE with <code>--serial</code></td></tr>
+  <tr><td>Phone → SOS Node1 (ESP32 Wi-Fi + SOS page), node retries until ACK, phone Wi-Fi RSSI</td><td><span class="tag t-real">REAL</span> with the ESP32 connected</td></tr><tr><td>Node → command link</td><td><span class="tag t-emu">USB cable</span> stands in for the LoRa radio until the RA-02 is fitted; same messages and ACK rules</td></tr>
   <tr><td>Beacon LEDs and push button</td><td><span class="tag t-emu">EMULATED</span> on screen</td></tr>
   <tr><td>Multi-hop relays and self-healing</td><td><span class="tag t-sim">SIMULATED</span></td></tr>
   <tr><td>QAOA relay plan</td><td><span class="tag t-real">REAL</span> quantum circuit, exact statevector · demo map</td></tr>

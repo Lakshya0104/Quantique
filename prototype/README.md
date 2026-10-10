@@ -1,45 +1,58 @@
-# VOID-NAV prototype (Tech Horizon 2.0 demo)
+# VOID-NAV prototype · SOS Node1
 
-The survivor phone sends an SOS. The rescue command dashboard shows it. Read / Dispatch / Reply go back to the phone.
-Python 3 only, no internet, no installs.
+```
+Survivor phone ──Wi-Fi "SOS Node1"──► ESP32 (SOS page at 192.168.4.1)
+                                         │ USB cable (stands in for the LoRa radio)
+                                         ▼
+                              laptop: server.py ──► Command dashboard (SOS Inbox)
+       ◄──────── Delivered / Read / Dispatched / Reply go back the same way ────────
+```
 
-## Run
+## 1 · Flash the ESP32 (once)
 
-1. Turn on your **phone hotspot** and connect the **laptop** to it, or put both on the same Wi-Fi.
-2. Double-click `start.bat` (Windows) or run `./start.sh`.
-   The dashboard opens at `http://localhost:8800/command`.
-   Click **Start console** to enable the alarm sound and voice.
-3. The black server window prints the phone link, e.g. `http://192.168.43.12:8800/`.
-   Open it on the phone.
-   If Windows asks, click **Allow access** for Python on Private networks.
+1. Install the **Arduino IDE**.
+   - In **Preferences → Additional boards manager URLs**, add `https://espressif.github.io/arduino-esp32/package_esp32_index.json`.
+   - In **Boards Manager**, install **esp32 by Espressif**.
+2. Open `firmware/sos_node1/sos_node1.ino`. The `page.h` file next to it must stay in the same folder.
+3. Set **Tools → Board → ESP32 Dev Module** and **Tools → Port →** your ESP32's COM port.
+4. Click **Upload**. If it hangs on "Connecting…", hold the **BOOT** button on the ESP32 until upload starts.
+5. Optional check: open the Serial Monitor at 115200. It should show `# SOS Node1 up` and then a `{"ev":"hello"...}` line every 3 s.
+   **Close the Serial Monitor afterwards.** The laptop server needs that port.
 
-## The loop (playbook section 11)
+Optional parts (same pins as the LoRa firmware):
+- Orange LED: GPIO21 → 220 Ω → GND
+- Green LED: GPIO22 → 220 Ω → GND
+- Push button: GPIO13 ↔ GND
 
-| Phone (survivor) | Dashboard (command) |
-|---|---|
-| Tap **VOID-NAV SOS**, then the connecting animation and tick | |
-| Pick what happened, people, injured, bleeding, where, who, needs, note. **SEND SOS** | |
-| Sending, try 1 of 8 | Siren, voice alert, red card in **SOS Inbox** |
-| **Delivered** (beep) | Open the card: it becomes READ (locked) |
-| **Read by rescuer** (orange, beep, vibrate) | **Dispatch** with a team name |
-| **Help dispatched** (green, alarm) | **Send reply**, e.g. "Team arriving in 10 min" |
-| Reply pops up | |
+## 2 · Start the command dashboard
 
-- **Failure demo:** click **Unplug gateway**, then send from the phone. It stays at "Sending, try n of 8". Click **Plug gateway back in** and it shows Delivered.
-- **No-phone SOS:** use **Press beacon push-button** on the emulated beacon node.
-- **Network lab:**
-  - Semantic meter, using your real SOS.
-  - Self-healing simulator: click relays to kill or revive them.
-  - **Plan relays (QAOA)**.
-- **Field view:** open `http://<laptop-IP>:8800/command` on a rescuer's phone. It shows the inbox with Read / Dispatch only.
+- Keep the ESP32 plugged into the laptop by USB.
+- Double-click `start.bat`. The first run installs `pyserial`, which needs internet once.
+- The dashboard opens at `http://localhost:8800/command`.
+- Click **Start console**.
+- The top bar shows **SOS Node1 online · LIVE NODE**.
 
-## What is real here
+The laptop stays on its normal Wi-Fi. It does **not** join SOS Node1.
 
-- **SemCode** is the team's `semcode.py`, called on every SOS. The token, decoded report and airtime use the Semtech formula.
-- **QAOA:**
-  - `qaoa.js` is an exact statevector port of `quantum/qaoa_relays.py` (XY mixer, Dicke start, p = 3).
-  - It uses the angles the Qiskit run found, from `data/qaoa_result.json`.
-  - It reproduces Qiskit's P(optimum) of 21.08% to machine precision.
-- **LoRa link:** **EMULATED** while the boards are offline, using the firmware's retry / ACK / 8-try rules. RSSI and SNR are generated and labelled EMULATED.
-- **Real gateway:** with a gateway ESP32 on USB, run `python server.py --serial COM5`. This needs `pip install pyserial`.
-- **Storage:** every SOS and status change is stored in `voidnav.db` (SQLite).
+## 3 · Send from a phone
+
+1. On the phone, turn **mobile data off**, then join Wi-Fi **SOS Node1** (open, no password).
+2. The SOS page opens by itself. If it doesn't, open `http://192.168.4.1` in the browser.
+3. Tap **SOS Node1**, choose what happened, and tap **SEND SOS**.
+4. It appears in the dashboard **SOS Inbox** with a siren. Open it → the phone shows **Read**. **Dispatch** → **Help dispatched**. **Send reply** → it pops up on the phone.
+5. Failure demo: unplug the ESP32's USB. The phone stays at **Sending, try n of 8**. Plug it back in and it shows **Delivered**.
+
+## Without the ESP32
+
+`start_without_esp32.bat` runs the same dashboard with the LoRa link emulated in software. The phone then opens `http://<laptop-IP>:8800/`.
+
+## What is real
+
+- **Phone → ESP32 Wi-Fi → SOS page:** real.
+- **Delivery to the laptop:** real. The node retries until the laptop ACKs.
+- **Read / Dispatch / Reply back to the phone:** real.
+- **Phone Wi-Fi RSSI:** real, measured by the ESP32.
+- **LoRa:** the USB cable carries the same messages until the RA-02 is fitted.
+- **SemCode:** the team's `semcode.py`.
+- **QAOA:** exact port of `qaoa_relays.py`, reproducing Qiskit's 21.08%.
+- **Self-healing relays:** simulated.

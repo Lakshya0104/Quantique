@@ -94,7 +94,7 @@ def triage(form):
     return f
 
 
-def new_sos(form):
+def new_sos(form, mid=None, live=False):
     f = triage(form)
     tok = sc.encode(f); d = sc.decode(tok)
     note = str(form.get("note", ""))[:160]
@@ -104,22 +104,22 @@ def new_sos(form):
     text_b = len(words.encode()) + HEADER
     tok_b = len(tok) + HEADER
     prio = 0 if (d["urgency"] >= 10 or form.get("button")) else 1 if d["urgency"] >= 5 else 2
+    try: ppl = max(1, int(form.get("people", 1)))
+    except (TypeError, ValueError): ppl = 1
     with LOCK:
         n = len(S["order"]) + 1
-        mid = f"{random.randint(0x1000, 0xFFFF):04X}-{n:03d}"
+        mid = mid or f"{random.randint(0x1000, 0xFFFF):04X}-{n:03d}"
         m = {"id": mid, "t": time.time(), "node": NODE["id"], "prio": prio, "token": tok.hex(), "decoded": d,
-             "report": sc.report(d), "note": note, "lang": form.get("lang", "en"), "people_n": int(form.get("people", 1)),
+             "report": sc.report(d), "note": note, "lang": form.get("lang", "en"), "people_n": ppl,
              "button": bool(form.get("button")), "state": "SENDING", "tries": 0, "next_try": time.time() + 0.6,
              "rssi": None, "snr": None, "hops": None, "delivered_t": None, "team": None, "replies": [],
-             "down": [], "status_confirmed": None,
+             "down": [], "status_confirmed": None, "live": live,
              "meter": {"text_bytes": text_b, "token_bytes": tok_b, "text_ms": round(sc.airtime_ms(text_b), 1),
                        "token_ms": round(sc.airtime_ms(tok_b), 1), "words": words}}
         S["msgs"][mid] = m; S["order"].append(mid)
     save(m)
-    emit("node", id=mid, msg=f"Beacon node queued SOS {mid} (P{prio}) · token {tok.hex()}")
-    if S["serial"]:
-        # real hardware: the node itself sends it; server only shows what the gateway reports
-        pass
+    if not live:
+        emit("node", id=mid, msg=f"Beacon node queued SOS {mid} (P{prio}) · token {tok.hex()}")
     return m
 
 
@@ -127,7 +127,27 @@ def public(m):
     return {k: v for k, v in m.items() if k not in ("next_try",)}
 
 
-# ---------------- emulated LoRa link (same retry / ACK rules as the firmware) ----------------
+def apply_status(m, kind, text, now):
+    if kind == "READ" and m["state"] in ("DELIVERED",):
+        m["state"] = "READ"
+    elif kind == "DISPATCH":
+        m["state"] = "DISPATCHED"
+    elif kind == "REPLY":
+        m["replies"].append({"t": now, "text": text})
+    m["status_confirmed"] = True
+
+
+def ser_write(line):
+    ser = S["serial"]
+    if not ser:
+        return False
+    try:
+        ser.write((line + "\n").encode("utf-8")); return True
+    except Exception as e:
+        emit("log", msg=f"USB write failed: {e}"); return False
+
+
+# ---------------- link loop: emulated LoRa, or downlink retries to the real node ----------------
 def radio_loop():
     while True:
         time.sleep(0.2)
@@ -135,77 +155,152 @@ def radio_loop():
         with LOCK:
             for mid in list(S["order"]):
                 m = S["msgs"][mid]
-                if m["state"] == "SENDING" and now >= m["next_try"]:
+                if not m["live"] and m["state"] == "SENDING" and now >= m["next_try"]:
                     m["tries"] += 1
                     if S["link"]:
                         m["state"] = "DELIVERED"; m["delivered_t"] = now
                         m["rssi"] = random.randint(-72, -54); m["snr"] = round(random.uniform(6.0, 10.5), 1); m["hops"] = 1
                         save(m)
                         emit("sos", id=mid, msg=public(m))
-                        emit("node", id=mid, msg=f"Gateway ACK {mid} (try {m['tries']}) · RSSI {m['rssi']} dBm · SNR {m['snr']} dB [EMULATED]")
+                        emit("node", id=mid, msg=f"Gateway ACK {mid} (try {m['tries']}) · RSSI {m['rssi']} dBm [EMULATED]")
                     elif m["tries"] >= MAX_TRIES:
                         m["state"] = "FAILED"; save(m)
                         emit("node", id=mid, msg=f"{mid} not delivered after {MAX_TRIES} tries (gateway unreachable)")
                     else:
                         m["next_try"] = now + RETRY_S
-                        emit("node", id=mid, msg=f"{mid} try {m['tries']}/{MAX_TRIES}: no ACK, retrying in {RETRY_S:.0f} s")
+                        emit("node", id=mid, msg=f"{mid} try {m['tries']}/{MAX_TRIES}: no ACK, retrying")
                 # downlink: status / replies resent until the node confirms
                 for d in m["down"]:
                     if d["ok"] or now < d["next"]:
                         continue
-                    d["tries"] += 1
-                    if S["link"]:
-                        d["ok"] = True
-                        if d["kind"] == "READ" and m["state"] in ("DELIVERED",):
-                            m["state"] = "READ"
-                        elif d["kind"] == "DISPATCH":
-                            m["state"] = "DISPATCHED"
-                        elif d["kind"] == "REPLY":
-                            m["replies"].append({"t": now, "text": d["text"]})
-                        m["status_confirmed"] = True; save(m)
-                        emit("status_ack", id=mid, state=d["kind"], msg=f"Node confirmed {d['kind']} for {mid}")
-                    elif d["tries"] >= MAX_TRIES:
+                    if d["tries"] >= MAX_TRIES:
                         d["ok"] = "failed"; m["status_confirmed"] = False; save(m)
                         emit("status_fail", id=mid, state=d["kind"], msg=f"{d['kind']} for {mid} not confirmed at node")
-                    else:
-                        d["next"] = now + RETRY_S
+                        continue
+                    d["tries"] += 1; d["next"] = now + RETRY_S
+                    if m["live"]:      # real node: send the command, wait for its status_ack
+                        cmd = {"READ": "READ", "DISPATCH": "DISPATCH", "REPLY": "REPLY"}[d["kind"]]
+                        ser_write(f"{cmd} {mid}" + (f" {d['text']}" if d["text"] else ""))
+                    elif S["link"]:
+                        d["ok"] = True; apply_status(m, d["kind"], d["text"], now); save(m)
+                        emit("status_ack", id=mid, state=d["kind"], msg=f"Node confirmed {d['kind']} for {mid}")
 
 
 def downlink(mid, kind, text=""):
+    text = " ".join(str(text).split())[:120]
     with LOCK:
         m = S["msgs"].get(mid)
         if not m:
             return False
         if kind == "READ" and (m["state"] != "DELIVERED" or any(d["kind"] == "READ" for d in m["down"])):
             return True                                   # Read is one-way and happens once
-        if kind == "DISPATCH" and m["state"] == "DISPATCHED":
+        if kind == "DISPATCH" and (m["state"] == "DISPATCHED" or any(d["kind"] == "DISPATCH" and d["ok"] is not True for d in m["down"])):
             return True
-        m["down"].append({"kind": kind, "text": text, "tries": 0, "next": time.time() + 0.3, "ok": False})
+        m["down"].append({"kind": kind, "text": text, "tries": 0, "next": time.time(), "ok": False})
         if kind == "DISPATCH": m["team"] = text or "Rescue team"
         m["status_confirmed"] = None; save(m)
     emit("status", id=mid, state=kind, text=text, msg=f"Command → {kind} {mid}{(' · ' + text) if text else ''}")
-    if S["serial"] and kind in ("READ", "DISPATCH"):
-        try: S["serial"].write(f"{kind} {mid}\n".encode())
-        except Exception as e: emit("log", msg=f"serial write failed: {e}")
     return True
 
 
-# ---------------- optional real gateway on USB ----------------
-def serial_loop(port):
-    import serial  # pyserial
-    ser = serial.Serial(port, 115200, timeout=1); S["serial"] = ser; S["mode"] = "LIVE"
-    emit("log", msg=f"Gateway on {port} · LIVE LoRa")
+# ---------------- real SOS node on USB (ESP32 running firmware/sos_node1) ----------------
+KNOWN_USB = (0x10C4, 0x1A86, 0x0403, 0x303A, 0x2341)   # CP210x, CH340, FTDI, Espressif, Arduino
+
+
+def find_port():
+    from serial.tools import list_ports
+    ports = list(list_ports.comports())
+    for p in ports:
+        if p.vid in KNOWN_USB or any(k in (p.description or "") for k in ("CP210", "CH340", "CH910", "USB-SERIAL", "USB Serial", "UART")):
+            return p.device
+    return None
+
+
+def on_line(line):
+    if not line.startswith("{"):
+        if line.startswith("#"): emit("log", msg="node: " + line[1:].strip())
+        return
+    try: j = json.loads(line)
+    except ValueError: return
+    S["node_seen"] = time.time()
+    ev = j.get("ev")
+    if ev == "hello":
+        if not S["link"]:
+            S["link"] = True; emit("link", up=True, msg=f"SOS Node1 online · {j.get('clients', 0)} phone(s) on its Wi-Fi")
+        S["clients"] = j.get("clients", 0)
+    elif ev == "sos":
+        mid = str(j.get("id", ""))[:20]
+        with LOCK:
+            known = mid in S["msgs"]
+        ser_write(f"ACK {mid}")                          # always ACK (also re-ACK a retried duplicate)
+        if known:
+            emit("log", msg=f"duplicate {mid} (node retried) · re-ACKed"); return
+        form = j.get("data") if isinstance(j.get("data"), dict) else {}
+        m = new_sos(form, mid=mid, live=True)
+        with LOCK:
+            m.update(state="DELIVERED", tries=j.get("try", 1), rssi=j.get("rssi") or None, hops=1, delivered_t=time.time())
+        save(m)
+        emit("sos", id=mid, msg=public(m))
+        emit("node", id=mid, msg=f"SOS {mid} from SOS Node1 (try {j.get('try', 1)}) · phone Wi-Fi RSSI {j.get('rssi')} dBm · ACK sent")
+    elif ev == "status_ack":
+        mid, st = j.get("id"), j.get("state")
+        kind = {"READ": "READ", "DISPATCHED": "DISPATCH", "REPLY": "REPLY"}.get(st)
+        if not kind: return
+        with LOCK:
+            m = S["msgs"].get(mid)
+            if not m: return
+            d = next((d for d in m["down"] if d["kind"] == kind and d["ok"] is not True), None)
+            if not d: return
+            d["ok"] = True; apply_status(m, kind, d["text"], time.time()); save(m)
+        emit("status_ack", id=mid, state=kind, msg=f"SOS Node1 confirmed {kind} for {mid}")
+    elif ev == "fail":
+        emit("node", id=j.get("id"), msg=f"node gave up on {j.get('id')} after 8 tries")
+
+
+def serial_loop(port_arg):
+    try:
+        import serial  # pyserial
+    except ImportError:
+        print("\n  pyserial is missing. Run:  pip install pyserial   then start again.\n"); return
+    S["mode"] = "LIVE"; S["link"] = False
+    warned = False
     while True:
-        line = ser.readline().decode(errors="ignore").strip()
-        if not line.startswith("{"): continue
-        try: j = json.loads(line)
-        except ValueError: continue
-        if j.get("ev") == "sos":
-            form = {"cat": j.get("cat", "OTHER"), "people": j.get("people", 1), "note": j.get("msg", ""), "injured": "unsure"}
-            m = new_sos(form); m["id_hw"] = j.get("id")
-            with LOCK:
-                m.update(state="DELIVERED", rssi=j.get("rssi"), snr=j.get("snr"), hops=j.get("hops", 1), delivered_t=time.time(), live=True)
-            emit("sos", id=m["id"], msg=public(m))
+        port = port_arg or find_port()
+        if not port:
+            if not warned: emit("link", up=False, msg="Waiting for SOS Node1 on USB…"); print("  Waiting for the ESP32 on USB..."); warned = True
+            time.sleep(2); continue
+        try:
+            ser = serial.Serial(); ser.port = port; ser.baudrate = 115200; ser.timeout = 0.5
+            try: ser.dtr = False; ser.rts = False            # do not reset / hold the ESP32 in boot mode
+            except Exception: pass
+            try: ser.open()
+            except Exception:
+                ser = serial.Serial(port, 115200, timeout=0.5)
+        except Exception as e:
+            if not warned: print(f"  Cannot open {port}: {e}  (close Arduino Serial Monitor)"); warned = True
+            time.sleep(2); continue
+        warned = False
+        S["serial"] = ser; S["port"] = port
+        print(f"  SOS Node1 connected on {port}")
+        emit("log", msg=f"SOS Node1 on {port} · LIVE")
+        buf = b""
+        try:
+            while True:
+                chunk = ser.read(256)
+                if chunk:
+                    buf += chunk
+                    while b"\n" in buf:
+                        line, buf = buf.split(b"\n", 1)
+                        on_line(line.decode("utf-8", errors="replace").strip())
+                if S["link"] and time.time() - S.get("node_seen", 0) > 8:
+                    S["link"] = False; emit("link", up=False, msg="SOS Node1 silent: link down")
+        except Exception as e:
+            print(f"  SOS Node1 disconnected ({e})")
+        S["serial"] = None; S["link"] = False
+        emit("link", up=False, msg="SOS Node1 unplugged: link down")
+        try: ser.close()
+        except Exception: pass
+        time.sleep(1)
 
 
 # ---------------- HTTP ----------------
@@ -273,6 +368,8 @@ class H(SimpleHTTPRequestHandler):
             ok = all(downlink(i, kind, str(j.get("text", ""))[:120]) for i in ids)
             return self._json({"ok": ok})
         if u.path == "/api/link":
+            if S["mode"] == "LIVE":
+                return self._json({"ok": False, "msg": "live node: unplug the USB cable instead"})
             S["link"] = bool(j.get("up", True))
             emit("link", up=S["link"], msg="Gateway reconnected" if S["link"] else "Gateway unplugged: LoRa link down")
             return self._json({"ok": True, "link": S["link"]})
@@ -286,25 +383,30 @@ class H(SimpleHTTPRequestHandler):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--serial", help="gateway serial port, e.g. COM5 or /dev/ttyUSB0")
+    ap.add_argument("--node", action="store_true", help="use the real SOS Node1 ESP32 on USB (port found automatically)")
+    ap.add_argument("--serial", help="SOS Node1 serial port, e.g. COM5 or /dev/ttyUSB0 (implies --node)")
     ap.add_argument("--port", type=int, default=PORT)
     a = ap.parse_args()
-    threading.Thread(target=radio_loop, daemon=True).start()
-    if a.serial:
-        threading.Thread(target=serial_loop, args=(a.serial,), daemon=True).start()
-    ip = lan_ip()
-    print("=" * 62)
-    print("  VOID-NAV command server ·", "LIVE gateway on " + a.serial if a.serial else "LoRa link EMULATED (no hardware)")
-    print(f"  Command dashboard : http://localhost:{a.port}/command")
-    print("  Survivor SOS page - try these on the phone (same hotspot/Wi-Fi):")
-    for x in all_ips():
-        print(f"      http://{x}:{a.port}/")
-    print("  Phone hotspot? The laptop's address usually starts 192.168.43. / 172.20.10. / 10.")
-    print(f"  Rescuer field view: http://{ip}:{a.port}/command  (on a phone)")
-    print("=" * 62)
+    live = bool(a.node or a.serial)
     try:
         srv = ThreadingHTTPServer(("0.0.0.0", a.port), H)
     except OSError:
         print(f"\n  Port {a.port} is busy. Close the other server window (or run: python server.py --port 8801)\n")
         input("Press Enter to exit"); sys.exit(1)
+    print("=" * 66)
+    if live:
+        print("  VOID-NAV command · LIVE: SOS Node1 (ESP32) on USB")
+        print(f"  Dashboard on this laptop : http://localhost:{a.port}/command")
+        print("  Survivor phone           : join Wi-Fi \"SOS Node1\", open http://192.168.4.1")
+        print("  (the laptop does NOT need to join SOS Node1; the ESP32 talks over the USB cable)")
+    else:
+        print("  VOID-NAV command · EMULATED link (no ESP32)")
+        print(f"  Dashboard : http://localhost:{a.port}/command")
+        print("  Survivor SOS page (phone on the same hotspot/Wi-Fi):")
+        for x in all_ips():
+            print(f"      http://{x}:{a.port}/")
+    print("=" * 66)
+    threading.Thread(target=radio_loop, daemon=True).start()
+    if live:
+        threading.Thread(target=serial_loop, args=(a.serial,), daemon=True).start()
     srv.serve_forever()
