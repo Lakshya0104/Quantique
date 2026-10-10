@@ -192,7 +192,7 @@ $('#send').onclick = async () => { if (!F.cat) { $('#err').textContent = L[F.lan
   catch (e) { $('#err').textContent = 'Beacon not reachable. Stay connected to SOS Node1 and try again.'; }
   $('#send').disabled = false; };
 
-const summary = () => { const t = L[F.lang]; return [t.cats[F.cat], F.people + ' ' + t.ppl.toLowerCase(), F.injured === 'yes' ? t.inj.replace('?', '') : '', F.pos ? t.pos[F.pos] : '', [...F.needs].map(n => t.needs[n]).join(', ')].filter(Boolean).join(' · '); };
+const summary = () => { const t = L[F.lang]; return [t.cats[F.cat], F.people > 1 ? F.people + ' ' + t.ppl.toLowerCase() : '', F.injured === 'yes' ? t.inj.replace('?', '') : '', F.pos ? t.pos[F.pos] : '', [...F.needs].map(n => t.needs[n]).join(', ')].filter(Boolean).join(' · '); };
 const ORDER = ['SENDING', 'DELIVERED', 'READ', 'DISPATCHED'];
 let last = null, seenReplies = 0, pt = null;
 async function poll() { clearTimeout(pt); if (!F.id) return;

@@ -126,6 +126,34 @@ table{width:100%;border-collapse:collapse;font-size:15px}td,th{text-align:left;p
 .leaflet-control-layers{background:var(--p1)!important;color:var(--fg)!important;border:1px solid var(--line)!important}
 .leaflet-control-layers-toggle{background-image:none!important;width:auto!important;padding:0 10px;line-height:36px;color:var(--fg)!important;font:600 12px var(--f)}.leaflet-control-layers-toggle:after{content:'Map layers'}
 .rpin{position:absolute;transform:translate(-14px,-14px);display:flex;align-items:center;gap:6px;white-space:nowrap}.rpin b{font-size:24px;filter:drop-shadow(0 0 8px #ff9f1c)}.rpin span{font:700 12px var(--f);background:rgba(7,11,19,.9);border:1px solid #ff9f1c;border-radius:8px;padding:3px 8px;color:#ffd29a}
+.tb{display:flex;gap:8px;margin-top:10px}.tb button{padding:7px 10px;font-size:13px}
+.toast{pointer-events:auto}
+#scm{position:fixed;inset:0;z-index:2000;background:rgba(3,6,12,.82);display:grid;place-items:center;padding:16px}
+#scm[hidden]{display:none}
+.scw{width:min(1000px,100%);max-height:92vh;overflow:auto;padding:0 22px 22px}
+.sch{position:sticky;top:0;background:var(--p1);display:flex;justify-content:space-between;align-items:center;padding:16px 0;font-size:17px;z-index:1}
+#scBody .s{border-top:1px solid var(--line);padding:14px 0;opacity:0;animation:fin .6s forwards}
+@keyframes fin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#scBody h4{margin:0 0 10px;font-size:15px;color:var(--cyan);letter-spacing:.04em}
+.raw{font-size:19px;line-height:1.5;background:var(--p2);border-radius:10px;padding:12px 14px;margin-bottom:6px}
+.raw mark{background:rgba(255,59,92,.3);color:#fff;border-radius:4px;padding:0 3px}
+.dim{color:var(--mut);font-size:13px;margin-top:6px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.pr{display:grid;grid-template-columns:130px 1fr 48px;gap:8px;align-items:center;font-size:13px;margin:4px 0}
+.pb{height:10px;background:#16202f;border-radius:6px;overflow:hidden}.pb i{display:block;height:100%;border-radius:6px;animation:grow 1s ease-out}
+@keyframes grow{from{width:0}}
+.bits2{display:flex;flex-wrap:wrap;gap:6px}.bits2 div{display:flex;flex-direction:column;align-items:center;padding:6px 8px;border-radius:8px;background:color-mix(in srgb,var(--c) 18%,transparent)}
+.bits2 code{font:700 15px var(--m);color:var(--c)}.bits2 span{font-size:10px;color:var(--mut);margin-top:3px}
+.pkt{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.pkt span{display:flex;flex-wrap:wrap;gap:3px;align-items:center}.pkt i{font:700 13px var(--m);font-style:normal;padding:6px 7px;border-radius:5px;background:#1b2434;color:#8b9ab2}
+.pkt .tk i{background:rgba(169,145,255,.25);color:#d6c8ff}.pkt em{font-style:normal;font-size:11px;color:var(--mut);margin-left:4px}
+.air div{display:grid;grid-template-columns:90px 1fr 90px;gap:10px;align-items:center;margin:6px 0;font-size:14px}.ab{height:22px;background:#16202f;border-radius:6px;overflow:hidden}.ab i{display:block;height:100%;animation:grow 1.4s ease-out}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}.kpis div{background:var(--p2);border-radius:10px;padding:10px;font-size:12px;color:var(--mut)}.kpis b{display:block;font:800 20px var(--m);color:var(--grn);overflow-wrap:anywhere}
+.rep2{font-size:17px;line-height:1.5;border:1px solid var(--vio);border-radius:10px;padding:12px 14px}
+.act .sc{border-color:var(--vio);color:#d6c8ff}.caplink{color:var(--mut);font-size:13px;align-self:center}
+.med{background:var(--red)!important;color:#fff!important}
+.epi{position:absolute;transform:translate(-12px,-14px);display:flex;align-items:center;gap:6px;white-space:nowrap}.epi b{font-size:24px;color:#ff3b5c;text-shadow:0 0 10px #ff3b5c}.epi span{font:700 11px var(--f);color:#ffb3c1;background:rgba(7,11,19,.85);border:1px solid #ff3b5c;border-radius:6px;padding:3px 7px}
+.vbanner{background:#2a1f05;color:#f6d04d;text-align:center;font:700 12px var(--m);padding:6px}
+@media (max-width:760px){.g2,.kpis{grid-template-columns:1fr 1fr}.pr{grid-template-columns:100px 1fr 40px}}
 </style></head><body>
 <div id="sound"><div><h2>VOID-NAV Command</h2><p>Click to start the console. This enables the alarm sound and voice alerts for critical SOS.</p><button class="pri" id="go">Start console</button></div></div>
 <header>
@@ -187,5 +215,6 @@ table{width:100%;border-collapse:collapse;font-size:15px}td,th{text-align:left;p
   <tr><td>Encryption, hospital links, phone scanning</td><td><span class="tag t-mock">ROADMAP</span></td></tr></table></section>
 </main>
 <div id="toasts"></div>
+<div id="scm" hidden><div class="scw panel"><div class="sch"><b>⚡ Semantic compression · this SOS, real numbers</b><button id="scClose">Close</button></div><div id="scBody"></div></div></div>
 <script type="module" src="command.js"></script>
 </body></html>

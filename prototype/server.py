@@ -76,31 +76,84 @@ def people_bucket(n):
     return "1" if n <= 1 else "2" if n == 2 else "3-5" if n <= 5 else "6-10" if n <= 10 else "11-20" if n <= 20 else "20+"
 
 
+try:
+    from ai.sos_ai import SOSModel
+    AI = SOSModel.load()
+    print("  AI model loaded:", AI.meta.get("model"))
+except Exception as e:                      # model missing: fall back to keyword triage
+    AI = None
+    print("  AI model not loaded (" + str(e) + "); using keyword triage")
+
+
 def triage(form):
-    """Form taps + free-text keyword triage -> SemCode fields (runs on the beacon node)."""
+    """Survivor's taps + AI reading of their own words -> SemCode fields (runs on the rescuer node / laptop).
+    Taps always win; the AI fills what was not tapped and can only RAISE severity, never lower it."""
     tri = {"no": 0, "yes": 1, "unsure": 2}
-    cat = form.get("cat", "OTHER") if form.get("cat") in sc.CATS else "OTHER"
+    note = str(form.get("note", ""))
+    ai = AI.predict(note) if (AI and note.strip()) else None
+    src = {}
+    cat = form.get("cat") if form.get("cat") in sc.CATS else None
+    if not cat:
+        cat = ai["cat"] if ai and ai["cat_conf"] > .5 else "OTHER"; src["cat"] = "ai" if ai else "default"
+    else:
+        src["cat"] = "tap"
     f = {"cat": cat, "injured": tri.get(form.get("injured", "unsure"), 2), "bleeding": tri.get(form.get("bleeding", "no"), 0),
-         "people": people_bucket(form.get("people", 1)), "pos": form.get("pos") if form.get("pos") in sc.POS else "UNKNOWN",
+         "people": people_bucket(form.get("people", 1)), "pos": form.get("pos") if form.get("pos") in sc.POS and form.get("pos") != "UNKNOWN" else "UNKNOWN",
          "vuln": {v for v in form.get("vuln", []) if v in sc.VULN}, "needs": {v for v in form.get("needs", []) if v in sc.NEEDS},
          "urgency": CAT_URG.get(cat, 2), "minutes": int((time.time() - T0) / 60)}
+    if ai:
+        if ai["flags"]["bleeding"] > .5 and f["bleeding"] != 1: f["bleeding"] = 1; src["bleeding"] = "ai"
+        if (ai["flags"]["injured"] > .5 or ai["flags"]["unconscious"] > .5) and f["injured"] != 1: f["injured"] = 1; src["injured"] = "ai"
+        for k, pr in ai["needs"].items():
+            if pr > .5 and k not in f["needs"]: f["needs"].add(k); src.setdefault("needs", []).append(k)
+        for k, pr in ai["vuln"].items():
+            if pr > .5 and k not in f["vuln"]: f["vuln"].add(k); src.setdefault("vuln", []).append(k)
+        if f["pos"] == "UNKNOWN" and ai["pos"] != "UNKNOWN": f["pos"] = ai["pos"]; src["pos"] = "ai"
+        try: tapped_people = int(form.get("people", 1))
+        except (TypeError, ValueError): tapped_people = 1
+        if ai["people"] and tapped_people <= 1 and ai["people"] > 1: f["people"] = people_bucket(ai["people"]); src["people"] = "ai"
+        if ai["flags"]["unconscious"] > .5: f["urgency"] += 4
+    elif note:
+        sc.triage_text(note, f)
     if f["injured"] == 1: f["urgency"] += 3
     if f["bleeding"] == 1: f["urgency"] += 3
     if f["vuln"]: f["urgency"] += 1
-    if int(form.get("people", 1)) >= 3: f["urgency"] += 1
+    if f["people"] not in ("1", "2"): f["urgency"] += 1
     f["urgency"] = min(15, f["urgency"])
-    sc.triage_text(form.get("note", ""), f)
     if form.get("button"): f["urgency"] = 15
-    return f
+    return f, ai, src
+
+
+FIELD_BITS = [("category", 4), ("injured", 2), ("bleeding", 2), ("people", 3), ("position", 3), ("vulnerable", 4), ("needs", 8), ("urgency", 4), ("minutes", 10)]
+
+
+def trace(m):
+    """Everything the 'semantic compression demo' shows, computed from this SOS."""
+    v = int(m["token"], 16); bits, sh = [], 40
+    for name, w in FIELD_BITS:
+        sh -= w; x = (v >> sh) & ((1 << w) - 1); bits.append({"field": name, "bits": format(x, "0%db" % w), "value": x})
+    raw = m["meter"]["raw"]; rb = len(raw.encode("utf-8"))
+    rows = []
+    for name, pl in (("Free text as typed + taps", rb + HEADER), ("SemCode token", 5 + HEADER)):
+        rows.append({"format": name, "bytes": pl, "sf9_ms": round(sc.airtime_ms(pl, 9), 1), "sf12_ms": round(sc.airtime_ms(pl, 12), 1),
+                     "per_hour_sf9": int(0.184 * 3600e3 / sc.airtime_ms(pl, 9))})
+    return {"id": m["id"], "raw": raw, "raw_bytes": rb, "note": m["note"], "ai": m.get("ai"), "src": m.get("src", {}), "bits": bits,
+            "token": m["token"], "header_bytes": HEADER, "decoded": m["decoded"], "report": m["report"], "airtime": rows,
+            "model": AI.meta if AI else None}
 
 
 def new_sos(form, mid=None, live=False):
-    f = triage(form)
+    f, ai, src = triage(form)
     tok = sc.encode(f); d = sc.decode(tok)
     note = str(form.get("note", ""))[:160]
     # what the same SOS would cost as free text (taps spelled out + note), for the semantic meter
     words = f"SOS {d['cat']} {form.get('people', 1)} people {d['pos']} injured {d['injured']} bleeding {d['bleeding']} " \
             f"{' '.join(d['vuln'])} needs {' '.join(d['needs'])} {note}".strip()
+    taps = [form.get("cat", "")] + ([f"{form.get('people')} people"] if str(form.get("people", 1)) not in ("1", "") else []) + [x for x in (
+        "injured" if form.get("injured") == "yes" else "", "bleeding" if form.get("bleeding") == "yes" else "",
+        str(form.get("pos", "")).replace("UNKNOWN", ""), " ".join(form.get("vuln", []) or []), " ".join(form.get("needs", []) or [])) if x]
+    raw = (note + " | " if note else "") + ", ".join(x for x in taps if x)
+    words = raw
     text_b = len(words.encode()) + HEADER
     tok_b = len(tok) + HEADER
     prio = 0 if (d["urgency"] >= 10 or form.get("button")) else 1 if d["urgency"] >= 5 else 2
@@ -114,13 +167,38 @@ def new_sos(form, mid=None, live=False):
              "button": bool(form.get("button")), "state": "SENDING", "tries": 0, "next_try": time.time() + 0.6,
              "rssi": None, "snr": None, "hops": None, "delivered_t": None, "team": None, "replies": [],
              "down": [], "status_confirmed": None, "live": live,
-             "meter": {"text_bytes": text_b, "token_bytes": tok_b, "text_ms": round(sc.airtime_ms(text_b), 1),
+             "ai": ai, "src": src,
+             "meter": {"raw": raw, "text_bytes": text_b, "token_bytes": tok_b, "text_ms": round(sc.airtime_ms(text_b), 1),
                        "token_ms": round(sc.airtime_ms(tok_b), 1), "words": words}}
         S["msgs"][mid] = m; S["order"].append(mid)
     save(m)
     if not live:
         emit("node", id=mid, msg=f"Beacon node queued SOS {mid} (P{prio}) · token {tok.hex()}")
     return m
+
+
+def cap_xml(m):
+    """PROPOSED: Common Alerting Protocol 1.2 record for SACHET / state control room / 108, sent when backhaul exists."""
+    from xml.sax.saxutils import escape as x
+    d = m["decoded"]; ts = time.strftime("%Y-%m-%dT%H:%M:%S+05:30", time.localtime(m["t"]))
+    sev = "Extreme" if m["prio"] == 0 else "Severe" if m["prio"] == 1 else "Moderate"
+    ll = m.get("pos_ll") or [NODE["lat"], NODE["lon"]]
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<!-- VOID-NAV · PROPOSED export format (not connected to SACHET in this prototype) -->
+<alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+  <identifier>VOIDNAV-{x(m['id'])}</identifier><sender>voidnav-command@field</sender><sent>{ts}</sent>
+  <status>Exercise</status><msgType>Alert</msgType><scope>Restricted</scope><restriction>Rescue agencies only</restriction>
+  <info><language>en-IN</language><category>Rescue</category><event>Survivor SOS: {x(d['cat'].replace('_', ' ').title())}</event>
+    <responseType>Assess</responseType><urgency>Immediate</urgency><severity>{sev}</severity><certainty>Observed</certainty>
+    <senderName>VOID-NAV rescue command</senderName><headline>{x(m['report'][:160])}</headline>
+    <description>{x(m['report'])}{(' Survivor note: ' + x(m['note'])) if m['note'] else ''}</description>
+    <instruction>{x(('Dispatched: ' + m['team']) if m.get('team') else 'Awaiting dispatch')}</instruction>
+    <parameter><valueName>people</valueName><value>{x(d['people'])}</value></parameter>
+    <parameter><valueName>semcode</valueName><value>{m['token']}</value></parameter>
+    <area><areaDesc>Musheerabad, Hyderabad (rescuer node N1)</areaDesc><circle>{ll[0]:.5f},{ll[1]:.5f} 0.2</circle></area>
+  </info>
+</alert>
+"""
 
 
 def public(m):
@@ -366,6 +444,19 @@ class H(SimpleHTTPRequestHandler):
             with LOCK:
                 return self._json({"seq": S["seq"], "link": S["link"], "mode": S["mode"], "linktype": S.get("linktype"),
                                    "events": [e for e in S["events"] if e["seq"] > since]})
+        elif u.path == "/api/compress":
+            with LOCK:
+                m = S["msgs"].get(q.get("id", [""])[0])
+                if not m: return self._json({"error": "unknown"}, 404)
+                return self._json(trace(m))
+        elif u.path == "/api/cap":
+            with LOCK:
+                m = S["msgs"].get(q.get("id", [""])[0])
+                if not m: return self._json({"error": "unknown"}, 404)
+                b = cap_xml(m).encode("utf-8")
+            self.send_response(200); self.send_header("Content-Type", "application/xml; charset=utf-8")
+            self.send_header("Content-Disposition", f'attachment; filename="VOIDNAV-{m["id"]}-CAP.xml"'); self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b); return
         elif u.path == "/api/phone":
             mid = q.get("id", [""])[0]
             with LOCK:

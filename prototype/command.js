@@ -3,6 +3,8 @@ const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAl
 const PC = ['var(--red)', 'var(--org)', 'var(--yel)'], PL = ['CRITICAL', 'URGENT', 'INFO'];
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const post = (u, b = {}) => fetch(u, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) }).then(r => r.json());
+const VIEWER = new URLSearchParams(location.search).has('viewer');
+const isMedical = m => m.decoded.cat === 'MEDICAL' || m.decoded.bleeding === 'YES' || m.decoded.injured === 'YES' || (m.decoded.needs || []).includes('MEDICAL');
 const S = { presence: [], rpos: null, linktype: null, msgs: new Map(), seq: 0, sel: null, link: true, mode: 'EMULATED', muted: false, started: false, read: new Set() };
 
 /* ---------- tabs / clock ---------- */
@@ -21,8 +23,8 @@ function speak(m) { if (S.muted || !('speechSynthesis' in window)) return; const
 setInterval(() => { if ([...S.msgs.values()].some(m => m.prio === 0 && !S.read.has(m.id) && m.state === 'DELIVERED')) beep([[880, .12]]); }, 2500);  // alarm until opened
 
 /* ---------- toasts ---------- */
-function toast(html, cls = '') { const t = document.createElement('div'); t.className = 'toast ' + cls; t.innerHTML = html; $('#toasts').prepend(t);
-  while ($('#toasts').children.length > 3) $('#toasts').lastChild.remove(); setTimeout(() => t.remove(), 7000); }
+function toast(html, cls = '', ms = 7000) { const t = document.createElement('div'); t.className = 'toast ' + cls; t.innerHTML = html; $('#toasts').prepend(t);
+  while ($('#toasts').children.length > 3) $('#toasts').lastChild.remove(); setTimeout(() => t.remove(), ms); }
 
 /* ---------- server feed ---------- */
 async function boot() { const j = await (await fetch('/api/state')).json(); S.seq = j.seq; S.linktype = j.linktype; S.presence = j.presence || []; S.rpos = j.rescuer_pos; setLink(j.link, j.mode); presenceBox();
@@ -33,8 +35,8 @@ async function poll() { try { const j = await (await fetch('/api/feed?since=' + 
   setTimeout(poll, 700); }
 function onEvent(e) { if (e.msg && typeof e.msg === 'string') feed(e.msg);
   if (e.kind === 'sos') { const m = e.msg; S.msgs.set(m.id, m); feed(`<b>SOS ${m.id}</b> landed · P${m.prio} · ${m.decoded.cat}`);
-    if (m.prio === 0) { siren(); speak(m); toast(`<small>CRITICAL · BEACON N1 · ${m.live ? (m.link === 'lora' ? 'LIVE LoRa' : 'LIVE USB') : 'EMULATED LoRa'}</small><b>${title(m)}</b>${esc(m.note || m.report)}`); }
-    else toast(`<small>${PL[m.prio]} · BEACON N1</small><b>${title(m)}</b>${esc(m.note || '')}`, 'info');
+    if (m.prio === 0) { siren(); speak(m); toast(`<small>CRITICAL · RESCUER NODE N1 · ${m.live ? (m.link === 'lora' ? 'LIVE LoRa' : 'LIVE USB') : 'SURVIVOR PHONE'}</small><b>${title(m)}</b>${esc(m.note || m.report)}<div class="tb"><button data-open="${m.id}">Open SOS</button><button data-sc="${m.id}">⚡ Semantic compression demo</button></div>`, '', 20000); }
+    else toast(`<small>${PL[m.prio]} · RESCUER NODE N1</small><b>${title(m)}</b>${esc(m.note || '')}<div class="tb"><button data-open="${m.id}">Open SOS</button><button data-sc="${m.id}">⚡ Semantic compression demo</button></div>`, 'info', 15000);
     render(); lab(m); drawMapData(); }
   if (e.kind === 'status' || e.kind === 'status_ack' || e.kind === 'status_fail') refresh(e.id);
   if (e.kind === 'clear') { S.msgs.clear(); S.sel = null; render(); }
@@ -46,7 +48,7 @@ function setLink(up, mode) { const live = mode === 'LIVE'; S.link = up; S.mode =
   const lora = S.linktype === 'lora';
   $('#linkTxt').textContent = live ? (up ? (lora ? 'LoRa gateway online' : 'Rescuer node on USB') : 'Kit not connected') : (up ? 'LoRa link up' : 'Gateway unplugged');
   $('#modeTag').textContent = live ? (lora ? 'LIVE LoRa' : 'LIVE USB') : 'EMULATED'; $('#modeTag').className = 'tag ' + (live ? 't-real' : 't-emu');
-  $('#plug').hidden = live; $('#btn').hidden = live; $('#boardTag').textContent = live ? 'LIVE' : 'EMULATED'; $('#boardTag').className = 'tag ' + (live ? 't-real' : 't-emu');
+  $('#plug').hidden = live; $('#btn').hidden = true; $('#boardTag').textContent = live ? 'LIVE' : 'EMULATED'; $('#boardTag').className = 'tag ' + (live ? 't-real' : 't-emu');
   $('#boardName').textContent = live ? (lora ? 'Rescuer node N1 · via LoRa' : 'Rescuer node N1 · USB') : 'Rescuer node N1';
   $('#plug').textContent = up ? 'Unplug gateway' : 'Plug gateway back in'; }
 $('#plug').onclick = () => post('/api/link', { up: !S.link });
@@ -87,18 +89,29 @@ function detail() { const m = S.msgs.get(S.sel); const D = $('#detail');
     <div class="kv"><div><label>People</label><b>${d.people}</b></div><div><label>Position</label><b style="font-size:14px">${d.pos.replace('_', ' ')}</b></div><div><label>${m.link === 'lora' ? 'LoRa RSSI / SNR' : m.live ? 'Phone → node Wi-Fi RSSI' : 'RSSI / SNR (emulated)'}</label><b>${m.rssi ?? '—'} <small style="font-size:12px">dBm</small>${m.snr != null ? ' / ' + m.snr : ''}</b>${m.phone_rssi ? `<small style="display:block;color:var(--mut)">phone Wi-Fi ${m.phone_rssi} dBm</small>` : ''}</div><div><label>Hops · try</label><b>${m.hops ?? '—'} · ${m.tries}</b></div></div>
     <div class="mono" style="font-size:12px;color:var(--mut)">TOKEN <span style="color:var(--vio);font-size:15px">${m.token.match(/../g).join(' ')}</span> · ${m.meter.token_bytes} B on air (${m.meter.token_ms} ms) vs ${m.meter.text_bytes} B as text (${m.meter.text_ms} ms)</div>
     <div class="bits">${bits(m.token)}</div>
-    <div class="act">${m.state === 'DISPATCHED' ? `<b class="ok">✓ Dispatched: ${esc(m.team)}</b>` : `<select id="team"><option>NDRF Team 2</option><option>GHMC DRF Team 1</option><option>Fire & Emergency Unit 4</option><option>108 Ambulance TS-108-021</option></select><button class="pri" id="disp">Dispatch</button>`}</div>
+    <div class="act"><button class="sc" data-sc="${m.id}">⚡ Semantic compression demo</button><a class="caplink" href="/api/cap?id=${encodeURIComponent(m.id)}">⬇ CAP record for SACHET / 108 <span class="tag t-mock">PROPOSED</span></a></div>
+    <div class="act rw">${m.state === 'DISPATCHED' ? `<b class="ok">✓ Dispatched: ${esc(m.team)}</b>` : `${isMedical(m) ? '<button class="pri med" id="amb">🚑 Send 108 ambulance + pre-alert Gandhi Hospital</button>' : ''}<select id="team"><option>NDRF Team 2</option><option>GHMC DRF Team 1</option><option>Fire & Emergency Unit 4</option><option>108 Ambulance TS-108-021</option></select><button class="pri" id="disp">Dispatch team</button>`}</div>
     <div class="act"><input id="rtxt" maxlength="120" placeholder="Reply to survivor (sent over LoRa)"><button id="rsend">Send reply</button>
       <button class="qr">Team arriving in 10 min, stay where you are</button><button class="qr">Bang on a pipe or wall every 5 minutes</button></div>
     <div class="leds">Survivor's phone: <span><i class="led ${['READ', 'DISPATCHED'].includes(m.state) ? 'o' : ''}"></i>READ</span><span><i class="led ${m.state === 'DISPATCHED' ? 'g' : ''}"></i>DISPATCHED</span> ${conf}</div>
     ${m.replies?.length ? `<div style="margin-top:10px;color:var(--mut);font-size:13px">Replies delivered: ${m.replies.map(r => '“' + esc(r.text) + '”').join(' · ')}</div>` : ''}`;
   const dp = $('#disp'); if (dp) dp.onclick = () => post('/api/dispatch', { id: m.id, text: $('#team').value }).then(() => refresh());
+  const ab = $('#amb'); if (ab) ab.onclick = () => post('/api/dispatch', { id: m.id, text: '108 Ambulance · Gandhi Hospital pre-alerted' }).then(() => refresh());
+  if (VIEWER) $$('#detail .rw, #detail .qr, #rsend, #rtxt').forEach(e => e.remove());
   const rs = text => text && post('/api/reply', { id: m.id, text }).then(() => { toast(`<small>REPLY QUEUED FOR ${m.id}</small><b>${esc(text)}</b>`, 'info'); refresh(); });
   $('#rsend').onclick = () => { rs($('#rtxt').value.trim()); $('#rtxt').value = ''; };
   $$('.qr').forEach(b => b.onclick = () => rs(b.textContent)); }
 
 /* ---------- map ---------- */
 let map, heatL, pinL, presL, rescM;
+// SIMULATED disaster scenario: one epicentre in Musheerabad, damage rings, estimated survivor density (seeded, fixed)
+function scenario() { const g = L.layerGroup(), EP = [17.4141, 78.5052];
+  [[1400, .05], [900, .07], [450, .1]].forEach(([r, o]) => L.circle(EP, { radius: r, color: '#ff3b5c', weight: 1, dashArray: '4 6', fillColor: '#ff3b5c', fillOpacity: o, interactive: false }).addTo(g));
+  let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 46; i++) { const r = Math.pow(rnd(), .7) * 1300, a = rnd() * 6.283, lat = EP[0] + r * Math.cos(a) / 111000, lon = EP[1] + r * Math.sin(a) / (111000 * .954), w = (1 - r / 1500) * (0.5 + rnd());
+    L.circle([lat, lon], { radius: 70 + w * 90, stroke: false, fillColor: w > .9 ? '#ff3b5c' : w > .55 ? '#ff9f1c' : '#f6d04d', fillOpacity: .28, interactive: false }).addTo(g); }
+  L.marker(EP, { icon: L.divIcon({ className: '', html: '<div class="epi"><b>✸</b><span>SIMULATED M5.8 epicentre · estimated survivor density</span></div>', iconSize: [0, 0] }) }).addTo(g);
+  return g; }
 function presenceBox() { const p = S.presence.at(-1); const el = $('#pres'); if (!el) return;
   if (!p) { el.innerHTML = '<span style="color:var(--mut)">Waiting for the rescuer node’s first scan (every 20 s)…</span>'; return; }
   const ago = Math.round(Date.now() / 1000 - p.t), tag = p.link === 'sim' ? '<span class="tag t-sim">SIMULATED</span>' : `<span class="tag t-real">LIVE ${p.link === 'lora' ? 'LoRa' : 'USB'}</span>`;
@@ -124,6 +137,7 @@ async function initMap() { if (map) { map.invalidateSize(); drawMapData(); retur
   Z.HOSPITALS.forEach(h => L.marker([h.lat, h.lon], { icon: L.divIcon({ className: '', html: `<div class="hpin"><b>✚</b><span>${h.name}</span></div>`, iconSize: [0, 0] }) }).addTo(map));
   map.fitBounds(zl.getBounds(), { paddingTopLeft: [340, 30], paddingBottomRight: [30, 30] });
   heatL = L.layerGroup().addTo(map); pinL = L.layerGroup().addTo(map); presL = L.layerGroup().addTo(map);
+  scenario().addTo(map);
   map.on('click', e => { S.rpos = [e.latlng.lat, e.latlng.lng]; post('/api/rescuer_pos', { lat: S.rpos[0], lon: S.rpos[1] }); drawMapData(); });
   L.marker(NODE_LL, { icon: L.divIcon({ className: '', html: '<div class="npin"><b></b><span id="npinTxt">SOS Node1</span></div>', iconSize: [0, 0] }), zIndexOffset: 1000 }).addTo(map);
   drawMapData(); }
@@ -232,3 +246,43 @@ $('#qRun').onclick = async () => { $('#qRun').disabled = true; const ref = qRes 
   $('#qRun').disabled = false; };
 
 boot();
+
+/* ---------- toasts: buttons ---------- */
+document.addEventListener('click', e => { const o = e.target.closest('[data-open]'), s = e.target.closest('[data-sc]');
+  if (o) { $$('#nav button')[0].click(); open(o.dataset.open); }
+  if (s) { e.preventDefault(); semDemo(s.dataset.sc); } });
+if (VIEWER) { $('#plug').remove(); $('#clear').remove(); document.body.classList.add('viewer'); const b = document.createElement('div'); b.className = 'vbanner'; b.innerHTML = 'VIEWER ROLE · ambulance crew / field hospital · read-only <span class="tag t-mock">PROPOSED</span>'; document.body.prepend(b); }
+
+/* ---------- semantic compression demo (real numbers from this SOS) ---------- */
+const FCOL = { category: '#ff3b5c', injured: '#ff9f1c', bleeding: '#ff9f1c', people: '#f6d04d', position: '#f6d04d', vulnerable: '#a991ff', needs: '#43c6ff', urgency: '#ff3b5c', minutes: '#8b9ab2' };
+async function semDemo(id) { const T = await (await fetch('/api/compress?id=' + encodeURIComponent(id))).json(); if (T.error) return;
+  const M = $('#scm'); M.hidden = false; const B = $('#scBody'); const ai = T.ai;
+  const hl = s => { let h = esc(s); (ai?.evidence || []).forEach(([w]) => { h = h.replace(new RegExp('(' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>'); }); return h; };
+  const pct = x => Math.round(x * 100) + '%', bar = (p, c) => `<span class="pb"><i style="width:${Math.round(p * 100)}%;background:${c}"></i></span>`;
+  const src = k => T.src[k] === 'ai' || (Array.isArray(T.src[k]) && T.src[k].length) ? '<span class="tag t-sim">AI</span>' : '<span class="tag t-mock">TAP</span>';
+  const a = T.airtime, save = 1 - a[1].sf9_ms / a[0].sf9_ms;
+  B.innerHTML = `
+  <div class="st1 s"><h4>1 · What the survivor sent <span class="mono">SOS ${esc(T.id)}</span></h4>
+    <div class="raw">${hl(T.raw)}</div><div class="mono dim">${T.raw_bytes} bytes as UTF-8 text (+${T.header_bytes} B header) · every character would cross the radio</div></div>
+  <div class="s"><h4>2 · On-device AI reads the meaning</h4>${ai ? `
+    <div class="g2"><div><div class="dim">Category</div>${ai.cat_top.map(([c, p]) => `<div class="pr"><span>${c.replace('_', ' ')}</span>${bar(p, c === ai.cat ? '#ff3b5c' : '#2b5f7f')}<b>${pct(p)}</b></div>`).join('')}</div>
+    <div><div class="dim">Flags</div>${Object.entries(ai.flags).map(([k, p]) => `<div class="pr"><span>${k}</span>${bar(p, '#ff9f1c')}<b>${pct(p)}</b></div>`).join('')}
+    ${Object.entries(ai.needs).filter(([, p]) => p > .3).map(([k, p]) => `<div class="pr"><span>need ${k.toLowerCase().replace('_', ' ')}</span>${bar(p, '#43c6ff')}<b>${pct(p)}</b></div>`).join('')}
+    ${Object.entries(ai.vuln).filter(([, p]) => p > .3).map(([k, p]) => `<div class="pr"><span>${k.toLowerCase()}</span>${bar(p, '#a991ff')}<b>${pct(p)}</b></div>`).join('')}</div></div>
+    ${T.src.cat === 'tap' && T.decoded.cat !== ai.cat ? `<div class="dim">Survivor tapped <b>${T.decoded.cat}</b>, which wins over the AI's reading (${ai.cat}).</div>` : ''}
+    <div class="dim">Highlighted words drove the decision${ai.people ? ` · people count read from text: <b>${ai.people}</b>` : ''}. Taps always win; AI can only add or raise severity.</div>`
+    : '<div class="dim">No free text typed: the survivor\'s taps are used directly.</div>'}</div>
+  <div class="s"><h4>3 · Meaning → 40 bits (SemCode codebook)</h4><div class="bits2">${T.bits.map(b => `<div style="--c:${FCOL[b.field]}"><code>${b.bits}</code><span>${b.field}</span></div>`).join('')}</div>
+    <div class="dim">Sources: category ${src('cat')} · bleeding ${src('bleeding')} · injured ${src('injured')} · needs ${src('needs')} · people ${src('people')} · position ${src('pos')}</div></div>
+  <div class="s"><h4>4 · On air: ${a[0].bytes} → ${a[1].bytes} bytes</h4>
+    <div class="pkt"><span class="hd">${'HD '.repeat(T.header_bytes).trim().split(' ').map(() => '<i>··</i>').join('')}<em>10 B header: id · node · type/prio/hops · auth</em></span><span class="tk">${T.token.match(/../g).map(x => `<i>${x}</i>`).join('')}<em>5 B token</em></span></div>
+    <div class="air"><div><span>Free text</span><span class="ab"><i style="width:100%;background:#ff9f1c"></i></span><b>${a[0].sf9_ms} ms</b></div>
+      <div><span>SemCode</span><span class="ab"><i style="width:${a[1].sf9_ms / a[0].sf9_ms * 100}%;background:#2fe08a"></i></span><b>${a[1].sf9_ms} ms</b></div></div>
+    <div class="kpis"><div><b>−${Math.round((1 - a[1].bytes / a[0].bytes) * 100)}%</b>bytes</div><div><b>−${Math.round(save * 100)}%</b>airtime @ SF9</div><div><b>${(a[1].per_hour_sf9 / a[0].per_hour_sf9).toFixed(1)}×</b>SOS per channel-hour</div><div><b>${a[0].sf12_ms}→${a[1].sf12_ms} ms</b>@ SF12 (long range)</div></div>
+    <div class="dim">LoRa SX127x time-on-air (Semtech AN1200.13), 125 kHz, CR 4/5, CRC on. Channel capacity at pure-ALOHA peak (18.4%).</div></div>
+  <div class="s"><h4>5 · Rescuer side: 5 bytes expand back</h4><div class="rep2">${esc(T.report)}</div>
+    ${T.note ? `<div class="dim">Survivor's own words kept on the node and shown when bandwidth allows: “${esc(T.note)}”</div>` : ''}
+    ${T.model ? `<div class="dim mono">Model: ${esc(T.model.model)} · trained on ${T.model.train_examples} synthetic multilingual SOS · category accuracy ${pct(T.model.heldout_accuracy.category)} on unseen wording, ${pct(T.model.handwritten_accuracy.category)} on hand-written messages</div>` : ''}</div>`;
+  [...B.querySelectorAll('.s')].forEach((s, i) => { s.style.animationDelay = (i * .55) + 's'; }); }
+$('#scClose').onclick = () => $('#scm').hidden = true;
+$('#scm').onclick = e => { if (e.target.id === 'scm') $('#scm').hidden = true; };
